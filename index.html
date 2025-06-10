@@ -1,147 +1,345 @@
-const addWaterBtn = document.getElementById("addWaterBtn");
-const mealPhotoInput = document.getElementById("mealPhotoInput");
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Food & Water Tracker with Photos</title>
+<style>
+  body { font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; background: #f9f9f9; }
+  h1 { text-align: center; }
+  label { font-weight: bold; margin-top: 10px; display: block; }
+  input[type=number], input[type=text], select, input[type=file] { width: 100%; padding: 8px; margin-top: 4px; box-sizing: border-box; }
+  button { margin-top: 10px; padding: 8px 12px; cursor: pointer; }
+  .list-item { background: white; padding: 10px; margin-top: 8px; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+  .progress-bar-container { background: #ddd; border-radius: 12px; overflow: hidden; height: 20px; margin-top: 10px; }
+  .progress-bar { height: 100%; background: #4caf50; width: 0; transition: width 0.3s ease; }
+  .flex { display: flex; justify-content: space-between; align-items: center; }
+  .btn-group button { margin-left: 5px; }
+</style>
+</head>
+<body>
 
-// Add water button increments daily water
-addWaterBtn.addEventListener("click", () => {
-  let val = parseInt(waterInput.value, 10);
-  if (isNaN(val) || val <= 0) {
-    alert("Enter a positive number of ml to add.");
-    return;
+<h1>Food & Water Tracker with Photos</h1>
+
+<div>
+  <label for="foodInput">Food Name</label>
+  <input id="foodInput" type="text" placeholder="Enter food name" />
+</div>
+
+<div>
+  <label for="amountInput">Amount</label>
+  <input id="amountInput" type="number" min="0" placeholder="Enter amount" />
+</div>
+
+<div>
+  <label for="portionTypeSelect">Portion Type</label>
+  <select id="portionTypeSelect">
+    <option value="grams">Grams (g)</option>
+    <option value="servings">Servings</option>
+  </select>
+</div>
+
+<div>
+  <label for="mealPhotoInput">Meal Photo (optional)</label>
+  <input id="mealPhotoInput" type="file" accept="image/*" capture="environment" />
+</div>
+
+<button id="addMealBtn">Add Meal to Log</button>
+
+<hr />
+
+<div>
+  <label for="waterInput">Water Intake (ml)</label>
+  <input id="waterInput" type="number" min="0" value="0" />
+  <button id="addWaterBtn">Add Water</button>
+</div>
+
+<hr />
+
+<h2>Daily Totals</h2>
+<div>Calories: <span id="totalCalories">0</span> kcal</div>
+<div>Protein: <span id="totalProtein">0</span> g</div>
+<div>Fat: <span id="totalFat">0</span> g</div>
+<div>Carbs: <span id="totalCarbs">0</span> g</div>
+<div>Water: <span id="totalWater">0</span> ml</div>
+
+<div class="progress-bar-container">
+  <div id="calorieProgress" class="progress-bar"></div>
+</div>
+
+<hr />
+
+<h2>Meal Log</h2>
+<div id="mealHistoryDiv">No meals logged yet.</div>
+
+<script>
+  // === Sample food database with macros per 100g & calories ===
+  // Add your real data or fetch from API as needed
+  const foodsDatabase = {
+    apple: { calories: 52, protein: 0.3, fat: 0.2, carbs: 14 },
+    chicken: { calories: 239, protein: 27, fat: 14, carbs: 0 },
+    rice: { calories: 130, protein: 2.4, fat: 0.3, carbs: 28 },
+    steak: { calories: 271, protein: 25, fat: 19, carbs: 0 },
+    bread: { calories: 265, protein: 9, fat: 3.2, carbs: 49 },
+  };
+
+  // === Helpers ===
+  function fmt(n) { return n.toFixed(1); }
+  function normalizeName(name) { return name.trim().toLowerCase(); }
+
+  // === Storage keys ===
+  const STORAGE_LOG_KEY = "dailyFoodLogWithPhotos";
+  const STORAGE_WATER_KEY = "dailyWaterIntake";
+
+  // === Load data from localStorage ===
+  let dailyLog = JSON.parse(localStorage.getItem(STORAGE_LOG_KEY)) || [];
+  let dailyWater = parseInt(localStorage.getItem(STORAGE_WATER_KEY), 10) || 0;
+
+  // === DOM elements ===
+  const foodInput = document.getElementById("foodInput");
+  const amountInput = document.getElementById("amountInput");
+  const portionTypeSelect = document.getElementById("portionTypeSelect");
+  const mealPhotoInput = document.getElementById("mealPhotoInput");
+  const addMealBtn = document.getElementById("addMealBtn");
+
+  const waterInput = document.getElementById("waterInput");
+  const addWaterBtn = document.getElementById("addWaterBtn");
+
+  const mealHistoryDiv = document.getElementById("mealHistoryDiv");
+  const totalCaloriesSpan = document.getElementById("totalCalories");
+  const totalProteinSpan = document.getElementById("totalProtein");
+  const totalFatSpan = document.getElementById("totalFat");
+  const totalCarbsSpan = document.getElementById("totalCarbs");
+  const totalWaterSpan = document.getElementById("totalWater");
+
+  const calorieProgressBar = document.getElementById("calorieProgress");
+  const DAILY_CALORIE_GOAL = 2500; // Change this to your goal
+
+  // === Save data helpers ===
+  function saveLog(log) {
+    localStorage.setItem(STORAGE_LOG_KEY, JSON.stringify(log));
   }
-  dailyWater += val;
-  saveWater(dailyWater);
-  waterInput.value = 0;
-  updateProgress();
-});
-
-// Modify addFoodToLog to accept photo
-function addFoodToLog(foodName, amountInput, portionType) {
-  const foods = getAllFoods();
-  const normName = normalizeName(foodName);
-  if (!(normName in foods)) {
-    alert("Food not found. Try adding a custom food first.");
-    return false;
-  }
-  const macros = calculateMacros(foods[normName], amountInput, portionType);
-  if (!macros) {
-    alert("Invalid amount input.");
-    return false;
+  function saveWater(waterMl) {
+    localStorage.setItem(STORAGE_WATER_KEY, waterMl.toString());
   }
 
-  // If photo input has a file, convert to base64 string
-  const file = mealPhotoInput.files[0];
-  if (file) {
-    const reader = new FileReader();
-    reader.onload = function(e) {
-      const base64Image = e.target.result;
-      dailyLog.push({
-        name: foodName,
-        ...macros,
-        timestamp: Date.now(),
-        photo: base64Image
-      });
-      saveLog(dailyLog);
-      renderMealHistory();
-      updateProgress();
-      mealPhotoInput.value = ""; // reset photo input
-    };
-    reader.readAsDataURL(file);
-  } else {
-    dailyLog.push({
-      name: foodName,
-      ...macros,
-      timestamp: Date.now(),
-      photo: null
-    });
-    saveLog(dailyLog);
-    renderMealHistory();
-    updateProgress();
+  // === Calculate macros based on amount and portion type ===
+  function calculateMacros(foodData, amount, portionType) {
+    if (portionType === "grams") {
+      let factor = amount / 100;
+      return {
+        calories: foodData.calories * factor,
+        protein: foodData.protein * factor,
+        fat: foodData.fat * factor,
+        carbs: foodData.carbs * factor,
+        weight: amount,
+      };
+    } else if (portionType === "servings") {
+      // assuming serving size = 100g, adjust if needed
+      let factor = amount;
+      return {
+        calories: foodData.calories * factor,
+        protein: foodData.protein * factor,
+        fat: foodData.fat * factor,
+        carbs: foodData.carbs * factor,
+        weight: factor * 100,
+      };
+    }
+    return null;
   }
-  return true;
-}
 
-// Modify renderMealHistory to add Show Image button
-function renderMealHistory() {
-  mealHistoryDiv.innerHTML = "";
-  if (dailyLog.length === 0) {
-    mealHistoryDiv.textContent = "No meals logged yet.";
-    return;
-  }
-  dailyLog.forEach((meal, i) => {
-    const div = document.createElement("div");
-    div.classList.add("list-item");
+  // === Add meal to log ===
+  addMealBtn.addEventListener("click", () => {
+    const foodNameRaw = foodInput.value;
+    const normName = normalizeName(foodNameRaw);
+    if (!foodNameRaw.trim()) {
+      alert("Please enter a food name.");
+      return;
+    }
+    if (!(normName in foodsDatabase)) {
+      alert(`Food "${foodNameRaw}" not found in database.`);
+      return;
+    }
+    const amount = parseFloat(amountInput.value);
+    if (isNaN(amount) || amount <= 0) {
+      alert("Enter a valid positive amount.");
+      return;
+    }
+    const portionType = portionTypeSelect.value;
 
-    const flexDiv = document.createElement("div");
-    flexDiv.style.display = "flex";
-    flexDiv.style.alignItems = "center";
-    flexDiv.style.justifyContent = "space-between";
-
-    const textDiv = document.createElement("div");
-    textDiv.textContent = `${meal.name} — ${fmt(meal.calories)} kcal, ${fmt(meal.protein)}g P, ${fmt(meal.fat)}g F, ${fmt(meal.carbs)}g C, ${fmt(meal.weight)}g`;
-
-    const btnGroup = document.createElement("div");
-
-    if (meal.photo) {
-      const showImgBtn = document.createElement("button");
-      showImgBtn.textContent = "Show Image";
-      showImgBtn.style.marginRight = "8px";
-      showImgBtn.addEventListener("click", () => {
-        showImageModal(meal.photo);
-      });
-      btnGroup.appendChild(showImgBtn);
+    // Calculate macros
+    const foodData = foodsDatabase[normName];
+    const macros = calculateMacros(foodData, amount, portionType);
+    if (!macros) {
+      alert("Error calculating macros.");
+      return;
     }
 
-    const delBtn = document.createElement("button");
-    delBtn.textContent = "❌";
-    delBtn.title = "Remove this meal";
-    delBtn.style.background = "#a94442";
-    delBtn.style.width = "36px";
-    delBtn.style.flexShrink = 0;
-    delBtn.addEventListener("click", () => {
-      dailyLog.splice(i, 1);
+    const file = mealPhotoInput.files[0];
+    if (file) {
+      // Read file as base64 then save meal after reading
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const base64Image = e.target.result;
+        dailyLog.push({
+          name: foodNameRaw,
+          calories: macros.calories,
+          protein: macros.protein,
+          fat: macros.fat,
+          carbs: macros.carbs,
+          weight: macros.weight,
+          timestamp: Date.now(),
+          photo: base64Image,
+        });
+        saveLog(dailyLog);
+        renderMealHistory();
+        updateProgress();
+        resetInputs();
+      };
+      reader.readAsDataURL(file);
+    } else {
+      dailyLog.push({
+        name: foodNameRaw,
+        calories: macros.calories,
+        protein: macros.protein,
+        fat: macros.fat,
+        carbs: macros.carbs,
+        weight: macros.weight,
+        timestamp: Date.now(),
+        photo: null,
+      });
       saveLog(dailyLog);
       renderMealHistory();
       updateProgress();
+      resetInputs();
+    }
+  });
+
+  // === Add water button increments water intake ===
+  addWaterBtn.addEventListener("click", () => {
+    const val = parseInt(waterInput.value, 10);
+    if (isNaN(val) || val <= 0) {
+      alert("Enter a positive number of ml to add.");
+      return;
+    }
+    dailyWater += val;
+    saveWater(dailyWater);
+    waterInput.value = "";
+    updateProgress();
+  });
+
+  // === Reset inputs after add ===
+  function resetInputs() {
+    foodInput.value = "";
+    amountInput.value = "";
+    mealPhotoInput.value = "";
+  }
+
+  // === Render meal log ===
+  function renderMealHistory() {
+    mealHistoryDiv.innerHTML = "";
+    if (dailyLog.length === 0) {
+      mealHistoryDiv.textContent = "No meals logged yet.";
+      return;
+    }
+    dailyLog.forEach((meal, i) => {
+      const div = document.createElement("div");
+      div.classList.add("list-item");
+
+      const flexDiv = document.createElement("div");
+      flexDiv.classList.add("flex");
+
+      const textDiv = document.createElement("div");
+      textDiv.textContent = `${meal.name} — ${fmt(meal.calories)} kcal, ${fmt(meal.protein)}g P, ${fmt(meal.fat)}g F, ${fmt(meal.carbs)}g C, ${fmt(meal.weight)}g`;
+
+      const btnGroup = document.createElement("div");
+      btnGroup.classList.add("btn-group");
+
+      if (meal.photo) {
+        const showImgBtn = document.createElement("button");
+        showImgBtn.textContent = "Show Image";
+        showImgBtn.addEventListener("click", () => {
+          showImageModal(meal.photo);
+        });
+        btnGroup.appendChild(showImgBtn);
+      }
+
+      const delBtn = document.createElement("button");
+      delBtn.textContent = "❌";
+      delBtn.title = "Remove this meal";
+      delBtn.style.background = "#a94442";
+      delBtn.style.color = "white";
+      delBtn.style.border = "none";
+      delBtn.style.borderRadius = "4px";
+      delBtn.style.padding = "4px 8px";
+      delBtn.addEventListener("click", () => {
+        dailyLog.splice(i, 1);
+        saveLog(dailyLog);
+        renderMealHistory();
+        updateProgress();
+      });
+      btnGroup.appendChild(delBtn);
+
+      flexDiv.appendChild(textDiv);
+      flexDiv.appendChild(btnGroup);
+
+      div.appendChild(flexDiv);
+      mealHistoryDiv.appendChild(div);
+    });
+  }
+
+  // === Show photo modal ===
+  function showImageModal(base64Image) {
+    const modalBg = document.createElement("div");
+    modalBg.style.position = "fixed";
+    modalBg.style.top = "0";
+    modalBg.style.left = "0";
+    modalBg.style.width = "100vw";
+    modalBg.style.height = "100vh";
+    modalBg.style.backgroundColor = "rgba(0,0,0,0.8)";
+    modalBg.style.display = "flex";
+    modalBg.style.alignItems = "center";
+    modalBg.style.justifyContent = "center";
+    modalBg.style.zIndex = "10000";
+
+    const img = document.createElement("img");
+    img.src = base64Image;
+    img.style.maxWidth = "90vw";
+    img.style.maxHeight = "90vh";
+    img.style.border = "3px solid white";
+    img.style.borderRadius = "8px";
+
+    modalBg.addEventListener("click", () => {
+      document.body.removeChild(modalBg);
     });
 
-    btnGroup.appendChild(delBtn);
+    modalBg.appendChild(img);
+    document.body.appendChild(modalBg);
+  }
 
-    flexDiv.appendChild(textDiv);
-    flexDiv.appendChild(btnGroup);
+  // === Update daily totals and progress bar ===
+  function updateProgress() {
+    let totalCalories = 0, totalProtein = 0, totalFat = 0, totalCarbs = 0;
+    dailyLog.forEach(m => {
+      totalCalories += m.calories;
+      totalProtein += m.protein;
+      totalFat += m.fat;
+      totalCarbs += m.carbs;
+    });
+    totalCaloriesSpan.textContent = fmt(totalCalories);
+    totalProteinSpan.textContent = fmt(totalProtein);
+    totalFatSpan.textContent = fmt(totalFat);
+    totalCarbsSpan.textContent = fmt(totalCarbs);
+    totalWaterSpan.textContent = dailyWater;
 
-    div.appendChild(flexDiv);
-    mealHistoryDiv.appendChild(div);
-  });
-}
+    let pct = Math.min((totalCalories / DAILY_CALORIE_GOAL) * 100, 100);
+    calorieProgressBar.style.width = pct + "%";
+  }
 
-// Show image modal logic
-function showImageModal(base64Image) {
-  // Create modal background
-  const modalBg = document.createElement("div");
-  modalBg.style.position = "fixed";
-  modalBg.style.top = "0";
-  modalBg.style.left = "0";
-  modalBg.style.width = "100vw";
-  modalBg.style.height = "100vh";
-  modalBg.style.backgroundColor = "rgba(0,0,0,0.8)";
-  modalBg.style.display = "flex";
-  modalBg.style.alignItems = "center";
-  modalBg.style.justifyContent = "center";
-  modalBg.style.zIndex = 10000;
+  // === Initial render ===
+  renderMealHistory();
+  updateProgress();
+</script>
 
-  // Create image element
-  const img = document.createElement("img");
-  img.src = base64Image;
-  img.style.maxWidth = "90vw";
-  img.style.maxHeight = "90vh";
-  img.style.border = "3px solid white";
-  img.style.borderRadius = "8px";
-
-  // Close modal on click
-  modalBg.addEventListener("click", () => {
-    document.body.removeChild(modalBg);
-  });
-
-  modalBg.appendChild(img);
-  document.body.appendChild(modalBg);
-}
+</body>
+</html>
