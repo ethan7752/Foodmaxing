@@ -264,6 +264,7 @@ const trackerTotalsDiv = document.getElementById("trackerTotals");
 const resetBtn = document.getElementById("resetTracker");
 
 function updateTrackerUI() {
+  trackerTotalsDiv.style.fontSize = '1.2rem';  // bigger font size
   trackerTotalsDiv.textContent =
     `Calories: ${round(dailyTotals.calories)} kcal | Protein: ${round(dailyTotals.protein)} g | Fat: ${round(dailyTotals.fat)} g | Carbs: ${round(dailyTotals.carbs)} g`;
 }
@@ -333,6 +334,7 @@ form.addEventListener("submit", e => {
     dailyTotals.protein += protein;
     dailyTotals.fat += fat;
     dailyTotals.carbs += carbs;
+    console.log("Updated totals:", dailyTotals);  // check values in console
     updateTrackerUI();
     saveTracker();
     alert(`${foodNameRaw} added to daily tracker!`);
