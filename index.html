@@ -4,6 +4,14 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Ethan's Food Ai</title>
+
+<!-- PWA / iOS fullscreen support -->
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Ethan's Food Ai" />
+<link rel="apple-touch-icon" href="icon.png" />
+<link rel="manifest" href="manifest.json" />
+
 <style>
   body {
     background-color: #121212;
@@ -39,6 +47,7 @@
     padding: 1rem;
     background: #222;
     border-radius: 6px;
+    word-wrap: break-word;
   }
   .result a {
     display: inline-block;
@@ -68,6 +77,7 @@
 <div class="result" id="result"></div>
 
 <script>
+// Expanded food database with many more entries
 const foodDB = {
   banana: {
     bloat: 1,
@@ -75,7 +85,7 @@ const foodDB = {
     proteinPer100g: 1.1,
     fatPer100g: 0.3,
     carbsPer100g: 23,
-    weightPerUnit: 118 // grams per banana
+    weightPerUnit: 118
   },
   steak: {
     bloat: 7,
@@ -92,6 +102,126 @@ const foodDB = {
     fatPer100g: 0.2,
     carbsPer100g: 14,
     weightPerUnit: 182
+  },
+  chickenbreast: {
+    bloat: 3,
+    caloriesPer100g: 165,
+    proteinPer100g: 31,
+    fatPer100g: 3.6,
+    carbsPer100g: 0,
+    weightPerUnit: 150
+  },
+  broccoli: {
+    bloat: 5,
+    caloriesPer100g: 34,
+    proteinPer100g: 2.8,
+    fatPer100g: 0.4,
+    carbsPer100g: 7,
+    weightPerUnit: 91
+  },
+  egg: {
+    bloat: 1,
+    caloriesPer100g: 155,
+    proteinPer100g: 13,
+    fatPer100g: 11,
+    carbsPer100g: 1.1,
+    weightPerUnit: 50
+  },
+  rice: {
+    bloat: 4,
+    caloriesPer100g: 130,
+    proteinPer100g: 2.7,
+    fatPer100g: 0.3,
+    carbsPer100g: 28,
+    weightPerUnit: 100
+  },
+  salmon: {
+    bloat: 3,
+    caloriesPer100g: 206,
+    proteinPer100g: 22,
+    fatPer100g: 12,
+    carbsPer100g: 0,
+    weightPerUnit: 154
+  },
+  avocado: {
+    bloat: 2,
+    caloriesPer100g: 160,
+    proteinPer100g: 2,
+    fatPer100g: 15,
+    carbsPer100g: 9,
+    weightPerUnit: 150
+  },
+  almond: {
+    bloat: 2,
+    caloriesPer100g: 579,
+    proteinPer100g: 21,
+    fatPer100g: 50,
+    carbsPer100g: 22,
+    weightPerUnit: 1 // For nuts better to input grams, but 1g unit here
+  },
+  yogurt: {
+    bloat: 4,
+    caloriesPer100g: 59,
+    proteinPer100g: 10,
+    fatPer100g: 0.4,
+    carbsPer100g: 3.6,
+    weightPerUnit: 100
+  },
+  potato: {
+    bloat: 5,
+    caloriesPer100g: 77,
+    proteinPer100g: 2,
+    fatPer100g: 0.1,
+    carbsPer100g: 17,
+    weightPerUnit: 150
+  },
+  carrot: {
+    bloat: 1,
+    caloriesPer100g: 41,
+    proteinPer100g: 0.9,
+    fatPer100g: 0.2,
+    carbsPer100g: 10,
+    weightPerUnit: 61
+  },
+  oats: {
+    bloat: 4,
+    caloriesPer100g: 389,
+    proteinPer100g: 17,
+    fatPer100g: 7,
+    carbsPer100g: 66,
+    weightPerUnit: 40
+  },
+  wheyprotein: {
+    bloat: 2,
+    caloriesPer100g: 400,
+    proteinPer100g: 80,
+    fatPer100g: 7,
+    carbsPer100g: 8,
+    weightPerUnit: 30
+  },
+  bread: {
+    bloat: 3,
+    caloriesPer100g: 265,
+    proteinPer100g: 9,
+    fatPer100g: 3.2,
+    carbsPer100g: 49,
+    weightPerUnit: 30
+  },
+  cheese: {
+    bloat: 3,
+    caloriesPer100g: 402,
+    proteinPer100g: 25,
+    fatPer100g: 33,
+    carbsPer100g: 1.3,
+    weightPerUnit: 30
+  },
+  peanutbutter: {
+    bloat: 4,
+    caloriesPer100g: 588,
+    proteinPer100g: 25,
+    fatPer100g: 50,
+    carbsPer100g: 20,
+    weightPerUnit: 32
   }
 };
 
@@ -120,7 +250,7 @@ document.addEventListener("DOMContentLoaded", () => {
   form.addEventListener("submit", e => {
     e.preventDefault();
 
-    const foodNameRaw = document.getElementById("foodName").value.trim().toLowerCase();
+    const foodNameRaw = document.getElementById("foodName").value.trim().toLowerCase().replace(/\s/g, "");
     const amountRaw = document.getElementById("foodAmount").value.trim();
 
     const food = foodDB[foodNameRaw];
@@ -143,7 +273,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const carbs = round(food.carbsPer100g * factor);
     const bloat = food.bloat;
 
-    const searchUrl = `https://www.woolworths.co.nz/search?searchTerm=${encodeURIComponent(foodNameRaw)}`;
+    // Woolworths NZ search link format
+    const searchUrl = `https://www.woolworths.co.nz/shop/searchproducts?search=${encodeURIComponent(foodNameRaw)}`;
 
     resultDiv.innerHTML = `
       <strong>${grams}g of ${foodNameRaw}</strong><br/>
