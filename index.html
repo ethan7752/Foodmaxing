@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Food DB Scale</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+        Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+      margin: 10px;
+      background: #f9f9f9;
+      color: #222;
+    }
+    h1 {
+      text-align: center;
+    }
+    form {
+      max-width: 400px;
+      margin: 0 auto 20px auto;
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px #ccc;
+    }
+    label {
+      display: block;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+    input[type=text],
+    input[type=number] {
+      width: 100%;
+      padding: 8px;
+      margin-top: 6px;
+      box-sizing: border-box;
+      border-radius: 4px;
+      border: 1px solid #aaa;
+      font-size: 16px;
+    }
+    button {
+      margin-top: 15px;
+      width: 100%;
+      padding: 12px;
+      font-size: 18px;
+      background: #007aff;
+      border: none;
+      border-radius: 6px;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #005ecb;
+    }
+    #result {
+      max-width: 400px;
+      margin: 0 auto;
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px #ccc;
+      margin-bottom: 30px;
+      display: none;
+    }
+    #history {
+      max-width: 400px;
+      margin: 0 auto;
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px #ccc;
+    }
+    .entry {
+      border-bottom: 1px solid #ddd;
+      padding: 10px 0;
+    }
+    .entry:last-child {
+      border-bottom: none;
+    }
+  </style>
+</head>
+<body>
+  <h1>Food DB Scale</h1>
+  <form id="foodForm">
+    <label for="foodName">Food Name:</label>
+    <input type="text" id="foodName" placeholder="e.g. steak" required />
+
+    <label for="foodAmount">Amount (grams):</label>
+    <input type="number" id="foodAmount" placeholder="e.g. 200" required min="1" />
+
+    <button type="submit">Get Rating</button>
+  </form>
+
+  <div id="result">
+    <h2>Result:</h2>
+    <p><strong>Food:</strong> <span id="resFood"></span></p>
+    <p><strong>Amount:</strong> <span id="resAmount"></span> g</p>
+    <p><strong>Bloat Scale:</strong> <span id="resBloat"></span> / 10</p>
+    <p><strong>Calories:</strong> <span id="resCalories"></span> kcal</p>
+    <p><strong>Protein:</strong> <span id="resProtein"></span> g</p>
+    <p><strong>Fat:</strong> <span id="resFat"></span> g</p>
+    <p><strong>Carbs:</strong> <span id="resCarbs"></span> g</p>
+  </div>
+
+  <div id="history">
+    <h2>Saved Entries:</h2>
+    <div id="historyList"></div>
+  </div>
+
+  <script>
+    const foodDB = {
+      steak: { bloat: 7, caloriesPer100g: 250, proteinPer100g: 26, fatPer100g: 20, carbsPer100g: 0 },
+      banana: { bloat: 1, caloriesPer100g: 89, proteinPer100g: 1.1, fatPer100g: 0.3, carbsPer100g: 23 },
+      "white rice": { bloat: 5, caloriesPer100g: 130, proteinPer100g: 2.4, fatPer100g: 0.3, carbsPer100g: 28 },
+      avocado: { bloat: 2, caloriesPer100g: 160, proteinPer100g: 2, fatPer100g: 15, carbsPer100g: 9 },
+      "chicken breast": { bloat: 3, caloriesPer100g: 165, proteinPer100g: 31, fatPer100g: 3.6, carbsPer100g: 0 },
+      broccoli: { bloat: 4, caloriesPer100g: 55, proteinPer100g: 3.7, fatPer100g: 0.6, carbsPer100g: 11 },
+      egg: { bloat: 1, caloriesPer100g: 155, proteinPer100g: 13, fatPer100g: 11, carbsPer100g: 1.1 },
+      milk: { bloat: 6, caloriesPer100g: 42, proteinPer100g: 3.4, fatPer100g: 1, carbsPer100g: 5 },
+      almonds: { bloat: 3, caloriesPer100g: 579, proteinPer100g: 21, fatPer100g: 50, carbsPer100g: 22 },
+      "sweet potato": { bloat: 4, caloriesPer100g: 86, proteinPer100g: 1.6, fatPer100g: 0.1, carbsPer100g: 20 }
+    };
+
+    const form = document.getElementById("foodForm");
+    const resultDiv = document.getElementById("result");
+    const resFood = document.getElementById("resFood");
+    const resAmount = document.getElementById("resAmount");
+    const resBloat = document.getElementById("resBloat");
+    const resCalories = document.getElementById("resCalories");
+    const resProtein = document.getElementById("resProtein");
+    const resFat = document.getElementById("resFat");
+    const resCarbs = document.getElementById("resCarbs");
+    const historyList = document.getElementById("historyList");
+
+    // Load saved entries from localStorage
+    let savedEntries = JSON.parse(localStorage.getItem("foodEntries")) || [];
+
+    function saveEntry(entry) {
+      savedEntries.unshift(entry); // add to start
+      if (savedEntries.length > 20) savedEntries.pop(); // limit saved entries to 20
+      localStorage.setItem("foodEntries", JSON.stringify(savedEntries));
+      renderHistory();
+    }
+
+    function renderHistory() {
+      historyList.innerHTML = "";
+      savedEntries.forEach((entry) => {
+        const div = document.createElement("div");
+        div.className = "entry";
+        div.innerHTML = `<strong>${entry.name}</strong> - ${entry.amount}g - Bloat: ${entry.bloat}/10 - Calories: ${entry.calories} kcal`;
+        historyList.appendChild(div);
+      });
+    }
+
+    function round(num, decimals = 2) {
+      return Number(Math.round(num + "e" + decimals) + "e-" + decimals);
+    }
+
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const nameInput = form.foodName.value.trim().toLowerCase();
+      const amountInput = parseFloat(form.foodAmount.value);
+
+      if (!foodDB[nameInput]) {
+        alert("Food not found in database.");
+        return;
+      }
+
+      const food = foodDB[nameInput];
+      const amountFactor = amountInput / 100;
+
+      const bloat = food.bloat;
+      const calories = round(food.caloriesPer100g * amountFactor);
+      const protein = round(food.proteinPer100g * amountFactor);
+      const fat = round(food.fatPer100g * amountFactor);
+      const carbs = round(food.carbsPer100g * amountFactor);
+
+      resFood.textContent = nameInput;
+      resAmount.textContent = amountInput;
+      resBloat.textContent = bloat;
+      resCalories.textContent = calories;
+      resProtein.textContent = protein;
+      resFat.textContent = fat;
+      resCarbs.textContent = carbs;
+
+      resultDiv.style.display = "block";
+
+      // Save entry
+      saveEntry({ name: nameInput, amount: amountInput, bloat, calories });
+    });
+
+    // Initial render
+    renderHistory();
+  </script>
+</body>
+</html>
