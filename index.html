@@ -3,767 +3,261 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Ethan's Food Ai - Advanced Tracker</title>
-
+<title>Food & Water Logger with Photos</title>
 <style>
-  :root {
-    --bg-light: #f0f0f0;
-    --bg-dark: #121212;
-    --text-light: #eee;
-    --text-dark: #111;
-    --accent: #5e81ac;
-  }
-  body {
-    margin: 0; padding: 0;
-    font-family: Arial, sans-serif;
-    background-color: var(--bg-dark);
-    color: var(--text-light);
-    max-width: 600px;
-    margin: auto;
-    padding: 1rem;
-    transition: background-color 0.3s, color 0.3s;
-    box-sizing: border-box;
-  }
-  h1, h2 {
-    text-align: center;
-  }
-  input, select, button, textarea {
-    width: 100%;
-    padding: 0.5rem;
-    margin: 0.3rem 0.5rem 1rem 0;
-    box-sizing: border-box;
-    border-radius: 5px;
-    border: 1px solid #888;
-    font-size: 1rem;
-  }
-  button {
-    background-color: var(--accent);
-    color: white;
-    border: none;
-    cursor: pointer;
-    font-weight: 700;
-    transition: background-color 0.2s;
-  }
-  button:hover {
-    background-color: #486394;
-  }
-  .section {
-    background: #222;
-    padding: 1rem;
-    margin-bottom: 1rem;
-    border-radius: 8px;
-  }
-  .list-item {
-    background: #333;
-    margin-bottom: 0.5rem;
-    padding: 0.5rem;
-    border-radius: 6px;
-  }
-  .list-item > div {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  .progress-container {
-    display: flex;
-    flex-direction: column;
-    margin: 0.5rem 0;
-  }
-  .progress-label {
-    font-weight: 700;
-  }
-  progress {
-    width: 100%;
-    height: 20px;
-    border-radius: 10px;
-    overflow: hidden;
-    margin-top: 0.25rem;
-  }
-  #mealHistory {
-    max-height: 200px;
-    overflow-y: auto;
-  }
-  label {
-    font-weight: 600;
-    margin-right: 0.5rem;
-  }
-  #macroChart {
-    display: block;
-    margin: 1rem auto;
-    max-width: 300px;
-    max-height: 300px;
-  }
-  .flex-row {
-    display: flex;
-    gap: 0.5rem;
-    flex-wrap: wrap;
-    align-items: center;
-  }
-  .inline-input {
-    flex: 1 1 100px;
-  }
-  #settingsPanel {
-    background: #111;
-    padding: 1rem;
-    border-radius: 8px;
-    display: none;
-  }
-  #settingsPanel label {
-    display: block;
-    margin-top: 0.5rem;
-  }
-  #reminderMsg {
-    color: #aaf;
-    font-weight: 700;
-    margin-top: 0.5rem;
-    text-align: center;
-  }
-  @media (max-width: 480px) {
-    body {
-      padding: 0.5rem;
-      max-width: 100%;
-    }
-  }
+  body { font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; }
+  input, select, button { font-size: 1rem; margin: 6px 0; padding: 6px; }
+  button { cursor: pointer; }
+  .list-item { border-bottom: 1px solid #ccc; padding: 8px 0; }
+  img { max-width: 200px; margin-top: 6px; border: 1px solid #ccc; border-radius: 4px; }
+  .flex-row { display: flex; align-items: center; justify-content: space-between; }
 </style>
 </head>
 <body>
 
-<h1>Ethan's Food Ai - Advanced Tracker</h1>
+<h2>Food & Water Logger</h2>
 
-<div class="section">
-  <button id="toggleSettingsBtn">⚙️ Settings</button>
-  <div id="settingsPanel">
-    <label for="bgColorInput">Background Color:</label>
-    <input type="color" id="bgColorInput" value="#121212" />
-    <label for="themeToggle">Dark Mode:</label>
-    <select id="themeToggle">
-      <option value="dark" selected>Dark</option>
-      <option value="light">Light</option>
-    </select>
-    <label for="calGoal">Calorie Goal:</label>
-    <input type="number" id="calGoal" min="0" value="2000" />
-    <label for="proteinGoal">Protein Goal (g):</label>
-    <input type="number" id="proteinGoal" min="0" value="150" />
-    <label for="fatGoal">Fat Goal (g):</label>
-    <input type="number" id="fatGoal" min="0" value="70" />
-    <label for="carbGoal">Carb Goal (g):</label>
-    <input type="number" id="carbGoal" min="0" value="250" />
-    <button id="saveSettingsBtn">Save Settings</button>
-  </div>
+<!-- Food entry form -->
+<form id="foodForm">
+  <input type="text" id="foodName" placeholder="Food Name" list="foodNames" autocomplete="off" required />
+  <input type="number" id="foodAmount" placeholder="Amount" min="0.01" step="0.01" required />
+  <select id="portionSelect">
+    <option value="g">grams</option>
+    <option value="ml">ml</option>
+    <option value="piece">pieces</option>
+  </select>
+  <input type="file" id="mealPhotoInput" accept="image/*" capture="environment" />
+  <button type="submit">Add Meal</button>
+</form>
+
+<datalist id="foodNames">
+  <!-- example food names -->
+  <option value="Steak"></option>
+  <option value="Chicken"></option>
+  <option value="Rice"></option>
+  <option value="Watermelon"></option>
+</datalist>
+
+<!-- Water logging -->
+<div>
+  <input type="number" id="waterAmountInput" placeholder="ml water" min="1" />
+  <button id="addWaterBtn">Add Water to Log</button>
 </div>
 
-<div class="section">
-  <h2>Add Food</h2>
-  <form id="foodForm">
-    <input type="text" id="foodName" placeholder="Food name" required autocomplete="off" list="foodSuggestions" />
-    <datalist id="foodSuggestions"></datalist>
-
-    <div class="flex-row">
-      <input type="text" id="foodAmount" placeholder="Amount (e.g., 1, 150g)" required />
-      <select id="portionSelect" title="Select portion type">
-        <option value="auto">Auto</option>
-        <option value="g">Grams (g)</option>
-        <option value="unit">Units</option>
-      </select>
-    </div>
-
-    <button type="submit">Add to Log</button>
-  </form>
-</div>
-
-<div class="section">
-  <h2>Add Custom Food</h2>
-  <form id="customFoodForm">
-    <input type="text" id="customFoodName" placeholder="Custom food name" required autocomplete="off" />
-    <input type="number" id="customCalories" placeholder="Calories per 100g" min="0" required />
-    <input type="number" id="customProtein" placeholder="Protein per 100g (g)" min="0" required />
-    <input type="number" id="customFat" placeholder="Fat per 100g (g)" min="0" required />
-    <input type="number" id="customCarbs" placeholder="Carbs per 100g (g)" min="0" required />
-    <input type="number" id="customWeightPerUnit" placeholder="Weight per unit (g, optional)" min="0" />
-    <button type="submit">Add Custom Food</button>
-  </form>
-</div>
-
-<div class="section">
-  <h2>Daily Log & Progress</h2>
-
-  <div id="progressBars">
-    <div class="progress-container">
-      <label class="progress-label" for="calProgress">Calories</label>
-      <progress id="calProgress" max="100" value="0"></progress>
-      <div><span id="calCurrent">0</span> / <span id="calGoalDisplay">2000</span> kcal</div>
-    </div>
-    <div class="progress-container">
-      <label class="progress-label" for="proteinProgress">Protein</label>
-      <progress id="proteinProgress" max="100" value="0"></progress>
-      <div><span id="proteinCurrent">0</span> / <span id="proteinGoalDisplay">150</span> g</div>
-    </div>
-    <div class="progress-container">
-      <label class="progress-label" for="fatProgress">Fat</label>
-      <progress id="fatProgress" max="100" value="0"></progress>
-      <div><span id="fatCurrent">0</span> / <span id="fatGoalDisplay">70</span> g</div>
-    </div>
-    <div class="progress-container">
-      <label class="progress-label" for="carbProgress">Carbs</label>
-      <progress id="carbProgress" max="100" value="0"></progress>
-      <div><span id="carbCurrent">0</span> / <span id="carbGoalDisplay">250</span> g</div>
-    </div>
-    <div class="progress-container">
-      <label class="progress-label" for="waterInput">Water Intake (ml)</label>
-      <input type="number" id="waterInput" min="0" value="0" />
-    </div>
-  </div>
-
-  <div>
-    <label for="exerciseInput">Add Exercise Calories Burned:</label>
-    <input type="number" id="exerciseInput" min="0" value="0" />
-    <button id="addExerciseBtn">Add Exercise</button>
-  </div>
-
-  <div style="margin-top:1rem;">
-    <button id="resetDayBtn" style="background:#a94442;">Reset Day</button>
-    <button id="exportCSVBtn" style="background:#5e81ac;">Export Log CSV</button>
-  </div>
-
-  <canvas id="macroChart" width="300" height="300" aria-label="Macro breakdown pie chart" role="img"></canvas>
-
-  <div id="reminderMsg"></div>
-</div>
-
-<div class="section">
-  <h2>Meal History</h2>
-  <div id="mealHistory"></div>
-</div>
+<h3>Daily Log</h3>
+<div id="mealHistory">No meals logged yet.</div>
 
 <script>
-  // --- DATA STORAGE & INITIALIZATION ---
-  const defaultFoods = {
-    banana: { caloriesPer100g: 89, proteinPer100g: 1.1, fatPer100g: 0.3, carbsPer100g: 23, weightPerUnit: 118 },
-    steak: { caloriesPer100g: 250, proteinPer100g: 26, fatPer100g: 20, carbsPer100g: 0, weightPerUnit: 200 },
-    apple: { caloriesPer100g: 52, proteinPer100g: 0.3, fatPer100g: 0.2, carbsPer100g: 14, weightPerUnit: 182 },
-    chickenbreast: { caloriesPer100g: 165, proteinPer100g: 31, fatPer100g: 3.6, carbsPer100g: 0, weightPerUnit: 150 },
-    broccoli: { caloriesPer100g: 34, proteinPer100g: 2.8, fatPer100g: 0.4, carbsPer100g: 7, weightPerUnit: 91 },
-    egg: { caloriesPer100g: 155, proteinPer100g: 13, fatPer100g: 11, carbsPer100g: 1.1, weightPerUnit: 50 },
-    rice: { caloriesPer100g: 130, proteinPer100g: 2.7, fatPer100g: 0.3, carbsPer100g: 28, weightPerUnit: 100 },
-    salmon: { caloriesPer100g: 206, proteinPer100g: 22, fatPer100g: 12, carbsPer100g: 0, weightPerUnit: 154 },
-    avocado: { caloriesPer100g: 160, proteinPer100g: 2, fatPer100g: 15, carbsPer100g: 9, weightPerUnit: 150 },
-    almond: { caloriesPer100g: 579, proteinPer100g: 21, fatPer100g: 50, carbsPer100g: 22, weightPerUnit: 1 },
-    yogurt: { caloriesPer100g: 59, proteinPer100g: 10, fatPer100g: 0.4, carbsPer100g: 3.6, weightPerUnit: 100 },
-    potato: { caloriesPer100g: 77, proteinPer100g: 2, fatPer100g: 0.1, carbsPer100g: 17, weightPerUnit: 150 },
-    carrot: { caloriesPer100g: 41, proteinPer100g: 0.9, fatPer100g: 0.2, carbsPer100g: 10, weightPerUnit: 61 },
-    oats: { caloriesPer100g: 389, proteinPer100g: 17, fatPer100g: 7, carbsPer100g: 66, weightPerUnit: 40 },
-    wheyprotein: { caloriesPer100g: 400, proteinPer100g: 80, fatPer100g: 7, carbsPer100g: 8, weightPerUnit: 30 },
-    bread: { caloriesPer100g: 265, proteinPer100g: 9, fatPer100g: 3.2, carbsPer100g: 49, weightPerUnit: 30 },
-    cheese: { caloriesPer100g: 402, proteinPer100g: 25, fatPer100g: 33, carbsPer100g: 1.3, weightPerUnit: 30 },
-    peanutbutter: { caloriesPer100g: 588, proteinPer100g: 25, fatPer100g: 50, carbsPer100g: 20, weightPerUnit: 32 }
+// Example food data
+const foods = {
+  steak: { calories: 250, protein: 26, fat: 15, carbs: 0 },
+  chicken: { calories: 165, protein: 31, fat: 3.6, carbs: 0 },
+  rice: { calories: 130, protein: 2.7, fat: 0.3, carbs: 28 },
+  watermelon: { calories: 30, protein: 0.6, fat: 0.2, carbs: 8 }
+};
+
+let dailyLog = JSON.parse(localStorage.getItem("dailyLog") || "[]");
+
+// Utils
+function normalizeName(name) {
+  return name.trim().toLowerCase();
+}
+
+function fmt(n) {
+  return Number(n).toFixed(1);
+}
+
+function saveLog(log) {
+  localStorage.setItem("dailyLog", JSON.stringify(log));
+}
+
+function calculateMacros(food, amount, portionType) {
+  // amount assumed in grams/ml for simplicity, pieces ignored here
+  if (amount <= 0) return null;
+  // For this demo, assume amount always in grams/ml. Piece handling could be added.
+  const factor = amount / 100; // macros per 100g/ml
+  return {
+    calories: food.calories * factor,
+    protein: food.protein * factor,
+    fat: food.fat * factor,
+    carbs: food.carbs * factor,
+    weight: amount
   };
+}
 
-  // Custom foods from localStorage or empty object
-  function loadCustomFoods() {
-    const cf = localStorage.getItem("customFoods");
-    return cf ? JSON.parse(cf) : {};
-  }
-  function saveCustomFoods(foods) {
-    localStorage.setItem("customFoods", JSON.stringify(foods));
-  }
-  function getAllFoods() {
-    return {...defaultFoods, ...loadCustomFoods()};
-  }
+function updateProgress() {
+  // Stub: You can add totals update or progress bars here if you want
+}
 
-  // Goals
-  function loadGoals() {
-    const saved = localStorage.getItem("nutritionGoals");
-    return saved ? JSON.parse(saved) : {
-      calories: 2000,
-      protein: 150,
-      fat: 70,
-      carbs: 250
-    };
+// Add Food to Log
+function addFoodToLog(foodName, amountInput, portionType, photoDataUrl = null) {
+  const normName = normalizeName(foodName);
+  if (!(normName in foods)) {
+    alert("Food not found. Try adding a custom food first.");
+    return false;
   }
-  function saveGoals(goals) {
-    localStorage.setItem("nutritionGoals", JSON.stringify(goals));
+  const amount = parseFloat(amountInput);
+  if (isNaN(amount) || amount <= 0) {
+    alert("Invalid amount input.");
+    return false;
   }
+  const macros = calculateMacros(foods[normName], amount, portionType);
+  if (!macros) return false;
+  dailyLog.push({
+    name: foodName,
+    ...macros,
+    timestamp: Date.now(),
+    photo: photoDataUrl,
+    type: "meal"
+  });
+  saveLog(dailyLog);
+  renderMealHistory();
+  updateProgress();
+  return true;
+}
 
-  // Daily log
-  function loadLog() {
-    const saved = localStorage.getItem("dailyLog");
-    return saved ? JSON.parse(saved) : [];
+// Add Water to Log
+function addWaterToLog(amount) {
+  if (amount <= 0) {
+    alert("Enter a positive amount of water.");
+    return;
   }
-  function saveLog(log) {
-    localStorage.setItem("dailyLog", JSON.stringify(log));
-  }
+  dailyLog.push({
+    name: "Water",
+    calories: 0,
+    protein: 0,
+    fat: 0,
+    carbs: 0,
+    weight: amount,
+    timestamp: Date.now(),
+    type: "water"
+  });
+  saveLog(dailyLog);
+  renderMealHistory();
+  updateProgress();
+}
 
-  // Water intake
-  function loadWater() {
-    const saved = localStorage.getItem("dailyWater");
-    return saved ? parseInt(saved, 10) : 0;
-  }
-  function saveWater(amount) {
-    localStorage.setItem("dailyWater", amount);
-  }
-
-  // Exercise calories burned
-  function loadExercise() {
-    const saved = localStorage.getItem("exerciseCalories");
-    return saved ? parseInt(saved, 10) : 0;
-  }
-  function saveExercise(amount) {
-    localStorage.setItem("exerciseCalories", amount);
-  }
-
-  // Settings: background color, theme
-  function loadSettings() {
-    const saved = localStorage.getItem("appSettings");
-    return saved ? JSON.parse(saved) : {
-      backgroundColor: "#121212",
-      theme: "dark"
-    };
-  }
-  function saveSettings(settings) {
-    localStorage.setItem("appSettings", JSON.stringify(settings));
-  }
-
-  // --- STATE ---
-  let customFoods = loadCustomFoods();
-  let dailyLog = loadLog();
-  let dailyWater = loadWater();
-  let exerciseCalories = loadExercise();
-  let nutritionGoals = loadGoals();
-  let appSettings = loadSettings();
-
-  // --- DOM ---
-  const foodForm = document.getElementById("foodForm");
-  const customFoodForm = document.getElementById("customFoodForm");
+// Render meal history with photo toggles
+function renderMealHistory() {
   const mealHistoryDiv = document.getElementById("mealHistory");
-  const calProgress = document.getElementById("calProgress");
-  const proteinProgress = document.getElementById("proteinProgress");
-  const fatProgress = document.getElementById("fatProgress");
-  const carbProgress = document.getElementById("carbProgress");
-  const calCurrent = document.getElementById("calCurrent");
-  const proteinCurrent = document.getElementById("proteinCurrent");
-  const fatCurrent = document.getElementById("fatCurrent");
-  const carbCurrent = document.getElementById("carbCurrent");
-  const calGoalDisplay = document.getElementById("calGoalDisplay");
-  const proteinGoalDisplay = document.getElementById("proteinGoalDisplay");
-  const fatGoalDisplay = document.getElementById("fatGoalDisplay");
-  const carbGoalDisplay = document.getElementById("carbGoalDisplay");
-  const waterInput = document.getElementById("waterInput");
-  const exerciseInput = document.getElementById("exerciseInput");
-  const addExerciseBtn = document.getElementById("addExerciseBtn");
-  const resetDayBtn = document.getElementById("resetDayBtn");
-  const exportCSVBtn = document.getElementById("exportCSVBtn");
-  const bgColorInput = document.getElementById("bgColorInput");
-  const themeToggle = document.getElementById("themeToggle");
-  const saveSettingsBtn = document.getElementById("saveSettingsBtn");
-  const settingsPanel = document.getElementById("settingsPanel");
-  const toggleSettingsBtn = document.getElementById("toggleSettingsBtn");
-  const reminderMsg = document.getElementById("reminderMsg");
-  const portionSelect = document.getElementById("portionSelect");
-  const foodNameInput = document.getElementById("foodName");
-  const foodSuggestions = document.getElementById("foodSuggestions");
-
-  // --- HELPERS ---
-  // Normalize food names to keys (lowercase, no spaces)
-  function normalizeName(name) {
-    return name.toLowerCase().replace(/\s+/g, "");
+  mealHistoryDiv.innerHTML = "";
+  if (dailyLog.length === 0) {
+    mealHistoryDiv.textContent = "No meals logged yet.";
+    return;
   }
+  dailyLog.forEach((meal, i) => {
+    const div = document.createElement("div");
+    div.classList.add("list-item");
 
-  // Parse amount input: e.g. "150g", "2", "1.5" 
-  // Returns {amount: number, type: 'g'|'unit'}
-  function parseAmount(input) {
-    input = input.trim().toLowerCase();
-    if (input.endsWith("g")) {
-      let val = parseFloat(input.slice(0, -1));
-      if (!isNaN(val) && val > 0) return {amount: val, type: 'g'};
+    const flexDiv = document.createElement("div");
+    flexDiv.classList.add("flex-row");
+
+    const textDiv = document.createElement("div");
+    let nameText = meal.name;
+    if (meal.type === "water") {
+      nameText += ` — ${meal.weight} ml`;
     } else {
-      let val = parseFloat(input);
-      if (!isNaN(val) && val > 0) return {amount: val, type: 'unit'};
+      nameText += ` — ${fmt(meal.calories)} kcal, ${fmt(meal.protein)}g P, ${fmt(meal.fat)}g F, ${fmt(meal.carbs)}g C, ${fmt(meal.weight)}g`;
     }
-    return null; // invalid
-  }
+    textDiv.textContent = nameText;
 
-  // Calculate macros from food + amount
-  // If portionType is 'auto', guess by amount unit, else force g or unit
-  function calculateMacros(foodData, amountInput, portionType) {
-    const parsed = parseAmount(amountInput);
-    if (!parsed) return null;
-
-    let grams;
-    if (portionType === "auto") {
-      if (parsed.type === "g") {
-        grams = parsed.amount;
-      } else {
-        // unit count, convert using weightPerUnit if available
-        if (foodData.weightPerUnit) grams = parsed.amount * foodData.weightPerUnit;
-        else grams = parsed.amount * 100; // fallback to 100g per unit
-      }
-    } else if (portionType === "g") {
-      grams = parsed.type === "g" ? parsed.amount : parsed.amount * (foodData.weightPerUnit || 100);
-    } else if (portionType === "unit") {
-      grams = parsed.type === "unit" ? parsed.amount * (foodData.weightPerUnit || 100) : parsed.amount;
-    } else {
-      grams = parsed.amount; // fallback
-    }
-    if (!grams || grams <= 0) return null;
-
-    const factor = grams / 100;
-
-    return {
-      calories: foodData.caloriesPer100g * factor,
-      protein: foodData.proteinPer100g * factor,
-      fat: foodData.fatPer100g * factor,
-      carbs: foodData.carbsPer100g * factor,
-      weight: grams
-    };
-  }
-
-  // Format number to 1 decimal place
-  function fmt(n) {
-    return n.toFixed(1);
-  }
-
-  // Update progress bars & text
-  function updateProgress() {
-    let totals = dailyLog.reduce((acc, meal) => {
-      acc.calories += meal.calories;
-      acc.protein += meal.protein;
-      acc.fat += meal.fat;
-      acc.carbs += meal.carbs;
-      return acc;
-    }, {calories: 0, protein: 0, fat: 0, carbs: 0});
-
-    totals.calories -= exerciseCalories; // subtract calories burned
-
-    // Clamp values at zero minimum
-    totals.calories = Math.max(0, totals.calories);
-    totals.protein = Math.max(0, totals.protein);
-    totals.fat = Math.max(0, totals.fat);
-    totals.carbs = Math.max(0, totals.carbs);
-
-    calCurrent.textContent = fmt(totals.calories);
-    proteinCurrent.textContent = fmt(totals.protein);
-    fatCurrent.textContent = fmt(totals.fat);
-    carbCurrent.textContent = fmt(totals.carbs);
-
-    calProgress.max = nutritionGoals.calories;
-    proteinProgress.max = nutritionGoals.protein;
-    fatProgress.max = nutritionGoals.fat;
-    carbProgress.max = nutritionGoals.carbs;
-
-    calProgress.value = Math.min(totals.calories, nutritionGoals.calories);
-    proteinProgress.value = Math.min(totals.protein, nutritionGoals.protein);
-    fatProgress.value = Math.min(totals.fat, nutritionGoals.fat);
-    carbProgress.value = Math.min(totals.carbs, nutritionGoals.carbs);
-
-    waterInput.value = dailyWater;
-
-    updateReminder(totals);
-    drawMacroChart(totals);
-  }
-
-  // Update reminder message for water and protein intake
-  function updateReminder(totals) {
-    let messages = [];
-    if (dailyWater < 1500) messages.push("Drink more water.");
-    if (totals.protein < nutritionGoals.protein * 0.75) messages.push("Eat more protein.");
-    if (messages.length === 0) {
-      reminderMsg.textContent = "You're on track! Keep it up.";
-      reminderMsg.style.color = "#7fff7f";
-    } else {
-      reminderMsg.textContent = messages.join(" ");
-      reminderMsg.style.color = "#ffaa00";
-    }
-  }
-
-  // Render meal log items
-  function renderMealHistory() {
-    mealHistoryDiv.innerHTML = "";
-    if (dailyLog.length === 0) {
-      mealHistoryDiv.textContent = "No meals logged yet.";
-      return;
-    }
-    dailyLog.forEach((meal, i) => {
-      const div = document.createElement("div");
-      div.classList.add("list-item");
-
-      const flexDiv = document.createElement("div");
-
-      const textDiv = document.createElement("div");
-      textDiv.textContent = `${meal.name} — ${fmt(meal.calories)} kcal, ${fmt(meal.protein)}g P, ${fmt(meal.fat)}g F, ${fmt(meal.carbs)}g C, ${fmt(meal.weight)}g`;
-
-      const delBtn = document.createElement("button");
-      delBtn.textContent = "❌";
-      delBtn.title = "Remove this meal";
-      delBtn.style.background = "#a94442";
-      delBtn.style.width = "36px";
-      delBtn.style.flexShrink = 0;
-      delBtn.addEventListener("click", () => {
-        dailyLog.splice(i, 1);
-        saveLog(dailyLog);
-        renderMealHistory();
-        updateProgress();
-      });
-
-      flexDiv.appendChild(textDiv);
-      flexDiv.appendChild(delBtn);
-
-      div.appendChild(flexDiv);
-      mealHistoryDiv.appendChild(div);
-    });
-  }
-
-  // Add new food to daily log
-  function addFoodToLog(foodName, amountInput, portionType) {
-    const foods = getAllFoods();
-    const normName = normalizeName(foodName);
-    if (!(normName in foods)) {
-      alert("Food not found. Try adding a custom food first.");
-      return false;
-    }
-    const macros = calculateMacros(foods[normName], amountInput, portionType);
-    if (!macros) {
-      alert("Invalid amount input.");
-      return false;
-    }
-    dailyLog.push({
-      name: foodName,
-      ...macros,
-      timestamp: Date.now()
-    });
-    saveLog(dailyLog);
-    renderMealHistory();
-    updateProgress();
-    return true;
-  }
-
-  // --- EVENT LISTENERS ---
-
-  // Toggle settings panel
-  toggleSettingsBtn.addEventListener("click", () => {
-    settingsPanel.style.display = settingsPanel.style.display === "block" ? "none" : "block";
-  });
-
-  // Save settings
-  saveSettingsBtn.addEventListener("click", () => {
-    const bgColor = bgColorInput.value;
-    const theme = themeToggle.value;
-    nutritionGoals.calories = Math.max(0, parseInt(document.getElementById("calGoal").value, 10) || 2000);
-    nutritionGoals.protein = Math.max(0, parseInt(document.getElementById("proteinGoal").value, 10) || 150);
-    nutritionGoals.fat = Math.max(0, parseInt(document.getElementById("fatGoal").value, 10) || 70);
-    nutritionGoals.carbs = Math.max(0, parseInt(document.getElementById("carbGoal").value, 10) || 250);
-
-    saveGoals(nutritionGoals);
-    appSettings.backgroundColor = bgColor;
-    appSettings.theme = theme;
-    saveSettings(appSettings);
-    applyTheme();
-    updateGoalsDisplay();
-    updateProgress();
-    alert("Settings saved!");
-  });
-
-  // Apply saved theme and background color
-  function applyTheme() {
-    document.body.style.backgroundColor = appSettings.backgroundColor || "#121212";
-    if (appSettings.theme === "light") {
-      document.body.style.color = "#111";
-      document.body.style.backgroundColor = appSettings.backgroundColor || "#f0f0f0";
-    } else {
-      document.body.style.color = "#eee";
-      document.body.style.backgroundColor = appSettings.backgroundColor || "#121212";
-    }
-  }
-
-  // Update goals display numbers
-  function updateGoalsDisplay() {
-    calGoalDisplay.textContent = nutritionGoals.calories;
-    proteinGoalDisplay.textContent = nutritionGoals.protein;
-    fatGoalDisplay.textContent = nutritionGoals.fat;
-    carbGoalDisplay.textContent = nutritionGoals.carbs;
-
-    document.getElementById("calGoal").value = nutritionGoals.calories;
-    document.getElementById("proteinGoal").value = nutritionGoals.protein;
-    document.getElementById("fatGoal").value = nutritionGoals.fat;
-    document.getElementById("carbGoal").value = nutritionGoals.carbs;
-
-    bgColorInput.value = appSettings.backgroundColor || "#121212";
-    themeToggle.value = appSettings.theme || "dark";
-  }
-
-  // Food form submission
-  foodForm.addEventListener("submit", (e) => {
-    e.preventDefault();
-    const foodName = foodNameInput.value.trim();
-    const amount = document.getElementById("foodAmount").value.trim();
-    const portionType = portionSelect.value;
-    if (foodName === "" || amount === "") {
-      alert("Please fill in food name and amount.");
-      return;
-    }
-    if (addFoodToLog(foodName, amount, portionType)) {
-      foodNameInput.value = "";
-      document.getElementById("foodAmount").value = "";
-    }
-  });
-
-  // Custom food form submission
-  customFoodForm.addEventListener("submit", (e) => {
-    e.preventDefault();
-    const name = document.getElementById("customFoodName").value.trim();
-    const calories = parseFloat(document.getElementById("customCalories").value);
-    const protein = parseFloat(document.getElementById("customProtein").value);
-    const fat = parseFloat(document.getElementById("customFat").value);
-    const carbs = parseFloat(document.getElementById("customCarbs").value);
-    const weightPerUnit = parseFloat(document.getElementById("customWeightPerUnit").value) || null;
-
-    if (!name || isNaN(calories) || isNaN(protein) || isNaN(fat) || isNaN(carbs)) {
-      alert("Please fill in all required fields correctly.");
-      return;
-    }
-    const normName = normalizeName(name);
-    customFoods[normName] = {
-      caloriesPer100g: calories,
-      proteinPer100g: protein,
-      fatPer100g: fat,
-      carbsPer100g: carbs,
-      weightPerUnit: weightPerUnit
-    };
-    saveCustomFoods(customFoods);
-    alert(`Custom food '${name}' added.`);
-    customFoodForm.reset();
-    populateFoodSuggestions();
-  });
-
-  // Water input change
-  waterInput.addEventListener("change", () => {
-    let val = parseInt(waterInput.value, 10);
-    if (isNaN(val) || val < 0) val = 0;
-    dailyWater = val;
-    saveWater(dailyWater);
-  });
-
-  // Add exercise calories burned
-  addExerciseBtn.addEventListener("click", () => {
-    let val = parseInt(exerciseInput.value, 10);
-    if (isNaN(val) || val < 0) {
-      alert("Enter valid positive number for exercise calories burned.");
-      return;
-    }
-    exerciseCalories += val;
-    saveExercise(exerciseCalories);
-    exerciseInput.value = "0";
-    updateProgress();
-  });
-
-  // Reset day button
-  resetDayBtn.addEventListener("click", () => {
-    if (confirm("Are you sure you want to reset the daily log and water intake?")) {
-      dailyLog = [];
-      dailyWater = 0;
-      exerciseCalories = 0;
+    const delBtn = document.createElement("button");
+    delBtn.textContent = "❌";
+    delBtn.title = "Remove this entry";
+    delBtn.style.background = "#a94442";
+    delBtn.style.width = "36px";
+    delBtn.style.flexShrink = 0;
+    delBtn.addEventListener("click", () => {
+      dailyLog.splice(i, 1);
       saveLog(dailyLog);
-      saveWater(dailyWater);
-      saveExercise(exerciseCalories);
       renderMealHistory();
       updateProgress();
+    });
+
+    flexDiv.appendChild(textDiv);
+    flexDiv.appendChild(delBtn);
+
+    div.appendChild(flexDiv);
+
+    // Show Image button if photo exists
+    if (meal.photo) {
+      const showImgBtn = document.createElement("button");
+      showImgBtn.textContent = "Show Image";
+      showImgBtn.style.marginTop = "6px";
+      let imgVisible = false;
+      const img = document.createElement("img");
+      img.src = meal.photo;
+      img.style.display = "none";
+
+      showImgBtn.addEventListener("click", () => {
+        imgVisible = !imgVisible;
+        img.style.display = imgVisible ? "block" : "none";
+        showImgBtn.textContent = imgVisible ? "Hide Image" : "Show Image";
+      });
+
+      div.appendChild(showImgBtn);
+      div.appendChild(img);
     }
+
+    mealHistoryDiv.appendChild(div);
   });
+}
 
-  // Export CSV
-  exportCSVBtn.addEventListener("click", () => {
-    if (dailyLog.length === 0) {
-      alert("No meals logged to export.");
-      return;
+// Elements
+const foodForm = document.getElementById("foodForm");
+const foodNameInput = document.getElementById("foodName");
+const portionSelect = document.getElementById("portionSelect");
+const mealPhotoInput = document.getElementById("mealPhotoInput");
+const waterAmountInput = document.getElementById("waterAmountInput");
+const addWaterBtn = document.getElementById("addWaterBtn");
+
+// Food form submit handler with photo upload
+foodForm.addEventListener("submit", (e) => {
+  e.preventDefault();
+  const foodName = foodNameInput.value.trim();
+  const amount = document.getElementById("foodAmount").value.trim();
+  const portionType = portionSelect.value;
+
+  const file = mealPhotoInput.files[0];
+  if (!foodName || !amount) {
+    alert("Please fill in food name and amount.");
+    return;
+  }
+
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = function(event) {
+      const photoDataUrl = event.target.result;
+      if (addFoodToLog(foodName, amount, portionType, photoDataUrl)) {
+        foodNameInput.value = "";
+        document.getElementById("foodAmount").value = "";
+        mealPhotoInput.value = "";
+      }
+    };
+    reader.readAsDataURL(file);
+  } else {
+    if (addFoodToLog(foodName, amount, portionType, null)) {
+      foodNameInput.value = "";
+      document.getElementById("foodAmount").value = "";
+      mealPhotoInput.value = "";
     }
-    let csvContent = "data:text/csv;charset=utf-8,";
-    csvContent += "Name,Calories,Protein,Fat,Carbs,Weight(g),Timestamp\n";
-    dailyLog.forEach(meal => {
-      csvContent += `"${meal.name}",${fmt(meal.calories)},${fmt(meal.protein)},${fmt(meal.fat)},${fmt(meal.carbs)},${fmt(meal.weight)},${new Date(meal.timestamp).toLocaleString()}\n`;
-    });
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `food_log_${new Date().toISOString().slice(0,10)}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  });
-
-  // Populate food suggestions datalist
-  function populateFoodSuggestions() {
-    const foods = getAllFoods();
-    foodSuggestions.innerHTML = "";
-    Object.keys(foods).forEach(key => {
-      const option = document.createElement("option");
-      option.value = key;
-      option.textContent = key;
-      foodSuggestions.appendChild(option);
-    });
   }
+});
 
-  // Draw pie chart for macros using Canvas 2D
-  function drawMacroChart(totals) {
-    const canvas = document.getElementById("macroChart");
-    if (!canvas.getContext) return;
-    const ctx = canvas.getContext("2d");
-    ctx.clearRect(0,0,canvas.width, canvas.height);
-
-    const totalMacros = totals.protein + totals.fat + totals.carbs;
-    if (totalMacros === 0) {
-      ctx.fillStyle = "#777";
-      ctx.font = "16px Arial";
-      ctx.textAlign = "center";
-      ctx.fillText("No macros logged", canvas.width/2, canvas.height/2);
-      return;
-    }
-
-    let startAngle = -0.5 * Math.PI;
-    const centerX = canvas.width/2;
-    const centerY = canvas.height/2;
-    const radius = Math.min(canvas.width, canvas.height)/2 - 20;
-
-    // Pie segments with colors
-    const segments = [
-      {value: totals.protein, color: "#5e81ac", label: "Protein"},
-      {value: totals.fat, color: "#bf616a", label: "Fat"},
-      {value: totals.carbs, color: "#ebcb8b", label: "Carbs"},
-    ];
-
-    segments.forEach(seg => {
-      if (seg.value <= 0) return;
-      const sliceAngle = (seg.value / totalMacros) * 2 * Math.PI;
-      ctx.beginPath();
-      ctx.moveTo(centerX, centerY);
-      ctx.arc(centerX, centerY, radius, startAngle, startAngle + sliceAngle);
-      ctx.closePath();
-      ctx.fillStyle = seg.color;
-      ctx.fill();
-
-      // Draw labels
-      const midAngle = startAngle + sliceAngle/2;
-      const labelX = centerX + Math.cos(midAngle) * (radius/1.5);
-      const labelY = centerY + Math.sin(midAngle) * (radius/1.5);
-
-      ctx.fillStyle = "#222";
-      ctx.font = "14px Arial";
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.fillText(seg.label, labelX, labelY);
-
-      startAngle += sliceAngle;
-    });
+// Water add button handler
+addWaterBtn.addEventListener("click", () => {
+  const val = parseInt(waterAmountInput.value, 10);
+  if (isNaN(val) || val <= 0) {
+    alert("Please enter a valid positive water amount in ml.");
+    return;
   }
+  addWaterToLog(val);
+  waterAmountInput.value = "";
+});
 
-  // Init everything on page load
-  function init() {
-    applyTheme();
-    updateGoalsDisplay();
-    populateFoodSuggestions();
-    renderMealHistory();
-    updateProgress();
-  }
-
-  init();
+// Initial render
+renderMealHistory();
+updateProgress();
 </script>
 
 </body>
