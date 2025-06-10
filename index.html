@@ -3,30 +3,32 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Food DB Scale</title>
+  <title>Ethan's Food Ai</title>
   <style>
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
-        Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+        Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
       margin: 10px;
-      background: #f9f9f9;
-      color: #222;
+      background: #121212;
+      color: #e0e0e0;
     }
-    h1 {
+    h1, h2 {
       text-align: center;
+      color: #81a1c1;
     }
     form {
       max-width: 400px;
       margin: 0 auto 20px auto;
-      background: white;
+      background: #1e1e1e;
       padding: 20px;
       border-radius: 8px;
-      box-shadow: 0 0 10px #ccc;
+      box-shadow: 0 0 15px #222;
     }
     label {
       display: block;
       margin-top: 10px;
       font-weight: bold;
+      color: #a0a0a0;
     }
     input[type=text],
     input[type=number] {
@@ -35,52 +37,71 @@
       margin-top: 6px;
       box-sizing: border-box;
       border-radius: 4px;
-      border: 1px solid #aaa;
+      border: 1px solid #444;
       font-size: 16px;
+      background: #2c2c2c;
+      color: #ddd;
+    }
+    input[type=text]::placeholder,
+    input[type=number]::placeholder {
+      color: #666;
     }
     button {
       margin-top: 15px;
       width: 100%;
       padding: 12px;
       font-size: 18px;
-      background: #007aff;
+      background: #5e81ac;
       border: none;
       border-radius: 6px;
       color: white;
       cursor: pointer;
+      transition: background 0.3s ease;
     }
     button:hover {
-      background: #005ecb;
+      background: #81a1c1;
     }
     #result {
       max-width: 400px;
-      margin: 0 auto;
-      background: white;
+      margin: 0 auto 30px auto;
+      background: #1e1e1e;
       padding: 20px;
       border-radius: 8px;
-      box-shadow: 0 0 10px #ccc;
-      margin-bottom: 30px;
+      box-shadow: 0 0 15px #222;
       display: none;
+      color: #ddd;
     }
     #history {
       max-width: 400px;
-      margin: 0 auto;
-      background: white;
+      margin: 0 auto 50px auto;
+      background: #1e1e1e;
       padding: 20px;
       border-radius: 8px;
-      box-shadow: 0 0 10px #ccc;
+      box-shadow: 0 0 15px #222;
+      color: #ddd;
     }
     .entry {
-      border-bottom: 1px solid #ddd;
+      border-bottom: 1px solid #333;
       padding: 10px 0;
     }
     .entry:last-child {
       border-bottom: none;
     }
+    .entry button {
+      float: right;
+      color: #ff5555;
+      background: none;
+      border: none;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 18px;
+      line-height: 1;
+      padding: 0;
+    }
   </style>
 </head>
 <body>
-  <h1>Food DB Scale</h1>
+  <h1>Ethan's Food Ai</h1>
   <form id="foodForm">
     <label for="foodName">Food Name:</label>
     <input type="text" id="foodName" placeholder="e.g. steak" required />
@@ -123,74 +144,82 @@
 
     const form = document.getElementById("foodForm");
     const resultDiv = document.getElementById("result");
-    const resFood = document.getElementById("resFood");
-    const resAmount = document.getElementById("resAmount");
-    const resBloat = document.getElementById("resBloat");
-    const resCalories = document.getElementById("resCalories");
-    const resProtein = document.getElementById("resProtein");
-    const resFat = document.getElementById("resFat");
-    const resCarbs = document.getElementById("resCarbs");
     const historyList = document.getElementById("historyList");
 
     // Load saved entries from localStorage
     let savedEntries = JSON.parse(localStorage.getItem("foodEntries")) || [];
+    renderHistory();
 
-    function saveEntry(entry) {
-      savedEntries.unshift(entry); // add to start
-      if (savedEntries.length > 20) savedEntries.pop(); // limit saved entries to 20
-      localStorage.setItem("foodEntries", JSON.stringify(savedEntries));
-      renderHistory();
-    }
-
-    function renderHistory() {
-      historyList.innerHTML = "";
-      savedEntries.forEach((entry) => {
-        const div = document.createElement("div");
-        div.className = "entry";
-        div.innerHTML = `<strong>${entry.name}</strong> - ${entry.amount}g - Bloat: ${entry.bloat}/10 - Calories: ${entry.calories} kcal`;
-        historyList.appendChild(div);
-      });
-    }
-
-    function round(num, decimals = 2) {
-      return Number(Math.round(num + "e" + decimals) + "e-" + decimals);
-    }
-
-    form.addEventListener("submit", (e) => {
+    form.addEventListener("submit", e => {
       e.preventDefault();
-      const nameInput = form.foodName.value.trim().toLowerCase();
-      const amountInput = parseFloat(form.foodAmount.value);
 
-      if (!foodDB[nameInput]) {
-        alert("Food not found in database.");
+      const foodNameRaw = document.getElementById("foodName").value.trim().toLowerCase();
+      const amount = parseFloat(document.getElementById("foodAmount").value);
+
+      if (!foodDB[foodNameRaw]) {
+        alert("Food not found in database. Try another or add it yourself later.");
         return;
       }
 
-      const food = foodDB[nameInput];
-      const amountFactor = amountInput / 100;
+      const food = foodDB[foodNameRaw];
 
       const bloat = food.bloat;
-      const calories = round(food.caloriesPer100g * amountFactor);
-      const protein = round(food.proteinPer100g * amountFactor);
-      const fat = round(food.fatPer100g * amountFactor);
-      const carbs = round(food.carbsPer100g * amountFactor);
+      const calories = ((food.caloriesPer100g * amount) / 100).toFixed(1);
+      const protein = ((food.proteinPer100g * amount) / 100).toFixed(1);
+      const fat = ((food.fatPer100g * amount) / 100).toFixed(1);
+      const carbs = ((food.carbsPer100g * amount) / 100).toFixed(1);
 
-      resFood.textContent = nameInput;
-      resAmount.textContent = amountInput;
-      resBloat.textContent = bloat;
-      resCalories.textContent = calories;
-      resProtein.textContent = protein;
-      resFat.textContent = fat;
-      resCarbs.textContent = carbs;
+      document.getElementById("resFood").textContent = foodNameRaw;
+      document.getElementById("resAmount").textContent = amount;
+      document.getElementById("resBloat").textContent = bloat;
+      document.getElementById("resCalories").textContent = calories;
+      document.getElementById("resProtein").textContent = protein;
+      document.getElementById("resFat").textContent = fat;
+      document.getElementById("resCarbs").textContent = carbs;
 
       resultDiv.style.display = "block";
 
       // Save entry
-      saveEntry({ name: nameInput, amount: amountInput, bloat, calories });
+      const entry = {
+        food: foodNameRaw,
+        amount,
+        bloat,
+        calories,
+        protein,
+        fat,
+        carbs,
+        date: new Date().toLocaleString()
+      };
+
+      savedEntries.unshift(entry); // newest first
+      localStorage.setItem("foodEntries", JSON.stringify(savedEntries));
+      renderHistory();
     });
 
-    // Initial render
-    renderHistory();
+    function renderHistory() {
+      if (savedEntries.length === 0) {
+        historyList.innerHTML = "<p>No saved entries yet.</p>";
+        return;
+      }
+      historyList.innerHTML = "";
+      savedEntries.forEach((entry, index) => {
+        const div = document.createElement("div");
+        div.className = "entry";
+        div.innerHTML = `
+          <strong>${entry.food}</strong> - ${entry.amount}g<br/>
+          Bloat: ${entry.bloat} / 10, Calories: ${entry.calories} kcal, Protein: ${entry.protein}g<br/>
+          <small>${entry.date}</small>
+          <button onclick="deleteEntry(${index})" title="Delete entry">×</button>
+        `;
+        historyList.appendChild(div);
+      });
+    }
+
+    function deleteEntry(index) {
+      savedEntries.splice(index, 1);
+      localStorage.setItem("foodEntries", JSON.stringify(savedEntries));
+      renderHistory();
+    }
   </script>
 </body>
 </html>
