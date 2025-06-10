@@ -1,19 +1,14 @@
 {
   "name": "Ethan's Food Ai",
-  "short_name": "FoodAi",
-  "start_url": "./index.html",
+  "short_name": "Food Ai",
+  "start_url": ".",
   "display": "standalone",
   "background_color": "#121212",
   "theme_color": "#5e81ac",
   "icons": [
     {
-      "src": "icon-192.png",
+      "src": "icon.png",
       "sizes": "192x192",
-      "type": "image/png"
-    },
-    {
-      "src": "icon-512.png",
-      "sizes": "512x512",
       "type": "image/png"
     }
   ]
