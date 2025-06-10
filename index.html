@@ -22,16 +22,16 @@
     --button-bg: #5e81ac;
     --button-hover-bg: #4a699f;
     --result-bg: #222;
-    --progress-bg: #444;
-    --progress-fill: #81a1c1;
+    --tracker-bg: #222;
   }
+
   body {
     background-color: var(--bg-color);
     color: var(--text-color);
     font-family: Arial, sans-serif;
-    margin: 1rem auto;
-    padding: 1rem;
     max-width: 480px;
+    margin: 1rem auto 5rem; /* bottom margin for fixed tracker */
+    padding: 1rem;
     box-sizing: border-box;
     transition: background-color 0.3s ease;
   }
@@ -39,160 +39,135 @@
     text-align: center;
     margin-bottom: 1rem;
   }
-  form, #goalForm {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    margin-bottom: 1rem;
-  }
-  input[type="text"], input[type="number"] {
-    background: var(--input-bg);
-    color: var(--text-color);
-    border: none;
-    border-radius: 4px;
+  input, button, select {
     padding: 0.5rem;
     font-size: 1rem;
-    flex: 1 1 45%;
-    min-width: 120px;
+    margin: 0.5rem 0;
+    width: 100%;
     box-sizing: border-box;
+    border-radius: 4px;
+    border: none;
   }
-  input[type="number"]::-webkit-inner-spin-button, 
-  input[type="number"]::-webkit-outer-spin-button { 
-    -webkit-appearance: none; 
-    margin: 0; 
+  input, select {
+    background: var(--input-bg);
+    color: var(--text-color);
   }
   button {
     background: var(--button-bg);
     color: white;
-    border: none;
-    border-radius: 4px;
-    padding: 0.6rem 1rem;
-    font-size: 1rem;
     cursor: pointer;
-    flex: 1 1 100%;
-    max-width: 100%;
-    transition: background-color 0.2s ease;
+    transition: background-color 0.3s ease;
   }
   button:hover {
     background: var(--button-hover-bg);
   }
-  #result {
-    background: var(--result-bg);
+  .result {
+    margin-top: 1rem;
     padding: 1rem;
+    background: var(--result-bg);
     border-radius: 6px;
     word-wrap: break-word;
-    margin-bottom: 1rem;
-    min-height: 120px;
   }
-  #result a {
+  .result a {
+    display: inline-block;
+    margin-top: 0.75rem;
     color: #81a1c1;
     text-decoration: none;
   }
-  #result a:hover {
+  .result a:hover {
     text-decoration: underline;
   }
-  /* Daily tracker and progress bars */
   #dailyTracker {
-    background: var(--result-bg);
-    padding: 1rem;
-    border-radius: 8px;
-    margin-bottom: 1rem;
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: var(--tracker-bg);
+    color: var(--text-color);
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 480px;
+    margin: 0 auto;
+    box-sizing: border-box;
+    z-index: 999;
   }
   #trackerTotals {
-    font-size: 1.1rem;
-    margin-bottom: 1rem;
-    text-align: center;
+    flex: 1;
   }
-  .progress-container {
-    background: var(--progress-bg);
-    border-radius: 20px;
-    height: 18px;
-    margin-bottom: 0.75rem;
+  #resetTracker {
+    background: #d9534f;
+    margin-left: 1rem;
+    flex-shrink: 0;
+  }
+  #settingsBtn {
+    background: #4caf50;
+    margin-left: 1rem;
+    flex-shrink: 0;
+  }
+  /* Settings Modal */
+  #settingsModal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.6);
+    justify-content: center;
+    align-items: center;
+  }
+  #settingsContent {
+    background: var(--result-bg);
+    padding: 1.5rem;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 400px;
+    box-sizing: border-box;
+    color: var(--text-color);
+  }
+  #settingsContent h2 {
+    margin-top: 0;
+  }
+  #closeSettings {
+    background: #d9534f;
+    margin-top: 1rem;
+    width: 100%;
+  }
+  label {
+    display: block;
+    margin: 0.75rem 0 0.25rem;
+  }
+  /* Progress bars container */
+  #goalsContainer {
+    margin-top: 1rem;
+  }
+  .goalBar {
+    background: #444;
+    border-radius: 6px;
     overflow: hidden;
+    margin-bottom: 0.75rem;
+    height: 20px;
   }
-  .progress-bar {
-    background: var(--progress-fill);
+  .goalFill {
+    background: var(--button-bg);
     height: 100%;
     width: 0%;
     transition: width 0.4s ease;
   }
-  #trackerReset {
-    background: var(--button-bg);
-    color: white;
-    border: none;
-    border-radius: 4px;
-    padding: 0.5rem 1rem;
-    cursor: pointer;
-    width: 100%;
-    font-size: 1rem;
-    margin-top: 0.5rem;
-  }
-  #trackerReset:hover {
-    background: var(--button-hover-bg);
-  }
-  /* Goal setting section */
-  #settingsBtn {
-    position: fixed;
-    top: 1rem;
-    right: 1rem;
-    background: var(--button-bg);
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    font-size: 24px;
-    line-height: 40px;
-    text-align: center;
-    cursor: pointer;
-    color: white;
-    box-shadow: 0 0 6px rgba(0,0,0,0.3);
-    z-index: 1000;
-  }
-  #settingsPanel {
-    position: fixed;
-    top: 60px;
-    right: 1rem;
-    background: var(--result-bg);
-    border-radius: 8px;
-    padding: 1rem;
-    width: 280px;
-    max-width: 90vw;
-    box-shadow: 0 0 15px rgba(0,0,0,0.5);
-    display: none;
-    z-index: 1000;
-  }
-  #settingsPanel label {
-    display: block;
-    margin-top: 0.5rem;
-  }
-  #settingsPanel input[type="color"] {
-    width: 100%;
-    height: 40px;
-    border: none;
-    cursor: pointer;
-    margin-top: 0.3rem;
-  }
-  #closeSettings {
-    background: #a33;
-    width: 100%;
-    margin-top: 1rem;
-  }
   /* Responsive */
-  @media (max-width: 520px) {
+  @media (max-width: 600px) {
     body {
-      margin: 0.5rem;
-      padding: 0.5rem;
+      margin: 1rem;
       max-width: 100%;
     }
-    form, #goalForm {
-      flex-direction: column;
+    #dailyTracker {
+      font-size: 0.9rem;
+      flex-wrap: wrap;
+      gap: 0.5rem;
     }
-    input[type="text"], input[type="number"], button {
-      flex: 1 1 100%;
-    }
-    #settingsPanel {
-      top: 50px;
-      right: 0.5rem;
-      width: 90vw;
+    #resetTracker, #settingsBtn {
+      width: auto;
+      padding: 0.4rem 0.8rem;
+      margin-left: 0;
     }
   }
 </style>
@@ -201,320 +176,290 @@
 
 <h1>Ethan's Food Ai</h1>
 
-<!-- Settings Button -->
-<button id="settingsBtn" title="Settings ⚙️">&#9881;</button>
-
-<!-- Settings Panel -->
-<div id="settingsPanel" aria-hidden="true">
-  <h2>Settings</h2>
-  <label for="bgColorPicker">Background Color</label>
-  <input type="color" id="bgColorPicker" value="#121212" />
-
-  <form id="goalForm">
-    <h3>Set Daily Goals</h3>
-    <label for="calorieGoal">Calories (kcal)</label>
-    <input type="number" id="calorieGoal" min="0" step="1" placeholder="e.g. 2500" />
-
-    <label for="proteinGoal">Protein (g)</label>
-    <input type="number" id="proteinGoal" min="0" step="0.1" placeholder="e.g. 150" />
-
-    <label for="fatGoal">Fat (g)</label>
-    <input type="number" id="fatGoal" min="0" step="0.1" placeholder="e.g. 70" />
-
-    <label for="carbGoal">Carbs (g)</label>
-    <input type="number" id="carbGoal" min="0" step="0.1" placeholder="e.g. 300" />
-
-    <button type="submit">Save Goals</button>
-  </form>
-  <button id="closeSettings">Close</button>
-</div>
-
-<!-- Food input form -->
 <form id="foodForm">
   <input type="text" id="foodName" placeholder="Food name" required autocomplete="off" />
   <input type="text" id="foodAmount" placeholder="Amount (e.g., 1 or 150g)" required autocomplete="off" />
   <button type="submit">Calculate</button>
 </form>
 
-<div id="result" aria-live="polite" aria-atomic="true"></div>
+<div id="result"></div>
 
-<!-- Daily tracker with progress bars -->
-<div id="dailyTracker" aria-label="Daily Nutrition Tracker">
-  <div id="trackerTotals" aria-live="polite" aria-atomic="true">
+<div id="goalsContainer" aria-label="Nutrition goals progress bars">
+  <div>
+    <label for="calorieGoalBar">Calories:</label>
+    <div class="goalBar" id="calorieGoalBar"><div class="goalFill" id="calorieFill"></div></div>
+  </div>
+  <div>
+    <label for="proteinGoalBar">Protein:</label>
+    <div class="goalBar" id="proteinGoalBar"><div class="goalFill" id="proteinFill"></div></div>
+  </div>
+  <div>
+    <label for="fatGoalBar">Fat:</label>
+    <div class="goalBar" id="fatGoalBar"><div class="goalFill" id="fatFill"></div></div>
+  </div>
+  <div>
+    <label for="carbGoalBar">Carbs:</label>
+    <div class="goalBar" id="carbGoalBar"><div class="goalFill" id="carbFill"></div></div>
+  </div>
+</div>
+
+<!-- Daily tracker bar -->
+<div id="dailyTracker" role="region" aria-label="Daily nutrition tracker">
+  <div id="trackerTotals">
     Calories: 0 kcal | Protein: 0 g | Fat: 0 g | Carbs: 0 g
   </div>
+  <button id="resetTracker" title="Reset daily totals">Reset</button>
+  <button id="settingsBtn" title="Open settings">Settings</button>
+</div>
 
-  <div>
-    <label for="calorieProgress">Calories</label>
-    <div class="progress-container" aria-hidden="true">
-      <div id="calorieProgress" class="progress-bar"></div>
-    </div>
+<!-- Settings modal -->
+<div id="settingsModal" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+  <div id="settingsContent">
+    <h2 id="settingsTitle">Settings</h2>
+    <form id="settingsForm">
+      <label for="bgColorInput">Background Color:</label>
+      <input type="color" id="bgColorInput" name="bgColor" value="#121212" />
 
-    <label for="proteinProgress">Protein</label>
-    <div class="progress-container" aria-hidden="true">
-      <div id="proteinProgress" class="progress-bar"></div>
-    </div>
+      <label for="calorieGoalInput">Calorie Goal (kcal):</label>
+      <input type="number" id="calorieGoalInput" min="0" step="10" />
 
-    <label for="fatProgress">Fat</label>
-    <div class="progress-container" aria-hidden="true">
-      <div id="fatProgress" class="progress-bar"></div>
-    </div>
+      <label for="proteinGoalInput">Protein Goal (g):</label>
+      <input type="number" id="proteinGoalInput" min="0" step="1" />
 
-    <label for="carbProgress">Carbs</label>
-    <div class="progress-container" aria-hidden="true">
-      <div id="carbProgress" class="progress-bar"></div>
-    </div>
+      <label for="fatGoalInput">Fat Goal (g):</label>
+      <input type="number" id="fatGoalInput" min="0" step="1" />
+
+      <label for="carbGoalInput">Carb Goal (g):</label>
+      <input type="number" id="carbGoalInput" min="0" step="1" />
+
+      <button type="submit" style="margin-top: 1rem;">Save Settings</button>
+      <button type="button" id="closeSettings">Cancel</button>
+    </form>
   </div>
-
-  <button id="trackerReset">Reset Tracker</button>
 </div>
 
 <script>
-  // Food database
-  const foodDB = {
-    banana: {
-      bloat: 1,
-      caloriesPer100g: 89,
-      proteinPer100g: 1.1,
-      fatPer100g: 0.3,
-      carbsPer100g: 23,
-      weightPerUnit: 118
-    },
-    steak: {
-      bloat: 7,
-      caloriesPer100g: 250,
-      proteinPer100g: 26,
-      fatPer100g: 20,
-      carbsPer100g: 0,
-      weightPerUnit: 200
-    },
-    apple: {
-      bloat: 2,
-      caloriesPer100g: 52,
-      proteinPer100g: 0.3,
-      fatPer100g: 0.2,
-      carbsPer100g: 14,
-      weightPerUnit: 182
-    },
-    chickenbreast: {
-      bloat: 3,
-      caloriesPer100g: 165,
-      proteinPer100g: 31,
-      fatPer100g: 3.6,
-      carbsPer100g: 0,
-      weightPerUnit: 150
-    },
-    broccoli: {
-      bloat: 5,
-      caloriesPer100g: 34,
-      proteinPer100g: 2.8,
-      fatPer100g: 0.4,
-      carbsPer100g: 7,
-      weightPerUnit: 91
-    },
-    egg: {
-      bloat: 1,
-      caloriesPer100g: 155,
-      proteinPer100g: 13,
-      fatPer100g: 11,
-      carbsPer100g: 1.1,
-      weightPerUnit: 50
-    },
-    rice: {
-      bloat: 4,
-      caloriesPer100g: 130,
-      proteinPer100g: 2.7,
-      fatPer100g: 0.3,
-      carbsPer100g: 28,
-      weightPerUnit: 100
-    },
-    salmon: {
-      bloat: 3,
-      caloriesPer100g: 206,
-      proteinPer100g: 22,
-      fatPer100g: 12,
-      carbsPer100g: 0,
-      weightPerUnit: 154
-    },
-    avocado: {
-      bloat: 2,
-      caloriesPer100g: 160,
-      proteinPer100g: 2,
-      fatPer100g: 15,
-      carbsPer100g: 9,
-      weightPerUnit: 150
-    },
-    almond: {
-      bloat: 2,
-      caloriesPer100g: 579,
-      proteinPer100g: 21,
-      fatPer100g: 50,
-      carbsPer100g: 22,
-      weightPerUnit: 1
-    },
-    yogurt: {
-      bloat: 4,
-      caloriesPer100g: 59,
-      proteinPer100g: 10,
-      fatPer100g: 0.4,
-      carbsPer100g: 3.6,
-      weightPerUnit: 100
-    },
-    potato: {
-      bloat: 5,
-      caloriesPer100g: 77,
-      proteinPer100g: 2,
-      fatPer100g: 0.1,
-      carbsPer100g: 17,
-      weightPerUnit: 150
-    },
-    carrot: {
-      bloat: 1,
-      caloriesPer100g: 41,
-      proteinPer100g: 0.9,
-      fatPer100g: 0.2,
-      carbsPer100g: 10,
-      weightPerUnit: 61
-    },
-    oats: {
-      bloat: 4,
-      caloriesPer100g: 389,
-      proteinPer100g: 17,
-      fatPer100g: 7,
-      carbsPer100g: 66,
-      weightPerUnit: 40
-    },
-    wheyprotein: {
-      bloat: 2,
-      caloriesPer100g: 400,
-      proteinPer100g: 80,
-      fatPer100g: 7,
-      carbsPer100g: 8,
-      weightPerUnit: 30
-    },
-    bread: {
-      bloat: 3,
-      caloriesPer100g: 265,
-      proteinPer100g: 9,
-      fatPer100g: 3.2,
-      carbsPer100g: 49,
-      weightPerUnit: 30
-    },
-    cheese: {
-      bloat: 3,
-      caloriesPer100g: 402,
-      proteinPer100g: 25,
-      fatPer100g: 33,
-      carbsPer100g: 1.3,
-      weightPerUnit: 30
-    },
-    peanutbutter: {
-      bloat: 4,
-      caloriesPer100g: 588,
-      proteinPer100g: 25,
-      fatPer100g: 50,
-      carbsPer100g: 20,
-      weightPerUnit: 32
-    }
-  };
+// Food database
+const foodDB = {
+  banana: { bloat: 1, caloriesPer100g: 89, proteinPer100g: 1.1, fatPer100g: 0.3, carbsPer100g: 23, weightPerUnit: 118 },
+  steak: { bloat: 7, caloriesPer100g: 250, proteinPer100g: 26, fatPer100g: 20, carbsPer100g: 0, weightPerUnit: 200 },
+  apple: { bloat: 2, caloriesPer100g: 52, proteinPer100g: 0.3, fatPer100g: 0.2, carbsPer100g: 14, weightPerUnit: 182 },
+  chickenbreast: { bloat: 3, caloriesPer100g: 165, proteinPer100g: 31, fatPer100g: 3.6, carbsPer100g: 0, weightPerUnit: 150 },
+  broccoli: { bloat: 5, caloriesPer100g: 34, proteinPer100g: 2.8, fatPer100g: 0.4, carbsPer100g: 7, weightPerUnit: 91 },
+  egg: { bloat: 1, caloriesPer100g: 155, proteinPer100g: 13, fatPer100g: 11, carbsPer100g: 1.1, weightPerUnit: 50 },
+  rice: { bloat: 4, caloriesPer100g: 130, proteinPer100g: 2.7, fatPer100g: 0.3, carbsPer100g: 28, weightPerUnit: 100 },
+  salmon: { bloat: 3, caloriesPer100g: 206, proteinPer100g: 22, fatPer100g: 12, carbsPer100g: 0, weightPerUnit: 154 },
+  avocado: { bloat: 2, caloriesPer100g: 160, proteinPer100g: 2, fatPer100g: 15, carbsPer100g: 9, weightPerUnit: 150 },
+  almond: { bloat: 2, caloriesPer100g: 579, proteinPer100g: 21, fatPer100g: 50, carbsPer100g: 22, weightPerUnit: 1 },
+  yogurt: { bloat: 4, caloriesPer100g: 59, proteinPer100g: 10, fatPer100g: 0.4, carbsPer100g: 3.6, weightPerUnit: 100 },
+  potato: { bloat: 5, caloriesPer100g: 77, proteinPer100g: 2, fatPer100g: 0.1, carbsPer100g: 17, weightPerUnit: 150 },
+  carrot: { bloat: 1, caloriesPer100g: 41, proteinPer100g: 0.9, fatPer100g: 0.2, carbsPer100g: 10, weightPerUnit: 61 },
+  oats: { bloat: 4, caloriesPer100g: 389, proteinPer100g: 17, fatPer100g: 7, carbsPer100g: 66, weightPerUnit: 40 },
+  wheyprotein: { bloat: 2, caloriesPer100g: 400, proteinPer100g: 80, fatPer100g: 7, carbsPer100g: 8, weightPerUnit: 30 },
+  bread: { bloat: 3, caloriesPer100g: 265, proteinPer100g: 9, fatPer100g: 3.2, carbsPer100g: 49, weightPerUnit: 30 },
+  cheese: { bloat: 3, caloriesPer100g: 402, proteinPer100g: 25, fatPer100g: 33, carbsPer100g: 1.3, weightPerUnit: 30 },
+  peanutbutter: { bloat: 4, caloriesPer100g: 588, proteinPer100g: 25, fatPer100g: 50, carbsPer100g: 20, weightPerUnit: 32 }
+};
 
-  // Parse amount input like "150g" or "2" units
-  function parseAmount(input, food) {
-    input = input.trim().toLowerCase();
-    if (input.endsWith("g")) {
-      const grams = parseFloat(input.replace("g", "").trim());
-      if (isNaN(grams) || grams <= 0) return null;
-      return grams;
-    } else {
-      const units = parseFloat(input);
-      if (isNaN(units) || units <= 0) return null;
-      if (!food.weightPerUnit) return null;
-      return units * food.weightPerUnit;
-    }
+function parseAmount(input, food) {
+  input = input.trim().toLowerCase();
+  if (input.endsWith("g")) {
+    const grams = parseFloat(input.replace("g", "").trim());
+    if (isNaN(grams) || grams <= 0) return null;
+    return grams;
+  } else {
+    const units = parseFloat(input);
+    if (isNaN(units) || units <= 0) return null;
+    if (!food.weightPerUnit) return null;
+    return units * food.weightPerUnit;
+  }
+}
+
+function round(num) {
+  return Math.round(num * 10) / 10;
+}
+
+let dailyTotals = {
+  calories: 0,
+  protein: 0,
+  fat: 0,
+  carbs: 0
+};
+
+let goals = {
+  calories: 2000,
+  protein: 150,
+  fat: 70,
+  carbs: 250
+};
+
+// Elements
+const form = document.getElementById("foodForm");
+const resultDiv = document.getElementById("result");
+const trackerTotalsDiv = document.getElementById("trackerTotals");
+const resetBtn = document.getElementById("resetTracker");
+const settingsBtn = document.getElementById("settingsBtn");
+const settingsModal = document.getElementById("settingsModal");
+const closeSettingsBtn = document.getElementById("closeSettings");
+const settingsForm = document.getElementById("settingsForm");
+const bgColorInput = document.getElementById("bgColorInput");
+const calorieGoalInput = document.getElementById("calorieGoalInput");
+const proteinGoalInput = document.getElementById("proteinGoalInput");
+const fatGoalInput = document.getElementById("fatGoalInput");
+const carbGoalInput = document.getElementById("carbGoalInput");
+
+// Progress bar fills
+const calorieFill = document.getElementById("calorieFill");
+const proteinFill = document.getElementById("proteinFill");
+const fatFill = document.getElementById("fatFill");
+const carbFill = document.getElementById("carbFill");
+
+// Load saved data
+function loadData() {
+  const savedTotals = localStorage.getItem("dailyTotals");
+  if (savedTotals) {
+    dailyTotals = JSON.parse(savedTotals);
+  }
+  const savedGoals = localStorage.getItem("nutritionGoals");
+  if (savedGoals) {
+    goals = JSON.parse(savedGoals);
+  }
+  const savedBg = localStorage.getItem("bgColor");
+  if (savedBg) {
+    document.documentElement.style.setProperty('--bg-color', savedBg);
+    bgColorInput.value = savedBg;
   }
 
-  function round(num) {
-    return Math.round(num * 10) / 10;
+  // Populate settings inputs with loaded goals
+  calorieGoalInput.value = goals.calories;
+  proteinGoalInput.value = goals.protein;
+  fatGoalInput.value = goals.fat;
+  carbGoalInput.value = goals.carbs;
+
+  updateTrackerUI();
+  updateProgressBars();
+}
+
+// Save goals & bg color
+function saveSettings() {
+  localStorage.setItem("nutritionGoals", JSON.stringify(goals));
+  localStorage.setItem("bgColor", bgColorInput.value);
+}
+
+// Update the daily tracker text
+function updateTrackerUI() {
+  trackerTotalsDiv.textContent =
+    `Calories: ${round(dailyTotals.calories)} kcal | Protein: ${round(dailyTotals.protein)} g | Fat: ${round(dailyTotals.fat)} g | Carbs: ${round(dailyTotals.carbs)} g`;
+}
+
+// Update the progress bars based on goals
+function updateProgressBars() {
+  function calcPercent(current, goal) {
+    if (goal === 0) return 0;
+    return Math.min((current / goal) * 100, 100);
+  }
+  calorieFill.style.width = calcPercent(dailyTotals.calories, goals.calories) + "%";
+  proteinFill.style.width = calcPercent(dailyTotals.protein, goals.protein) + "%";
+  fatFill.style.width = calcPercent(dailyTotals.fat, goals.fat) + "%";
+  carbFill.style.width = calcPercent(dailyTotals.carbs, goals.carbs) + "%";
+}
+
+// Reset daily totals and update UI
+resetBtn.addEventListener("click", () => {
+  dailyTotals = { calories: 0, protein: 0, fat: 0, carbs: 0 };
+  updateTrackerUI();
+  updateProgressBars();
+  localStorage.setItem("dailyTotals", JSON.stringify(dailyTotals));
+});
+
+// Settings modal open/close
+settingsBtn.addEventListener("click", () => {
+  settingsModal.style.display = "flex";
+});
+closeSettingsBtn.addEventListener("click", () => {
+  settingsModal.style.display = "none";
+});
+window.addEventListener("click", (e) => {
+  if (e.target === settingsModal) {
+    settingsModal.style.display = "none";
+  }
+});
+
+// Save settings form submit
+settingsForm.addEventListener("submit", (e) => {
+  e.preventDefault();
+  goals.calories = Number(calorieGoalInput.value) || 0;
+  goals.protein = Number(proteinGoalInput.value) || 0;
+  goals.fat = Number(fatGoalInput.value) || 0;
+  goals.carbs = Number(carbGoalInput.value) || 0;
+
+  // Update background color CSS variable
+  document.documentElement.style.setProperty('--bg-color', bgColorInput.value);
+
+  saveSettings();
+  updateProgressBars();
+  settingsModal.style.display = "none";
+});
+
+// Main form submit handler
+form.addEventListener("submit", e => {
+  e.preventDefault();
+
+  const foodNameRaw = document.getElementById("foodName").value.trim().toLowerCase().replace(/\s/g, "");
+  const amountRaw = document.getElementById("foodAmount").value.trim();
+
+  const food = foodDB[foodNameRaw];
+  if (!food) {
+    resultDiv.innerHTML = `<p><strong>Error:</strong> Food "${foodNameRaw}" not found in database.</p>`;
+    return;
   }
 
-  // Tracker and goal storage
-  let dailyTotals = {
-    calories: 0,
-    protein: 0,
-    fat: 0,
-    carbs: 0
-  };
-
-  let dailyGoals = {
-    calories: 2500,
-    protein: 150,
-    fat: 70,
-    carbs: 300
-  };
-
-  // Elements
-  const form = document.getElementById("foodForm");
-  const resultDiv = document.getElementById("result");
-  const trackerTotalsDiv = document.getElementById("trackerTotals");
-  const resetBtn = document.getElementById("trackerReset");
-  const settingsBtn = document.getElementById("settingsBtn");
-  const settingsPanel = document.getElementById("settingsPanel");
-  const closeSettingsBtn = document.getElementById("closeSettings");
-  const bgColorPicker = document.getElementById("bgColorPicker");
-  const goalForm = document.getElementById("goalForm");
-  const calorieGoalInput = document.getElementById("calorieGoal");
-  const proteinGoalInput = document.getElementById("proteinGoal");
-  const fatGoalInput = document.getElementById("fatGoal");
-  const carbGoalInput = document.getElementById("carbGoal");
-
-  // Progress bars
-  const calorieProgress = document.getElementById("calorieProgress");
-  const proteinProgress = document.getElementById("proteinProgress");
-  const fatProgress = document.getElementById("fatProgress");
-  const carbProgress = document.getElementById("carbProgress");
-
-  // Load saved data from localStorage
-  function loadData() {
-    const savedTotals = localStorage.getItem("dailyTotals");
-    if (savedTotals) {
-      dailyTotals = JSON.parse(savedTotals);
-    }
-    const savedGoals = localStorage.getItem("dailyGoals");
-    if (savedGoals) {
-      dailyGoals = JSON.parse(savedGoals);
-    }
-    const savedBg = localStorage.getItem("bgColor");
-    if (savedBg) {
-      document.documentElement.style.setProperty('--bg-color', savedBg);
-      bgColorPicker.value = savedBg;
-    }
-    updateTrackerUI();
-    updateGoalInputs();
-    updateProgressBars();
+  const grams = parseAmount(amountRaw, food);
+  if (grams === null) {
+    resultDiv.innerHTML = `<p><strong>Error:</strong> Invalid amount "${amountRaw}". Use number of units or grams (e.g. 1 or 150g).</p>`;
+    return;
   }
 
-  // Save current totals and goals
-  function saveData() {
-    localStorage.setItem("dailyTotals", JSON.stringify(dailyTotals));
-    localStorage.setItem("dailyGoals", JSON.stringify(dailyGoals));
-  }
+  // Calculate nutrition
+  const factor = grams / 100;
+  const calories = food.caloriesPer100g * factor;
+  const protein = food.proteinPer100g * factor;
+  const fat = food.fatPer100g * factor;
+  const carbs = food.carbsPer100g * factor;
+  const bloat = food.bloat;
 
-  // Update tracker text
-  function updateTrackerUI() {
-    trackerTotalsDiv.textContent =
-      `Calories: ${round(dailyTotals.calories)} kcal | Protein: ${round(dailyTotals.protein)} g | Fat: ${round(dailyTotals.fat)} g | Carbs: ${round(dailyTotals.carbs)} g`;
-  }
+  // Update daily totals
+  dailyTotals.calories += calories;
+  dailyTotals.protein += protein;
+  dailyTotals.fat += fat;
+  dailyTotals.carbs += carbs;
+  localStorage.setItem("dailyTotals", JSON.stringify(dailyTotals));
 
-  // Update goal input fields with current goal values
-  function updateGoalInputs() {
-    calorieGoalInput.value = dailyGoals.calories;
-    proteinGoalInput.value = dailyGoals.protein;
-    fatGoalInput.value = dailyGoals.fat;
-    carbGoalInput.value = dailyGoals.carbs;
-  }
+  // Update UI
+  updateTrackerUI();
+  updateProgressBars();
 
-  // Update progress bars width based on current progress vs goals
-  function updateProgressBars() {
-    function calcPercent(current, goal) {
-      if (goal <= 0) return 0;
-      return Math.min(100
+  // Show result
+  resultDiv.innerHTML = `
+    <p><strong>${foodNameRaw}</strong> (${grams}g):</p>
+    <ul>
+      <li>Calories: ${round(calories)} kcal</li>
+      <li>Protein: ${round(protein)} g</li>
+      <li>Fat: ${round(fat)} g</li>
+      <li>Carbs: ${round(carbs)} g</li>
+      <li>Face Bloat Score: ${bloat}</li>
+    </ul>
+    <a href="https://www.google.com/search?q=${encodeURIComponent(foodNameRaw)}+nutrition" target="_blank" rel="noopener noreferrer">Search nutrition info</a>
+  `;
+
+  // Clear input fields but keep focus on foodName
+  form.reset();
+  document.getElementById("foodName").focus();
+});
+
+// Initialize
+loadData();
+</script>
+
+</body>
+</html>
