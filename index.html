@@ -3,97 +3,231 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Food & Water Tracker with Photos</title>
+<title>Food & Water Tracker with Photos + Settings</title>
 <style>
-  body { font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; background: #f9f9f9; }
-  h1 { text-align: center; }
-  label { font-weight: bold; margin-top: 10px; display: block; }
-  input[type=number], input[type=text], select, input[type=file] { width: 100%; padding: 8px; margin-top: 4px; box-sizing: border-box; }
-  button { margin-top: 10px; padding: 8px 12px; cursor: pointer; }
-  .list-item { background: white; padding: 10px; margin-top: 8px; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-  .progress-bar-container { background: #ddd; border-radius: 12px; overflow: hidden; height: 20px; margin-top: 10px; }
-  .progress-bar { height: 100%; background: #4caf50; width: 0; transition: width 0.3s ease; }
-  .flex { display: flex; justify-content: space-between; align-items: center; }
-  .btn-group button { margin-left: 5px; }
+  body {
+    font-family: Arial, sans-serif;
+    max-width: 700px;
+    margin: auto;
+    padding: 20px;
+    background: #f8f9fa;
+  }
+  h1, h2 {
+    text-align: center;
+    margin-bottom: 10px;
+  }
+  label {
+    font-weight: bold;
+    margin-top: 12px;
+    display: block;
+  }
+  input[type=number], input[type=text], select, input[type=file] {
+    width: 100%;
+    padding: 7px;
+    margin-top: 4px;
+    box-sizing: border-box;
+    font-size: 1rem;
+  }
+  button {
+    margin-top: 12px;
+    padding: 10px 16px;
+    font-weight: bold;
+    cursor: pointer;
+    border: none;
+    background-color: #007bff;
+    color: white;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+  }
+  button:hover {
+    background-color: #0056b3;
+  }
+  .section {
+    background: white;
+    padding: 15px 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    margin-bottom: 20px;
+  }
+  #mealHistoryDiv .list-item {
+    background: #e9ecef;
+    padding: 10px 15px;
+    margin: 8px 0;
+    border-radius: 7px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  #mealHistoryDiv .list-item div {
+    flex: 1;
+  }
+  #mealHistoryDiv button {
+    margin-left: 8px;
+    padding: 6px 10px;
+    font-size: 0.9rem;
+    background-color: #28a745;
+  }
+  #mealHistoryDiv button.delete-btn {
+    background-color: #dc3545;
+  }
+  .flex-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .flex-row > div {
+    flex: 1;
+    min-width: 140px;
+  }
+  .progress-bar-container {
+    background: #ddd;
+    border-radius: 15px;
+    height: 22px;
+    overflow: hidden;
+    margin-top: 12px;
+  }
+  .progress-bar {
+    height: 100%;
+    background-color: #28a745;
+    width: 0;
+    transition: width 0.3s ease;
+  }
+  #settingsPanel {
+    display: none;
+    background: #fff3cd;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    box-shadow: 0 0 8px rgba(0,0,0,0.1);
+  }
+  #settingsPanel label {
+    font-weight: normal;
+  }
+  .small-label {
+    font-weight: normal;
+    font-size: 0.85rem;
+    color: #555;
+  }
+  /* Modal styles */
+  #imageModalBg {
+    display: none;
+    position: fixed;
+    z-index: 10000;
+    left: 0; top: 0;
+    width: 100vw; height: 100vh;
+    background-color: rgba(0,0,0,0.85);
+    justify-content: center;
+    align-items: center;
+  }
+  #imageModalBg img {
+    max-width: 90vw;
+    max-height: 90vh;
+    border-radius: 8px;
+    border: 3px solid white;
+  }
+  #imageModalBg.show {
+    display: flex;
+  }
 </style>
 </head>
 <body>
 
-<h1>Food & Water Tracker with Photos</h1>
+<h1>Food & Water Tracker with Photos + Settings</h1>
 
-<div>
+<div class="section" id="inputSection">
   <label for="foodInput">Food Name</label>
-  <input id="foodInput" type="text" placeholder="Enter food name" />
-</div>
+  <input id="foodInput" type="text" placeholder="e.g. chicken, apple, rice" autocomplete="off" />
 
-<div>
-  <label for="amountInput">Amount</label>
-  <input id="amountInput" type="number" min="0" placeholder="Enter amount" />
-</div>
+  <div class="flex-row">
+    <div>
+      <label for="amountInput">Amount</label>
+      <input id="amountInput" type="number" min="0" placeholder="e.g. 150" />
+    </div>
+    <div>
+      <label for="portionTypeSelect">Portion Type</label>
+      <select id="portionTypeSelect">
+        <option value="grams">Grams (g)</option>
+        <option value="servings">Servings</option>
+      </select>
+    </div>
+  </div>
 
-<div>
-  <label for="portionTypeSelect">Portion Type</label>
-  <select id="portionTypeSelect">
-    <option value="grams">Grams (g)</option>
-    <option value="servings">Servings</option>
-  </select>
-</div>
-
-<div>
   <label for="mealPhotoInput">Meal Photo (optional)</label>
   <input id="mealPhotoInput" type="file" accept="image/*" capture="environment" />
+
+  <button id="addMealBtn">Add Meal to Log</button>
 </div>
 
-<button id="addMealBtn">Add Meal to Log</button>
-
-<hr />
-
-<div>
-  <label for="waterInput">Water Intake (ml)</label>
-  <input id="waterInput" type="number" min="0" value="0" />
+<div class="section" id="waterSection">
+  <label for="waterInput">Add Water Intake (ml)</label>
+  <input id="waterInput" type="number" min="0" placeholder="e.g. 250" />
   <button id="addWaterBtn">Add Water</button>
 </div>
 
-<hr />
-
-<h2>Daily Totals</h2>
-<div>Calories: <span id="totalCalories">0</span> kcal</div>
-<div>Protein: <span id="totalProtein">0</span> g</div>
-<div>Fat: <span id="totalFat">0</span> g</div>
-<div>Carbs: <span id="totalCarbs">0</span> g</div>
-<div>Water: <span id="totalWater">0</span> ml</div>
-
-<div class="progress-bar-container">
-  <div id="calorieProgress" class="progress-bar"></div>
+<div class="section">
+  <button id="toggleSettingsBtn">Show Settings ⚙️</button>
 </div>
 
-<hr />
+<div class="section" id="settingsPanel">
+  <h2>Settings</h2>
+  <label for="calorieGoalInput">Daily Calorie Goal (kcal)</label>
+  <input id="calorieGoalInput" type="number" min="500" max="10000" step="50" />
 
-<h2>Meal Log</h2>
-<div id="mealHistoryDiv">No meals logged yet.</div>
+  <label for="unitPreferenceSelect">Unit Preference</label>
+  <select id="unitPreferenceSelect">
+    <option value="metric">Metric (g, ml)</option>
+    <option value="imperial">Imperial (oz, fl oz)</option>
+  </select>
+
+  <button id="saveSettingsBtn" style="background-color:#17a2b8;">Save Settings</button>
+</div>
+
+<div class="section" id="totalsSection">
+  <h2>Daily Totals</h2>
+  <div>Calories: <span id="totalCalories">0</span> kcal</div>
+  <div>Protein: <span id="totalProtein">0</span> g</div>
+  <div>Fat: <span id="totalFat">0</span> g</div>
+  <div>Carbs: <span id="totalCarbs">0</span> g</div>
+  <div>Water: <span id="totalWater">0</span> ml</div>
+
+  <div class="progress-bar-container" title="Calories Progress">
+    <div id="calorieProgress" class="progress-bar"></div>
+  </div>
+</div>
+
+<div class="section" id="mealLogSection">
+  <h2>Meal Log</h2>
+  <div id="mealHistoryDiv">No meals logged yet.</div>
+</div>
+
+<!-- Image modal -->
+<div id="imageModalBg"><img id="modalImage" alt="Meal photo" /></div>
 
 <script>
-  // === Sample food database with macros per 100g & calories ===
-  // Add your real data or fetch from API as needed
+  // === Sample food database (per 100g) ===
+  // You can expand this as needed or replace with API calls
   const foodsDatabase = {
     apple: { calories: 52, protein: 0.3, fat: 0.2, carbs: 14 },
     chicken: { calories: 239, protein: 27, fat: 14, carbs: 0 },
     rice: { calories: 130, protein: 2.4, fat: 0.3, carbs: 28 },
     steak: { calories: 271, protein: 25, fat: 19, carbs: 0 },
     bread: { calories: 265, protein: 9, fat: 3.2, carbs: 49 },
+    banana: { calories: 89, protein: 1.1, fat: 0.3, carbs: 23 },
+    salmon: { calories: 208, protein: 20, fat: 13, carbs: 0 },
   };
-
-  // === Helpers ===
-  function fmt(n) { return n.toFixed(1); }
-  function normalizeName(name) { return name.trim().toLowerCase(); }
 
   // === Storage keys ===
   const STORAGE_LOG_KEY = "dailyFoodLogWithPhotos";
   const STORAGE_WATER_KEY = "dailyWaterIntake";
+  const STORAGE_SETTINGS_KEY = "foodTrackerSettings";
 
-  // === Load data from localStorage ===
+  // === Load persisted data ===
   let dailyLog = JSON.parse(localStorage.getItem(STORAGE_LOG_KEY)) || [];
   let dailyWater = parseInt(localStorage.getItem(STORAGE_WATER_KEY), 10) || 0;
+  let settings = JSON.parse(localStorage.getItem(STORAGE_SETTINGS_KEY)) || {
+    calorieGoal: 2500,
+    unitPreference: "metric",
+  };
 
   // === DOM elements ===
   const foodInput = document.getElementById("foodInput");
@@ -105,22 +239,58 @@
   const waterInput = document.getElementById("waterInput");
   const addWaterBtn = document.getElementById("addWaterBtn");
 
-  const mealHistoryDiv = document.getElementById("mealHistoryDiv");
   const totalCaloriesSpan = document.getElementById("totalCalories");
   const totalProteinSpan = document.getElementById("totalProtein");
   const totalFatSpan = document.getElementById("totalFat");
   const totalCarbsSpan = document.getElementById("totalCarbs");
   const totalWaterSpan = document.getElementById("totalWater");
-
   const calorieProgressBar = document.getElementById("calorieProgress");
-  const DAILY_CALORIE_GOAL = 2500; // Change this to your goal
 
-  // === Save data helpers ===
+  const mealHistoryDiv = document.getElementById("mealHistoryDiv");
+
+  const toggleSettingsBtn = document.getElementById("toggleSettingsBtn");
+  const settingsPanel = document.getElementById("settingsPanel");
+  const calorieGoalInput = document.getElementById("calorieGoalInput");
+  const unitPreferenceSelect = document.getElementById("unitPreferenceSelect");
+  const saveSettingsBtn = document.getElementById("saveSettingsBtn");
+
+  const imageModalBg = document.getElementById("imageModalBg");
+  const modalImage = document.getElementById("modalImage");
+
+  // === Helpers ===
+  function fmt(n) {
+    return n.toFixed(1);
+  }
+  function normalizeName(name) {
+    return name.trim().toLowerCase();
+  }
+
+  // === Unit conversion helpers ===
+  // For future extension - currently using metric only
+  function convertWeightToPreferredUnit(g) {
+    if (settings.unitPreference === "imperial") {
+      // grams to ounces
+      return (g / 28.3495).toFixed(1) + " oz";
+    }
+    return g.toFixed(1) + " g";
+  }
+  function convertWaterToPreferredUnit(ml) {
+    if (settings.unitPreference === "imperial") {
+      // ml to fl oz
+      return (ml / 29.5735).toFixed(1) + " fl oz";
+    }
+    return ml + " ml";
+  }
+
+  // === Save helpers ===
   function saveLog(log) {
     localStorage.setItem(STORAGE_LOG_KEY, JSON.stringify(log));
   }
   function saveWater(waterMl) {
     localStorage.setItem(STORAGE_WATER_KEY, waterMl.toString());
+  }
+  function saveSettings(settingsObj) {
+    localStorage.setItem(STORAGE_SETTINGS_KEY, JSON.stringify(settingsObj));
   }
 
   // === Calculate macros based on amount and portion type ===
@@ -135,7 +305,7 @@
         weight: amount,
       };
     } else if (portionType === "servings") {
-      // assuming serving size = 100g, adjust if needed
+      // Assuming 1 serving = 100g for simplicity
       let factor = amount;
       return {
         calories: foodData.calories * factor,
@@ -157,7 +327,7 @@
       return;
     }
     if (!(normName in foodsDatabase)) {
-      alert(`Food "${foodNameRaw}" not found in database.`);
+      alert(`Food "${foodNameRaw}" not found in database. Try another or check spelling.`);
       return;
     }
     const amount = parseFloat(amountInput.value);
@@ -167,7 +337,6 @@
     }
     const portionType = portionTypeSelect.value;
 
-    // Calculate macros
     const foodData = foodsDatabase[normName];
     const macros = calculateMacros(foodData, amount, portionType);
     if (!macros) {
@@ -177,9 +346,8 @@
 
     const file = mealPhotoInput.files[0];
     if (file) {
-      // Read file as base64 then save meal after reading
       const reader = new FileReader();
-      reader.onload = function(e) {
+      reader.onload = function (e) {
         const base64Image = e.target.result;
         dailyLog.push({
           name: foodNameRaw,
@@ -193,7 +361,7 @@
         });
         saveLog(dailyLog);
         renderMealHistory();
-        updateProgress();
+        updateTotalsAndProgress();
         resetInputs();
       };
       reader.readAsDataURL(file);
@@ -210,12 +378,12 @@
       });
       saveLog(dailyLog);
       renderMealHistory();
-      updateProgress();
+      updateTotalsAndProgress();
       resetInputs();
     }
   });
 
-  // === Add water button increments water intake ===
+  // === Add water ===
   addWaterBtn.addEventListener("click", () => {
     const val = parseInt(waterInput.value, 10);
     if (isNaN(val) || val <= 0) {
@@ -225,10 +393,10 @@
     dailyWater += val;
     saveWater(dailyWater);
     waterInput.value = "";
-    updateProgress();
+    updateTotalsAndProgress();
   });
 
-  // === Reset inputs after add ===
+  // === Reset input fields ===
   function resetInputs() {
     foodInput.value = "";
     amountInput.value = "";
@@ -246,99 +414,106 @@
       const div = document.createElement("div");
       div.classList.add("list-item");
 
-      const flexDiv = document.createElement("div");
-      flexDiv.classList.add("flex");
+      const mealInfoDiv = document.createElement("div");
+      mealInfoDiv.innerHTML = `<strong>${meal.name}</strong><br>
+        ${fmt(meal.calories)} kcal | P: ${fmt(meal.protein)}g | F: ${fmt(meal.fat)}g | C: ${fmt(meal.carbs)}g | ${convertWeightToPreferredUnit(meal.weight)}`;
 
-      const textDiv = document.createElement("div");
-      textDiv.textContent = `${meal.name} — ${fmt(meal.calories)} kcal, ${fmt(meal.protein)}g P, ${fmt(meal.fat)}g F, ${fmt(meal.carbs)}g C, ${fmt(meal.weight)}g`;
+      div.appendChild(mealInfoDiv);
 
-      const btnGroup = document.createElement("div");
-      btnGroup.classList.add("btn-group");
+      // Buttons container
+      const btnsDiv = document.createElement("div");
 
       if (meal.photo) {
         const showImgBtn = document.createElement("button");
         showImgBtn.textContent = "Show Image";
+        showImgBtn.title = "View meal photo";
         showImgBtn.addEventListener("click", () => {
-          showImageModal(meal.photo);
+          modalImage.src = meal.photo;
+          imageModalBg.classList.add("show");
         });
-        btnGroup.appendChild(showImgBtn);
+        btnsDiv.appendChild(showImgBtn);
       }
 
       const delBtn = document.createElement("button");
-      delBtn.textContent = "❌";
-      delBtn.title = "Remove this meal";
-      delBtn.style.background = "#a94442";
-      delBtn.style.color = "white";
-      delBtn.style.border = "none";
-      delBtn.style.borderRadius = "4px";
-      delBtn.style.padding = "4px 8px";
+      delBtn.textContent = "Delete";
+      delBtn.classList.add("delete-btn");
+      delBtn.title = "Delete this meal from log";
       delBtn.addEventListener("click", () => {
-        dailyLog.splice(i, 1);
-        saveLog(dailyLog);
-        renderMealHistory();
-        updateProgress();
+        if (confirm(`Delete meal "${meal.name}"?`)) {
+          dailyLog.splice(i, 1);
+          saveLog(dailyLog);
+          renderMealHistory();
+          updateTotalsAndProgress();
+        }
       });
-      btnGroup.appendChild(delBtn);
+      btnsDiv.appendChild(delBtn);
 
-      flexDiv.appendChild(textDiv);
-      flexDiv.appendChild(btnGroup);
+      div.appendChild(btnsDiv);
 
-      div.appendChild(flexDiv);
       mealHistoryDiv.appendChild(div);
     });
   }
 
-  // === Show photo modal ===
-  function showImageModal(base64Image) {
-    const modalBg = document.createElement("div");
-    modalBg.style.position = "fixed";
-    modalBg.style.top = "0";
-    modalBg.style.left = "0";
-    modalBg.style.width = "100vw";
-    modalBg.style.height = "100vh";
-    modalBg.style.backgroundColor = "rgba(0,0,0,0.8)";
-    modalBg.style.display = "flex";
-    modalBg.style.alignItems = "center";
-    modalBg.style.justifyContent = "center";
-    modalBg.style.zIndex = "10000";
-
-    const img = document.createElement("img");
-    img.src = base64Image;
-    img.style.maxWidth = "90vw";
-    img.style.maxHeight = "90vh";
-    img.style.border = "3px solid white";
-    img.style.borderRadius = "8px";
-
-    modalBg.addEventListener("click", () => {
-      document.body.removeChild(modalBg);
-    });
-
-    modalBg.appendChild(img);
-    document.body.appendChild(modalBg);
-  }
-
-  // === Update daily totals and progress bar ===
-  function updateProgress() {
-    let totalCalories = 0, totalProtein = 0, totalFat = 0, totalCarbs = 0;
-    dailyLog.forEach(m => {
-      totalCalories += m.calories;
-      totalProtein += m.protein;
-      totalFat += m.fat;
-      totalCarbs += m.carbs;
+  // === Update totals and calorie progress bar ===
+  function updateTotalsAndProgress() {
+    let totalCalories = 0,
+      totalProtein = 0,
+      totalFat = 0,
+      totalCarbs = 0;
+    dailyLog.forEach((meal) => {
+      totalCalories += meal.calories;
+      totalProtein += meal.protein;
+      totalFat += meal.fat;
+      totalCarbs += meal.carbs;
     });
     totalCaloriesSpan.textContent = fmt(totalCalories);
     totalProteinSpan.textContent = fmt(totalProtein);
     totalFatSpan.textContent = fmt(totalFat);
     totalCarbsSpan.textContent = fmt(totalCarbs);
-    totalWaterSpan.textContent = dailyWater;
+    totalWaterSpan.textContent = convertWaterToPreferredUnit(dailyWater);
 
-    let pct = Math.min((totalCalories / DAILY_CALORIE_GOAL) * 100, 100);
+    const pct = Math.min((totalCalories / settings.calorieGoal) * 100, 100);
     calorieProgressBar.style.width = pct + "%";
   }
 
-  // === Initial render ===
+  // === Toggle Settings Panel ===
+  toggleSettingsBtn.addEventListener("click", () => {
+    if (settingsPanel.style.display === "none" || settingsPanel.style.display === "") {
+      settingsPanel.style.display = "block";
+      toggleSettingsBtn.textContent = "Hide Settings ⚙️";
+      calorieGoalInput.value = settings.calorieGoal;
+      unitPreferenceSelect.value = settings.unitPreference;
+    } else {
+      settingsPanel.style.display = "none";
+      toggleSettingsBtn.textContent = "Show Settings ⚙️";
+    }
+  });
+
+  // === Save Settings Button ===
+  saveSettingsBtn.addEventListener("click", () => {
+    const goal = parseInt(calorieGoalInput.value, 10);
+    if (isNaN(goal) || goal < 500 || goal > 10000) {
+      alert("Enter a valid calorie goal between 500 and 10,000.");
+      return;
+    }
+    settings.calorieGoal = goal;
+    settings.unitPreference = unitPreferenceSelect.value;
+    saveSettings(settings);
+    updateTotalsAndProgress();
+    alert("Settings saved.");
+    settingsPanel.style.display = "none";
+    toggleSettingsBtn.textContent = "Show Settings ⚙️";
+  });
+
+  // === Modal close on background click ===
+  imageModalBg.addEventListener("click", () => {
+    imageModalBg.classList.remove("show");
+    modalImage.src = "";
+  });
+
+  // === Initialize ===
   renderMealHistory();
-  updateProgress();
+  updateTotalsAndProgress();
 </script>
 
 </body>
