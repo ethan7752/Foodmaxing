@@ -228,6 +228,7 @@ const foodDB = {
   }
 };
 
+// Helper: parse amount input (e.g. "1", "150g")
 function parseAmount(input, food) {
   input = input.trim().toLowerCase();
   if (input.endsWith("g")) {
@@ -246,51 +247,105 @@ function round(num) {
   return Math.round(num * 10) / 10;
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  const form = document.getElementById("foodForm");
-  const resultDiv = document.getElementById("result");
+// Tracker totals object
+let dailyTotals = {
+  calories: 0,
+  protein: 0,
+  fat: 0,
+  carbs: 0
+};
 
-  form.addEventListener("submit", e => {
-    e.preventDefault();
+const form = document.getElementById("foodForm");
+const resultDiv = document.getElementById("result");
+const trackerTotalsDiv = document.getElementById("trackerTotals");
+const resetBtn = document.getElementById("resetTracker");
 
-    const foodNameRaw = document.getElementById("foodName").value.trim().toLowerCase().replace(/\s/g, "");
-    const amountRaw = document.getElementById("foodAmount").value.trim();
+function updateTrackerUI() {
+  trackerTotalsDiv.textContent =
+    `Calories: ${round(dailyTotals.calories)} kcal | Protein: ${round(dailyTotals.protein)} g | Fat: ${round(dailyTotals.fat)} g | Carbs: ${round(dailyTotals.carbs)} g`;
+}
 
-    const food = foodDB[foodNameRaw];
-    if (!food) {
-      alert("Food not found in database.");
-      return;
-    }
+// Load saved totals from localStorage on page load
+function loadTracker() {
+  const saved = localStorage.getItem("dailyTotals");
+  if (saved) {
+    dailyTotals = JSON.parse(saved);
+    updateTrackerUI();
+  }
+}
 
-    const grams = parseAmount(amountRaw, food);
-    if (grams === null) {
-      alert("Invalid amount. Use number (for whole items) or grams (e.g. 150g).");
-      return;
-    }
+// Save totals to localStorage
+function saveTracker() {
+  localStorage.setItem("dailyTotals", JSON.stringify(dailyTotals));
+}
 
-    const factor = grams / 100;
+// Reset tracker button handler
+resetBtn.addEventListener("click", () => {
+  dailyTotals = { calories: 0, protein: 0, fat: 0, carbs: 0 };
+  updateTrackerUI();
+  saveTracker();
+});
 
-    const calories = round(food.caloriesPer100g * factor);
-    const protein = round(food.proteinPer100g * factor);
-    const fat = round(food.fatPer100g * factor);
-    const carbs = round(food.carbsPer100g * factor);
-    const bloat = food.bloat;
+form.addEventListener("submit", e => {
+  e.preventDefault();
 
-    // Woolworths NZ search link format
-    const searchUrl = `https://www.woolworths.co.nz/shop/searchproducts?search=${encodeURIComponent(foodNameRaw)}`;
+  const foodNameRaw = document.getElementById("foodName").value.trim().toLowerCase().replace(/\s/g, "");
+  const amountRaw = document.getElementById("foodAmount").value.trim();
 
-    resultDiv.innerHTML = `
-      <strong>${grams}g of ${foodNameRaw}</strong><br/>
-      Calories: ${calories} kcal<br/>
-      Protein: ${protein} g<br/>
-      Fat: ${fat} g<br/>
-      Carbs: ${carbs} g<br/>
-      Bloat level: ${bloat} / 10<br/>
-      <a href="${searchUrl}" target="_blank" rel="noopener noreferrer">Buy ${foodNameRaw} on Woolworths NZ</a>
-    `;
+  const food = foodDB[foodNameRaw];
+  if (!food) {
+    alert("Food not found in database.");
+    return;
+  }
+
+  const grams = parseAmount(amountRaw, food);
+  if (grams === null) {
+    alert("Invalid amount. Use number (for whole items) or grams (e.g. 150g).");
+    return;
+  }
+
+  const factor = grams / 100;
+
+  const calories = food.caloriesPer100g * factor;
+  const protein = food.proteinPer100g * factor;
+  const fat = food.fatPer100g * factor;
+  const carbs = food.carbsPer100g * factor;
+  const bloat = food.bloat;
+
+  const searchUrl = `https://www.woolworths.co.nz/shop/searchproducts?search=${encodeURIComponent(foodNameRaw)}`;
+
+  // Show results with Add to Daily Tracker button
+  resultDiv.innerHTML = `
+    <strong>${grams}g of ${foodNameRaw}</strong><br/>
+    Calories: ${round(calories)} kcal<br/>
+    Protein: ${round(protein)} g<br/>
+    Fat: ${round(fat)} g<br/>
+    Carbs: ${round(carbs)} g<br/>
+    Bloat level: ${bloat} / 10<br/>
+    <a href="${searchUrl}" target="_blank" rel="noopener noreferrer">Buy ${foodNameRaw} on Woolworths NZ</a><br/>
+    <button id="addToTracker" style="margin-top: 10px; padding: 0.5rem 1rem; background:#5e81ac; color:#fff; border:none; border-radius:4px; cursor:pointer;">Add to Daily Tracker</button>
+  `;
+
+  document.getElementById("addToTracker").addEventListener("click", () => {
+    dailyTotals.calories += calories;
+    dailyTotals.protein += protein;
+    dailyTotals.fat += fat;
+    dailyTotals.carbs += carbs;
+    updateTrackerUI();
+    saveTracker();
   });
 });
+
+// On page load, restore saved tracker values
+loadTracker();
 </script>
+<!-- Daily tracker bar -->
+<div id="dailyTracker" style="position: fixed; bottom: 0; left: 0; right: 0; background: #222; color: #eee; padding: 0.75rem 1rem; font-size: 0.9rem; display: flex; justify-content: space-between; align-items: center; max-width: 480px; margin: 0 auto; box-sizing: border-box;">
+  <div id="trackerTotals">
+    Calories: 0 kcal | Protein: 0 g | Fat: 0 g | Carbs: 0 g
+  </div>
+  <button id="resetTracker" style="background:#5e81ac; color:#fff; border:none; padding:0.3rem 0.6rem; border-radius:4px; cursor:pointer;">Reset</button>
+</div>
 
 </body>
 </html>
