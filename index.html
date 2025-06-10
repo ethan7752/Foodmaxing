@@ -12,9 +12,28 @@
     padding: 20px;
     background: #f8f9fa;
   }
+    body.dark-mode {
+    background-color: #121212;
+    color: #eee;
+  }
+
+  body.dark-mode input, 
+  body.dark-mode select, 
+  body.dark-mode button, 
+  body.dark-mode textarea {
+    background-color: #222;
+    color: #eee;
+    border-color: #444;
+  }
+
+  body.dark-mode .log-entry {
+    background-color: #1e1e1e;
+    border: 1px solid #333;
+  }
   h1, h2 {
     text-align: center;
     margin-bottom: 10px;
+    <button id="darkModeToggle" style="margin-bottom: 1rem; padding: 0.5rem 1rem; background:#5e81ac; color:#fff; border:none; border-radius:4px; cursor:pointer;">Toggle Dark Mode</button>
   }
   label {
     font-weight: bold;
@@ -207,13 +226,79 @@
   // === Sample food database (per 100g) ===
   // You can expand this as needed or replace with API calls
   const foodsDatabase = {
-    apple: { calories: 52, protein: 0.3, fat: 0.2, carbs: 14 },
-    chicken: { calories: 239, protein: 27, fat: 14, carbs: 0 },
-    rice: { calories: 130, protein: 2.4, fat: 0.3, carbs: 28 },
-    steak: { calories: 271, protein: 25, fat: 19, carbs: 0 },
-    bread: { calories: 265, protein: 9, fat: 3.2, carbs: 49 },
-    banana: { calories: 89, protein: 1.1, fat: 0.3, carbs: 23 },
-    salmon: { calories: 208, protein: 20, fat: 13, carbs: 0 },
+    banana: { caloriesPer100g: 89, proteinPer100g: 1.1, fatPer100g: 0.3, carbsPer100g: 23, weightPerUnit: 118 },
+  apple: { caloriesPer100g: 52, proteinPer100g: 0.3, fatPer100g: 0.2, carbsPer100g: 14, weightPerUnit: 182 },
+  chickenbreast: { caloriesPer100g: 165, proteinPer100g: 31, fatPer100g: 3.6, carbsPer100g: 0, weightPerUnit: 150 },
+  salmon: { caloriesPer100g: 206, proteinPer100g: 22, fatPer100g: 12, carbsPer100g: 0, weightPerUnit: 154 },
+  broccoli: { caloriesPer100g: 34, proteinPer100g: 2.8, fatPer100g: 0.4, carbsPer100g: 7, weightPerUnit: 91 },
+  egg: { caloriesPer100g: 155, proteinPer100g: 13, fatPer100g: 11, carbsPer100g: 1.1, weightPerUnit: 50 },
+  rice: { caloriesPer100g: 130, proteinPer100g: 2.7, fatPer100g: 0.3, carbsPer100g: 28, weightPerUnit: 100 },
+  avocado: { caloriesPer100g: 160, proteinPer100g: 2, fatPer100g: 15, carbsPer100g: 9, weightPerUnit: 150 },
+  almonds: { caloriesPer100g: 579, proteinPer100g: 21, fatPer100g: 50, carbsPer100g: 22, weightPerUnit: 1 }, // input grams
+  oats: { caloriesPer100g: 389, proteinPer100g: 17, fatPer100g: 7, carbsPer100g: 66, weightPerUnit: 40 },
+  bread: { caloriesPer100g: 265, proteinPer100g: 9, fatPer100g: 3.2, carbsPer100g: 49, weightPerUnit: 30 },
+  cheese: { caloriesPer100g: 402, proteinPer100g: 25, fatPer100g: 33, carbsPer100g: 1.3, weightPerUnit: 30 },
+  peanutbutter: { caloriesPer100g: 588, proteinPer100g: 25, fatPer100g: 50, carbsPer100g: 20, weightPerUnit: 32 },
+  yogurt: { caloriesPer100g: 59, proteinPer100g: 10, fatPer100g: 0.4, carbsPer100g: 3.6, weightPerUnit: 100 },
+  carrot: { caloriesPer100g: 41, proteinPer100g: 0.9, fatPer100g: 0.2, carbsPer100g: 10, weightPerUnit: 61 },
+  potato: { caloriesPer100g: 77, proteinPer100g: 2, fatPer100g: 0.1, carbsPer100g: 17, weightPerUnit: 150 },
+  turkey: { caloriesPer100g: 135, proteinPer100g: 29, fatPer100g: 1, carbsPer100g: 0, weightPerUnit: 150 },
+  tuna: { caloriesPer100g: 132, proteinPer100g: 28, fatPer100g: 1, carbsPer100g: 0, weightPerUnit: 140 },
+  lentils: { caloriesPer100g: 116, proteinPer100g: 9, fatPer100g: 0.4, carbsPer100g: 20, weightPerUnit: 100 },
+  chickpeas: { caloriesPer100g: 164, proteinPer100g: 9, fatPer100g: 3, carbsPer100g: 27, weightPerUnit: 100 },
+  spinach: { caloriesPer100g: 23, proteinPer100g: 2.9, fatPer100g: 0.4, carbsPer100g: 3.6, weightPerUnit: 30 },
+  kale: { caloriesPer100g: 49, proteinPer100g: 4.3, fatPer100g: 0.9, carbsPer100g: 8.8, weightPerUnit: 30 },
+  sweetpotato: { caloriesPer100g: 86, proteinPer100g: 1.6, fatPer100g: 0.1, carbsPer100g: 20, weightPerUnit: 130 },
+  cucumber: { caloriesPer100g: 16, proteinPer100g: 0.7, fatPer100g: 0.1, carbsPer100g: 3.6, weightPerUnit: 300 },
+  tomato: { caloriesPer100g: 18, proteinPer100g: 0.9, fatPer100g: 0.2, carbsPer100g: 3.9, weightPerUnit: 123 },
+  bellpepper: { caloriesPer100g: 31, proteinPer100g: 1, fatPer100g: 0.3, carbsPer100g: 6, weightPerUnit: 120 },
+  mushroom: { caloriesPer100g: 22, proteinPer100g: 3.1, fatPer100g: 0.3, carbsPer100g: 3.3, weightPerUnit: 15 },
+  cod: { caloriesPer100g: 82, proteinPer100g: 18, fatPer100g: 0.7, carbsPer100g: 0, weightPerUnit: 140 },
+  shrimp: { caloriesPer100g: 99, proteinPer100g: 24, fatPer100g: 0.3, carbsPer100g: 0, weightPerUnit: 12 },
+  groundbeef: { caloriesPer100g: 250, proteinPer100g: 26, fatPer100g: 15, carbsPer100g: 0, weightPerUnit: 100 },
+  tofu: { caloriesPer100g: 76, proteinPer100g: 8, fatPer100g: 4.8, carbsPer100g: 1.9, weightPerUnit: 100 },
+  blackbeans: { caloriesPer100g: 132, proteinPer100g: 9, fatPer100g: 0.5, carbsPer100g: 23, weightPerUnit: 100 },
+  quinoa: { caloriesPer100g: 120, proteinPer100g: 4.1, fatPer100g: 1.9, carbsPer100g: 21, weightPerUnit: 185 },
+  flaxseed: { caloriesPer100g: 534, proteinPer100g: 18, fatPer100g: 42, carbsPer100g: 29, weightPerUnit: 10 },
+  chiaseed: { caloriesPer100g: 486, proteinPer100g: 17, fatPer100g: 31, carbsPer100g: 42, weightPerUnit: 10 },
+  sunflowerseeds: { caloriesPer100g: 584, proteinPer100g: 21, fatPer100g: 51, carbsPer100g: 20, weightPerUnit: 10 },
+  pumpkinseeds: { caloriesPer100g: 559, proteinPer100g: 30, fatPer100g: 49, carbsPer100g: 11, weightPerUnit: 10 },
+  watermelon: { caloriesPer100g: 30, proteinPer100g: 0.6, fatPer100g: 0.2, carbsPer100g: 8, weightPerUnit: 280 },
+  grapes: { caloriesPer100g: 69, proteinPer100g: 0.7, fatPer100g: 0.2, carbsPer100g: 18, weightPerUnit: 151 },
+  orange: { caloriesPer100g: 47, proteinPer100g: 0.9, fatPer100g: 0.1, carbsPer100g: 12, weightPerUnit: 130 },
+  pear: { caloriesPer100g: 57, proteinPer100g: 0.4, fatPer100g: 0.1, carbsPer100g: 15, weightPerUnit: 178 },
+  blueberry: { caloriesPer100g: 57, proteinPer100g: 0.7, fatPer100g: 0.3, carbsPer100g: 14, weightPerUnit: 148 },
+  strawberry: { caloriesPer100g: 32, proteinPer100g: 0.7, fatPer100g: 0.3, carbsPer100g: 7.7, weightPerUnit: 12 },
+  raspberry: { caloriesPer100g: 52, proteinPer100g: 1.2, fatPer100g: 0.7, carbsPer100g: 12, weightPerUnit: 4 },
+  blackberries: { caloriesPer100g: 43, proteinPer100g: 1.4, fatPer100g: 0.5, carbsPer100g: 10, weightPerUnit: 5 },
+  pineapple: { caloriesPer100g: 50, proteinPer100g: 0.5, fatPer100g: 0.1, carbsPer100g: 13, weightPerUnit: 165 },
+  mango: { caloriesPer100g: 60, proteinPer100g: 0.8, fatPer100g: 0.4, carbsPer100g: 15, weightPerUnit: 200 },
+  coconutmeat: { caloriesPer100g: 354, proteinPer100g: 3.3, fatPer100g: 33, carbsPer100g: 15, weightPerUnit: 80 },
+  darkchocolate: { caloriesPer100g: 546, proteinPer100g: 4.9, fatPer100g: 31, carbsPer100g: 61, weightPerUnit: 10 },
+  honey: { caloriesPer100g: 304, proteinPer100g: 0.3, fatPer100g: 0, carbsPer100g: 82, weightPerUnit: 21 },
+  milk: { caloriesPer100g: 42, proteinPer100g: 3.4, fatPer100g: 1, carbsPer100g: 5, weightPerUnit: 244 },
+  butter: { caloriesPer100g: 717, proteinPer100g: 0.9, fatPer100g: 81, carbsPer100g: 0.1, weightPerUnit: 14 },
+  cream: { caloriesPer100g: 340, proteinPer100g: 2, fatPer100g: 37, carbsPer100g: 3, weightPerUnit: 15 },
+  coffee: { caloriesPer100g: 2, proteinPer100g: 0.1, fatPer100g: 0, carbsPer100g: 0, weightPerUnit: 10 },
+  tea: { caloriesPer100g: 1, proteinPer100g: 0, fatPer100g: 0, carbsPer100g: 0, weightPerUnit: 10 },
+  beer: { caloriesPer100g: 43, proteinPer100g: 0.5, fatPer100g: 0, carbsPer100g: 3.6, weightPerUnit: 355 },
+  wine: { caloriesPer100g: 85, proteinPer100g: 0.1, fatPer100g: 0, carbsPer100g: 2.6, weightPerUnit: 150 },
+  coke: { caloriesPer100g: 42, proteinPer100g: 0, fatPer100g: 0, carbsPer100g: 11, weightPerUnit: 330 },
+  orangejuice: { caloriesPer100g: 45, proteinPer100g: 0.7, fatPer100g: 0.2, carbsPer100g: 10, weightPerUnit: 250 },
+  tofu: { caloriesPer100g: 76, proteinPer100g: 8, fatPer100g: 4.8, carbsPer100g: 1.9, weightPerUnit: 100 },
+  edamame: { caloriesPer100g: 122, proteinPer100g: 11, fatPer100g: 5, carbsPer100g: 10, weightPerUnit: 100 },
+  sardines: { caloriesPer100g: 208, proteinPer100g: 25, fatPer100g: 11, carbsPer100g: 0, weightPerUnit: 92 },
+  mackerel: { caloriesPer100g: 205, proteinPer100g: 19, fatPer100g: 13, carbsPer100g: 0, weightPerUnit: 150 },
+  pumpkin: { caloriesPer100g: 26, proteinPer100g: 1, fatPer100g: 0.1, carbsPer100g: 7, weightPerUnit: 245 },
+  zucchini: { caloriesPer100g: 17, proteinPer100g: 1.2, fatPer100g: 0.3, carbsPer100g: 3.1, weightPerUnit: 196 },
+  eggplant: { caloriesPer100g: 25, proteinPer100g: 1, fatPer100g: 0.2, carbsPer100g: 6, weightPerUnit: 458 },
+  onion: { caloriesPer100g: 40, proteinPer100g: 1.1, fatPer100g: 0.1, carbsPer100g: 9, weightPerUnit: 110 },
+  garlic: { caloriesPer100g: 149, proteinPer100g: 6.4, fatPer100g: 0.5, carbsPer100g: 33, weightPerUnit: 3 },
+  corn: { caloriesPer100g: 86, proteinPer100g: 3.2, fatPer100g: 1.2, carbsPer100g: 19, weightPerUnit: 90 },
+  peas: { caloriesPer100g: 81, proteinPer100g: 5, fatPer100g: 0.4, carbsPer100g: 14, weightPerUnit: 100 },
+  kale: { caloriesPer100g: 49, proteinPer100g: 4.3, fatPer100g: 0.9, carbsPer100g: 8.8, weightPerUnit: 30 },
+  swisschard: { caloriesPer100g: 19, proteinPer100g: 1.8, fatPer100g: 0.2, carbsPer100g: 3.7, weightPerUnit: 36 },
+  collardgreens: { caloriesPer100g: 32, proteinPer100g: 3, fatPer100g: 0.6, carbsPer100g: 7, weightPerUnit: 36 }
   };
 
   // === Storage keys ===
@@ -256,6 +341,24 @@
 
   const imageModalBg = document.getElementById("imageModalBg");
   const modalImage = document.getElementById("modalImage");
+  const darkModeToggle = document.getElementById('darkModeToggle');
+
+// Load saved dark mode preference
+if (localStorage.getItem('darkMode') === 'enabled') {
+  document.body.classList.add('dark-mode');
+}
+
+// Toggle dark mode on button click
+darkModeToggle.addEventListener('click', () => {
+  document.body.classList.toggle('dark-mode');
+
+  if (document.body.classList.contains('dark-mode')) {
+    localStorage.setItem('darkMode', 'enabled');
+  } else {
+    localStorage.setItem('darkMode', 'disabled');
+  }
+});
+
 
   // === Helpers ===
   function fmt(n) {
