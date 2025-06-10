@@ -66,4 +66,85 @@ const foodDB = {
     proteinPer100g: 1.1,
     fatPer100g: 0.3,
     carbsPer100g: 23,
-    weightPerUnit: 118
+    weightPerUnit: 118 // grams per banana
+  },
+  steak: {
+    bloat: 7,
+    caloriesPer100g: 250,
+    proteinPer100g: 26,
+    fatPer100g: 20,
+    carbsPer100g: 0,
+    weightPerUnit: 200
+  },
+  apple: {
+    bloat: 2,
+    caloriesPer100g: 52,
+    proteinPer100g: 0.3,
+    fatPer100g: 0.2,
+    carbsPer100g: 14,
+    weightPerUnit: 182
+  }
+};
+
+function parseAmount(input, food) {
+  input = input.trim().toLowerCase();
+  if (input.endsWith("g")) {
+    const grams = parseFloat(input.replace("g", "").trim());
+    if (isNaN(grams) || grams <= 0) return null;
+    return grams;
+  } else {
+    const units = parseFloat(input);
+    if (isNaN(units) || units <= 0) return null;
+    if (!food.weightPerUnit) return null;
+    return units * food.weightPerUnit;
+  }
+}
+
+function round(num) {
+  return Math.round(num * 10) / 10;
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  const form = document.getElementById("foodForm");
+  const resultDiv = document.getElementById("result");
+
+  form.addEventListener("submit", e => {
+    e.preventDefault();
+
+    const foodNameRaw = document.getElementById("foodName").value.trim().toLowerCase();
+    const amountRaw = document.getElementById("foodAmount").value.trim();
+
+    const food = foodDB[foodNameRaw];
+    if (!food) {
+      alert("Food not found in database.");
+      return;
+    }
+
+    const grams = parseAmount(amountRaw, food);
+    if (grams === null) {
+      alert("Invalid amount. Use number (for whole items) or grams (e.g. 150g).");
+      return;
+    }
+
+    const factor = grams / 100;
+
+    const calories = round(food.caloriesPer100g * factor);
+    const protein = round(food.proteinPer100g * factor);
+    const fat = round(food.fatPer100g * factor);
+    const carbs = round(food.carbsPer100g * factor);
+    const bloat = food.bloat;
+
+    resultDiv.innerHTML = `
+      <strong>${grams}g of ${foodNameRaw}</strong><br/>
+      Calories: ${calories} kcal<br/>
+      Protein: ${protein} g<br/>
+      Fat: ${fat} g<br/>
+      Carbs: ${carbs} g<br/>
+      Bloat level: ${bloat} / 10
+    `;
+  });
+});
+</script>
+
+</body>
+</html>
