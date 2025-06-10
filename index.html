@@ -40,6 +40,15 @@
     background: #222;
     border-radius: 6px;
   }
+  .result a {
+    display: inline-block;
+    margin-top: 0.75rem;
+    color: #81a1c1;
+    text-decoration: none;
+  }
+  .result a:hover {
+    text-decoration: underline;
+  }
 </style>
 </head>
 <body>
@@ -134,13 +143,16 @@ document.addEventListener("DOMContentLoaded", () => {
     const carbs = round(food.carbsPer100g * factor);
     const bloat = food.bloat;
 
+    const searchUrl = `https://www.woolworths.co.nz/search?searchTerm=${encodeURIComponent(foodNameRaw)}`;
+
     resultDiv.innerHTML = `
       <strong>${grams}g of ${foodNameRaw}</strong><br/>
       Calories: ${calories} kcal<br/>
       Protein: ${protein} g<br/>
       Fat: ${fat} g<br/>
       Carbs: ${carbs} g<br/>
-      Bloat level: ${bloat} / 10
+      Bloat level: ${bloat} / 10<br/>
+      <a href="${searchUrl}" target="_blank" rel="noopener noreferrer">Buy ${foodNameRaw} on Woolworths NZ</a>
     `;
   });
 });
