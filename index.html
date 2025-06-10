@@ -3,463 +3,467 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Ethan's Food Ai</title>
-
-<!-- iOS fullscreen meta tags -->
+<title>Ethan's Food Ai - Enhanced Tracker</title>
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <meta name="apple-mobile-web-app-title" content="Ethan's Food Ai" />
 <link rel="apple-touch-icon" href="icon.png" />
-
-<!-- PWA manifest -->
 <link rel="manifest" href="manifest.json" />
 
 <style>
   :root {
-    --bg-color: #121212;
-    --text-color: #eee;
-    --input-bg: #222;
-    --button-bg: #5e81ac;
-    --button-hover-bg: #4a699f;
-    --result-bg: #222;
-    --tracker-bg: #222;
+    --bg-light: #f4f4f4;
+    --text-light: #222;
+    --bg-dark: #121212;
+    --text-dark: #eee;
+    --primary-color: #5e81ac;
+    --primary-hover: #4a699f;
+    --max-width: 480px;
   }
-
   body {
-    background-color: var(--bg-color);
-    color: var(--text-color);
+    margin: 0; padding: 1rem;
     font-family: Arial, sans-serif;
-    max-width: 480px;
-    margin: 1rem auto 5rem; /* bottom margin for fixed tracker */
-    padding: 1rem;
-    box-sizing: border-box;
-    transition: background-color 0.3s ease;
+    background-color: var(--bg-dark);
+    color: var(--text-dark);
+    max-width: var(--max-width);
+    margin-left: auto;
+    margin-right: auto;
+    transition: background-color 0.3s, color 0.3s;
   }
-  h1 {
+  body.light-mode {
+    background-color: var(--bg-light);
+    color: var(--text-light);
+  }
+  h1, h2 {
     text-align: center;
-    margin-bottom: 1rem;
   }
-  input, button, select {
-    padding: 0.5rem;
+  form, .settings, .history, .tracker, .reminder-section {
+    background: #222;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border-radius: 6px;
+  }
+  body.light-mode form, body.light-mode .settings, body.light-mode .history,
+  body.light-mode .tracker, body.light-mode .reminder-section {
+    background: #fff;
+    box-shadow: 0 0 5px rgba(0,0,0,0.15);
+  }
+  input, select, button, textarea {
     font-size: 1rem;
-    margin: 0.5rem 0;
-    width: 100%;
-    box-sizing: border-box;
+    padding: 0.5rem;
+    margin: 0.3rem 0;
     border-radius: 4px;
     border: none;
+    width: 100%;
+    box-sizing: border-box;
   }
-  input, select {
-    background: var(--input-bg);
-    color: var(--text-color);
+  input, select, textarea {
+    background: #333;
+    color: #eee;
+  }
+  body.light-mode input, body.light-mode select, body.light-mode textarea {
+    background: #fafafa;
+    color: #222;
+    border: 1px solid #ccc;
   }
   button {
-    background: var(--button-bg);
+    background: var(--primary-color);
     color: white;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: background-color 0.3s;
   }
   button:hover {
-    background: var(--button-hover-bg);
-  }
-  .result {
-    margin-top: 1rem;
-    padding: 1rem;
-    background: var(--result-bg);
-    border-radius: 6px;
-    word-wrap: break-word;
-  }
-  .result a {
-    display: inline-block;
-    margin-top: 0.75rem;
-    color: #81a1c1;
-    text-decoration: none;
-  }
-  .result a:hover {
-    text-decoration: underline;
-  }
-  #dailyTracker {
-    position: fixed;
-    bottom: 0; left: 0; right: 0;
-    background: var(--tracker-bg);
-    color: var(--text-color);
-    padding: 0.75rem 1rem;
-    font-size: 1rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    max-width: 480px;
-    margin: 0 auto;
-    box-sizing: border-box;
-    z-index: 999;
-  }
-  #trackerTotals {
-    flex: 1;
-  }
-  #resetTracker {
-    background: #d9534f;
-    margin-left: 1rem;
-    flex-shrink: 0;
-  }
-  #settingsBtn {
-    background: #4caf50;
-    margin-left: 1rem;
-    flex-shrink: 0;
-  }
-  /* Settings Modal */
-  #settingsModal {
-    display: none;
-    position: fixed;
-    z-index: 1000;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0,0,0,0.6);
-    justify-content: center;
-    align-items: center;
-  }
-  #settingsContent {
-    background: var(--result-bg);
-    padding: 1.5rem;
-    border-radius: 8px;
-    width: 90%;
-    max-width: 400px;
-    box-sizing: border-box;
-    color: var(--text-color);
-  }
-  #settingsContent h2 {
-    margin-top: 0;
-  }
-  #closeSettings {
-    background: #d9534f;
-    margin-top: 1rem;
-    width: 100%;
+    background: var(--primary-hover);
   }
   label {
+    font-weight: bold;
     display: block;
-    margin: 0.75rem 0 0.25rem;
+    margin-top: 0.7rem;
   }
-  /* Progress bars container */
-  #goalsContainer {
+  #result {
     margin-top: 1rem;
   }
-  .goalBar {
-    background: #444;
-    border-radius: 6px;
-    overflow: hidden;
-    margin-bottom: 0.75rem;
-    height: 20px;
+  .flex-row {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
   }
-  .goalFill {
-    background: var(--button-bg);
-    height: 100%;
-    width: 0%;
-    transition: width 0.4s ease;
+  .flex-grow {
+    flex: 1 1 auto;
+  }
+  .progress-container {
+    margin: 0.5rem 0;
+  }
+  progress {
+    width: 100%;
+    height: 20px;
+    border-radius: 10px;
+    overflow: hidden;
+    appearance: none;
+  }
+  progress::-webkit-progress-bar {
+    background-color: #555;
+    border-radius: 10px;
+  }
+  progress::-webkit-progress-value {
+    background-color: var(--primary-color);
+    border-radius: 10px;
+  }
+  .badge {
+    background: #4caf50;
+    color: white;
+    padding: 0.3rem 0.6rem;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    display: inline-block;
+    margin-top: 0.5rem;
+  }
+  .settings-btn {
+    background: #999;
+    color: #222;
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    padding: 0.4rem 0.8rem;
+    border-radius: 4px;
+    z-index: 1000;
+  }
+  .settings-btn:hover {
+    background: #777;
   }
   /* Responsive */
   @media (max-width: 600px) {
     body {
-      margin: 1rem;
-      max-width: 100%;
-    }
-    #dailyTracker {
-      font-size: 0.9rem;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-    }
-    #resetTracker, #settingsBtn {
-      width: auto;
-      padding: 0.4rem 0.8rem;
-      margin-left: 0;
+      padding: 0.7rem;
     }
   }
 </style>
 </head>
 <body>
 
-<h1>Ethan's Food Ai</h1>
+<button id="settingsToggle" class="settings-btn" title="Settings">⚙️</button>
 
-<form id="foodForm">
-  <input type="text" id="foodName" placeholder="Food name" required autocomplete="off" />
-  <input type="text" id="foodAmount" placeholder="Amount (e.g., 1 or 150g)" required autocomplete="off" />
-  <button type="submit">Calculate</button>
+<h1>Ethan's Food Ai - Enhanced Tracker</h1>
+
+<!-- Food Entry Form -->
+<form id="foodForm" autocomplete="off">
+  <label for="foodName">Food Name (start typing to autocomplete):</label>
+  <input list="foodList" id="foodName" name="foodName" placeholder="e.g. banana" required />
+  <datalist id="foodList"></datalist>
+
+  <label for="foodAmount">Amount (number + unit):</label>
+  <div class="flex-row">
+    <input type="number" min="0.1" step="any" id="foodAmount" name="foodAmount" placeholder="e.g. 1 or 150" required />
+    <select id="foodUnit" name="foodUnit" style="max-width: 100px;">
+      <option value="g">grams (g)</option>
+      <option value="unit">units (pieces)</option>
+      <option value="cup">cups</option>
+    </select>
+  </div>
+
+  <button type="submit">Calculate & Add</button>
 </form>
 
 <div id="result"></div>
 
-<div id="goalsContainer" aria-label="Nutrition goals progress bars">
-  <div>
-    <label for="calorieGoalBar">Calories:</label>
-    <div class="goalBar" id="calorieGoalBar"><div class="goalFill" id="calorieFill"></div></div>
-  </div>
-  <div>
-    <label for="proteinGoalBar">Protein:</label>
-    <div class="goalBar" id="proteinGoalBar"><div class="goalFill" id="proteinFill"></div></div>
-  </div>
-  <div>
-    <label for="fatGoalBar">Fat:</label>
-    <div class="goalBar" id="fatGoalBar"><div class="goalFill" id="fatFill"></div></div>
-  </div>
-  <div>
-    <label for="carbGoalBar">Carbs:</label>
-    <div class="goalBar" id="carbGoalBar"><div class="goalFill" id="carbFill"></div></div>
-  </div>
-</div>
+<!-- Custom Food Addition -->
+<section class="settings" id="customFoodSection" style="display:none;">
+  <h2>Add Custom Food</h2>
+  <form id="customFoodForm">
+    <label for="customName">Food Name:</label>
+    <input type="text" id="customName" required />
 
-<!-- Daily tracker bar -->
-<div id="dailyTracker" role="region" aria-label="Daily nutrition tracker">
-  <div id="trackerTotals">
+    <label for="customCalories">Calories per 100g:</label>
+    <input type="number" id="customCalories" min="0" required />
+
+    <label for="customProtein">Protein per 100g (g):</label>
+    <input type="number" id="customProtein" min="0" step="0.1" required />
+
+    <label for="customFat">Fat per 100g (g):</label>
+    <input type="number" id="customFat" min="0" step="0.1" required />
+
+    <label for="customCarbs">Carbs per 100g (g):</label>
+    <input type="number" id="customCarbs" min="0" step="0.1" required />
+
+    <label for="customWeightPerUnit">Weight per unit (g):</label>
+    <input type="number" id="customWeightPerUnit" min="0" step="1" value="100" required />
+
+    <label for="customBloat">Bloat level (0-10):</label>
+    <input type="number" id="customBloat" min="0" max="10" step="1" value="0" required />
+
+    <button type="submit">Add Custom Food</button>
+  </form>
+</section>
+
+<!-- Settings -->
+<section class="settings" id="settingsSection" style="display:none;">
+  <h2>Settings</h2>
+  <label for="bgColorPicker">Background Color:</label>
+  <input type="color" id="bgColorPicker" value="#121212" />
+
+  <label for="darkModeToggle">Dark Mode:</label>
+  <select id="darkModeToggle">
+    <option value="true">On</option>
+    <option value="false">Off</option>
+  </select>
+
+  <label for="calorieGoal">Calorie Goal (kcal):</label>
+  <input type="number" id="calorieGoal" min="0" value="2500" />
+
+  <label for="proteinGoal">Protein Goal (g):</label>
+  <input type="number" id="proteinGoal" min="0" value="150" />
+
+  <label for="fatGoal">Fat Goal (g):</label>
+  <input type="number" id="fatGoal" min="0" value="70" />
+
+  <label for="carbGoal">Carbs Goal (g):</label>
+  <input type="number" id="carbGoal" min="0" value="300" />
+
+  <button id="saveSettingsBtn">Save Settings</button>
+</section>
+
+<!-- Daily Tracker -->
+<section class="tracker">
+  <h2>Daily Tracker</h2>
+  <div id="trackerTotals" style="font-size: 1.1rem; margin-bottom: 1rem;">
     Calories: 0 kcal | Protein: 0 g | Fat: 0 g | Carbs: 0 g
   </div>
-  <button id="resetTracker" title="Reset daily totals">Reset</button>
-  <button id="settingsBtn" title="Open settings">Settings</button>
-</div>
-
-<!-- Settings modal -->
-<div id="settingsModal" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
-  <div id="settingsContent">
-    <h2 id="settingsTitle">Settings</h2>
-    <form id="settingsForm">
-      <label for="bgColorInput">Background Color:</label>
-      <input type="color" id="bgColorInput" name="bgColor" value="#121212" />
-
-      <label for="calorieGoalInput">Calorie Goal (kcal):</label>
-      <input type="number" id="calorieGoalInput" min="0" step="10" />
-
-      <label for="proteinGoalInput">Protein Goal (g):</label>
-      <input type="number" id="proteinGoalInput" min="0" step="1" />
-
-      <label for="fatGoalInput">Fat Goal (g):</label>
-      <input type="number" id="fatGoalInput" min="0" step="1" />
-
-      <label for="carbGoalInput">Carb Goal (g):</label>
-      <input type="number" id="carbGoalInput" min="0" step="1" />
-
-      <button type="submit" style="margin-top: 1rem;">Save Settings</button>
-      <button type="button" id="closeSettings">Cancel</button>
-    </form>
+  <div class="progress-container">
+    <label>Calories</label>
+    <progress id="calorieProgress" max="100" value="0"></progress>
+    <small id="calorieProgressText"></small>
   </div>
-</div>
+  <div class="progress-container">
+    <label>Protein</label>
+    <progress id="proteinProgress" max="100" value="0"></progress>
+    <small id="proteinProgressText"></small>
+  </div>
+  <div class="progress-container">
+    <label>Fat</label>
+    <progress id="fatProgress" max="100" value="0"></progress>
+    <small id="fatProgressText"></small>
+  </div>
+  <div class="progress-container">
+    <label>Carbs</label>
+    <progress id="carbProgress" max="100" value="0"></progress>
+    <small id="carbProgressText"></small>
+  </div>
+  <button id="resetTracker" style="background:#5e81ac; margin-top: 0.8rem;">Reset Daily Tracker</button>
+
+  <div id="badges" style="margin-top: 1rem;"></div>
+</section>
+
+<!-- Meal History -->
+<section class="history">
+  <h2>Meal History (Today)</h2>
+  <div id="mealHistory"></div>
+  <button id="exportCsvBtn" style="margin-top:0.5rem;">Export Today’s Log as CSV</button>
+</section>
+
+<!-- Hydration Tracking -->
+<section class="tracker" style="margin-bottom: 2rem;">
+  <h2>Hydration Tracker</h2>
+  <label for="waterInput">Add water intake (ml):</label>
+  <input type="number" id="waterInput" min="0" step="any" placeholder="e.g. 250" />
+  <button id="addWaterBtn">Add Water</button>
+  <div id="waterTotal">Total water today: 0 ml</div>
+</section>
+
+<!-- Exercise Logging -->
+<section class="tracker">
+  <h2>Exercise Log</h2>
+  <label for="exerciseName">Exercise Name:</label>
+  <input type="text" id="exerciseName" placeholder="e.g. Running" />
+  <label for="exerciseCalories">Calories Burned:</label>
+  <input type="number" id="exerciseCalories" min="0" placeholder="e.g. 300" />
+  <button id="addExerciseBtn">Add Exercise</button>
+  <div id="exerciseList" style="margin-top: 0.5rem;"></div>
+</section>
+
+<!-- Reminder -->
+<section class="reminder-section">
+  <h2>Reminders</h2>
+  <button id="startReminderBtn">Start Meal Reminders (Every 4 hours)</button>
+  <button id="stopReminderBtn" disabled>Stop Reminders</button>
+</section>
+
+<!-- Macro Pie Chart -->
+<section class="tracker">
+  <h2>Macro Breakdown</h2>
+  <canvas id="macroChart" width="400" height="200" style="max-width:100%;"></canvas>
+</section>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
-// Food database
-const foodDB = {
-  banana: { bloat: 1, caloriesPer100g: 89, proteinPer100g: 1.1, fatPer100g: 0.3, carbsPer100g: 23, weightPerUnit: 118 },
-  steak: { bloat: 7, caloriesPer100g: 250, proteinPer100g: 26, fatPer100g: 20, carbsPer100g: 0, weightPerUnit: 200 },
-  apple: { bloat: 2, caloriesPer100g: 52, proteinPer100g: 0.3, fatPer100g: 0.2, carbsPer100g: 14, weightPerUnit: 182 },
-  chickenbreast: { bloat: 3, caloriesPer100g: 165, proteinPer100g: 31, fatPer100g: 3.6, carbsPer100g: 0, weightPerUnit: 150 },
-  broccoli: { bloat: 5, caloriesPer100g: 34, proteinPer100g: 2.8, fatPer100g: 0.4, carbsPer100g: 7, weightPerUnit: 91 },
-  egg: { bloat: 1, caloriesPer100g: 155, proteinPer100g: 13, fatPer100g: 11, carbsPer100g: 1.1, weightPerUnit: 50 },
-  rice: { bloat: 4, caloriesPer100g: 130, proteinPer100g: 2.7, fatPer100g: 0.3, carbsPer100g: 28, weightPerUnit: 100 },
-  salmon: { bloat: 3, caloriesPer100g: 206, proteinPer100g: 22, fatPer100g: 12, carbsPer100g: 0, weightPerUnit: 154 },
-  avocado: { bloat: 2, caloriesPer100g: 160, proteinPer100g: 2, fatPer100g: 15, carbsPer100g: 9, weightPerUnit: 150 },
-  almond: { bloat: 2, caloriesPer100g: 579, proteinPer100g: 21, fatPer100g: 50, carbsPer100g: 22, weightPerUnit: 1 },
-  yogurt: { bloat: 4, caloriesPer100g: 59, proteinPer100g: 10, fatPer100g: 0.4, carbsPer100g: 3.6, weightPerUnit: 100 },
-  potato: { bloat: 5, caloriesPer100g: 77, proteinPer100g: 2, fatPer100g: 0.1, carbsPer100g: 17, weightPerUnit: 150 },
-  carrot: { bloat: 1, caloriesPer100g: 41, proteinPer100g: 0.9, fatPer100g: 0.2, carbsPer100g: 10, weightPerUnit: 61 },
-  oats: { bloat: 4, caloriesPer100g: 389, proteinPer100g: 17, fatPer100g: 7, carbsPer100g: 66, weightPerUnit: 40 },
-  wheyprotein: { bloat: 2, caloriesPer100g: 400, proteinPer100g: 80, fatPer100g: 7, carbsPer100g: 8, weightPerUnit: 30 },
-  bread: { bloat: 3, caloriesPer100g: 265, proteinPer100g: 9, fatPer100g: 3.2, carbsPer100g: 49, weightPerUnit: 30 },
-  cheese: { bloat: 3, caloriesPer100g: 402, proteinPer100g: 25, fatPer100g: 33, carbsPer100g: 1.3, weightPerUnit: 30 },
-  peanutbutter: { bloat: 4, caloriesPer100g: 588, proteinPer100g: 25, fatPer100g: 50, carbsPer100g: 20, weightPerUnit: 32 }
-};
+(() => {
+  "use strict";
 
-function parseAmount(input, food) {
-  input = input.trim().toLowerCase();
-  if (input.endsWith("g")) {
-    const grams = parseFloat(input.replace("g", "").trim());
-    if (isNaN(grams) || grams <= 0) return null;
-    return grams;
-  } else {
-    const units = parseFloat(input);
-    if (isNaN(units) || units <= 0) return null;
-    if (!food.weightPerUnit) return null;
-    return units * food.weightPerUnit;
-  }
-}
+  // --- Food DB including custom food storage in localStorage ---
+  let foodDB = {
+    banana: {
+      bloat: 1,
+      caloriesPer100g: 89,
+      proteinPer100g: 1.1,
+      fatPer100g: 0.3,
+      carbsPer100g: 23,
+      weightPerUnit: 118
+    },
+    steak: {
+      bloat: 7,
+      caloriesPer100g: 250,
+      proteinPer100g: 26,
+      fatPer100g: 20,
+      carbsPer100g: 0,
+      weightPerUnit: 200
+    },
+    apple: {
+      bloat: 2,
+      caloriesPer100g: 52,
+      proteinPer100g: 0.3,
+      fatPer100g: 0.2,
+      carbsPer100g: 14,
+      weightPerUnit: 182
+    },
+    chickenbreast: {
+      bloat: 3,
+      caloriesPer100g: 165,
+      proteinPer100g: 31,
+      fatPer100g: 3.6,
+      carbsPer100g: 0,
+      weightPerUnit: 150
+    },
+    broccoli: {
+      bloat: 5,
+      caloriesPer100g: 34,
+      proteinPer100g: 2.8,
+      fatPer100g: 0.4,
+      carbsPer100g: 7,
+      weightPerUnit: 91
+    },
+    egg: {
+      bloat: 1,
+      caloriesPer100g: 155,
+      proteinPer100g: 13,
+      fatPer100g: 11,
+      carbsPer100g: 1.1,
+      weightPerUnit: 50
+    },
+    rice: {
+      bloat: 4,
+      caloriesPer100g: 130,
+      proteinPer100g: 2.7,
+      fatPer100g: 0.3,
+      carbsPer100g: 28,
+      weightPerUnit: 100
+    },
+    salmon: {
+      bloat: 3,
+      caloriesPer100g: 206,
+      proteinPer100g: 22,
+      fatPer100g: 12,
+      carbsPer100g: 0,
+      weightPerUnit: 154
+    },
+    avocado: {
+      bloat: 2,
+      caloriesPer100g: 160,
+      proteinPer100g: 2,
+      fatPer100g: 15,
+      carbsPer100g: 9,
+      weightPerUnit: 150
+    },
+    almond: {
+      bloat: 2,
+      caloriesPer100g: 579,
+      proteinPer100g: 21,
+      fatPer100g: 50,
+      carbsPer100g: 22,
+      weightPerUnit: 1
+    },
+    yogurt: {
+      bloat: 4,
+      caloriesPer100g: 59,
+      proteinPer100g: 10,
+      fatPer100g: 0.4,
+      carbsPer100g: 3.6,
+      weightPerUnit: 100
+    },
+    potato: {
+      bloat: 5,
+      caloriesPer100g: 77,
+      proteinPer100g: 2,
+      fatPer100g: 0.1,
+      carbsPer100g: 17,
+      weightPerUnit: 150
+    },
+    carrot: {
+      bloat: 1,
+      caloriesPer100g: 41,
+      proteinPer100g: 0.9,
+      fatPer100g: 0.2,
+      carbsPer100g: 10,
+      weightPerUnit: 61
+    },
+    oats: {
+      bloat: 4,
+      caloriesPer100g: 389,
+      proteinPer100g: 17,
+      fatPer100g: 7,
+      carbsPer100g: 66,
+      weightPerUnit: 40
+    },
+    wheyprotein: {
+      bloat: 2,
+      caloriesPer100g: 400,
+      proteinPer100g: 80,
+      fatPer100g: 7,
+      carbsPer100g: 8,
+      weightPerUnit: 30
+    },
+    bread: {
+      bloat: 3,
+      caloriesPer100g: 265,
+      proteinPer100g: 9,
+      fatPer100g: 3.2,
+      carbsPer100g: 49,
+      weightPerUnit: 30
+    },
+    cheese: {
+      bloat: 3,
+      caloriesPer100g: 402,
+      proteinPer100g: 25,
+      fatPer100g: 33,
+      carbsPer100g: 1.3,
+      weightPerUnit: 30
+    },
+    peanutbutter: {
+      bloat: 4,
+      caloriesPer100g: 588,
+      proteinPer100g: 25,
+      fatPer100g: 50,
+      carbsPer100g: 20,
+      weightPerUnit: 32
+    }
+  };
 
-function round(num) {
-  return Math.round(num * 10) / 10;
-}
+  // Load custom foods from localStorage
+  const loadCustomFoods = () => {
+    const custom = localStorage.getItem('customFoods');
+    if (custom) {
+      try {
+        const parsed = JSON.parse(custom);
+        Object.assign(foodDB, parsed);
+      } catch {}
+    }
+  };
 
-let dailyTotals = {
-  calories: 0,
-  protein: 0,
-  fat: 0,
-  carbs: 0
-};
+  const saveCustomFoods = () => {
+    const customOnly = {};
+    for (const key in foodDB) {
+      if (foodDB[key].custom) customOnly[key] = foodDB[key];
+    }
+    localStorage.setItem('customFoods', JSON.stringify(customOnly));
+  };
 
-let goals = {
-  calories: 2000,
-  protein: 150,
-  fat: 70,
-  carbs: 250
-};
-
-// Elements
-const form = document.getElementById("foodForm");
-const resultDiv = document.getElementById("result");
-const trackerTotalsDiv = document.getElementById("trackerTotals");
-const resetBtn = document.getElementById("resetTracker");
-const settingsBtn = document.getElementById("settingsBtn");
-const settingsModal = document.getElementById("settingsModal");
-const closeSettingsBtn = document.getElementById("closeSettings");
-const settingsForm = document.getElementById("settingsForm");
-const bgColorInput = document.getElementById("bgColorInput");
-const calorieGoalInput = document.getElementById("calorieGoalInput");
-const proteinGoalInput = document.getElementById("proteinGoalInput");
-const fatGoalInput = document.getElementById("fatGoalInput");
-const carbGoalInput = document.getElementById("carbGoalInput");
-
-// Progress bar fills
-const calorieFill = document.getElementById("calorieFill");
-const proteinFill = document.getElementById("proteinFill");
-const fatFill = document.getElementById("fatFill");
-const carbFill = document.getElementById("carbFill");
-
-// Load saved data
-function loadData() {
-  const savedTotals = localStorage.getItem("dailyTotals");
-  if (savedTotals) {
-    dailyTotals = JSON.parse(savedTotals);
-  }
-  const savedGoals = localStorage.getItem("nutritionGoals");
-  if (savedGoals) {
-    goals = JSON.parse(savedGoals);
-  }
-  const savedBg = localStorage.getItem("bgColor");
-  if (savedBg) {
-    document.documentElement.style.setProperty('--bg-color', savedBg);
-    bgColorInput.value = savedBg;
-  }
-
-  // Populate settings inputs with loaded goals
-  calorieGoalInput.value = goals.calories;
-  proteinGoalInput.value = goals.protein;
-  fatGoalInput.value = goals.fat;
-  carbGoalInput.value = goals.carbs;
-
-  updateTrackerUI();
-  updateProgressBars();
-}
-
-// Save goals & bg color
-function saveSettings() {
-  localStorage.setItem("nutritionGoals", JSON.stringify(goals));
-  localStorage.setItem("bgColor", bgColorInput.value);
-}
-
-// Update the daily tracker text
-function updateTrackerUI() {
-  trackerTotalsDiv.textContent =
-    `Calories: ${round(dailyTotals.calories)} kcal | Protein: ${round(dailyTotals.protein)} g | Fat: ${round(dailyTotals.fat)} g | Carbs: ${round(dailyTotals.carbs)} g`;
-}
-
-// Update the progress bars based on goals
-function updateProgressBars() {
-  function calcPercent(current, goal) {
-    if (goal === 0) return 0;
-    return Math.min((current / goal) * 100, 100);
-  }
-  calorieFill.style.width = calcPercent(dailyTotals.calories, goals.calories) + "%";
-  proteinFill.style.width = calcPercent(dailyTotals.protein, goals.protein) + "%";
-  fatFill.style.width = calcPercent(dailyTotals.fat, goals.fat) + "%";
-  carbFill.style.width = calcPercent(dailyTotals.carbs, goals.carbs) + "%";
-}
-
-// Reset daily totals and update UI
-resetBtn.addEventListener("click", () => {
-  dailyTotals = { calories: 0, protein: 0, fat: 0, carbs: 0 };
-  updateTrackerUI();
-  updateProgressBars();
-  localStorage.setItem("dailyTotals", JSON.stringify(dailyTotals));
-});
-
-// Settings modal open/close
-settingsBtn.addEventListener("click", () => {
-  settingsModal.style.display = "flex";
-});
-closeSettingsBtn.addEventListener("click", () => {
-  settingsModal.style.display = "none";
-});
-window.addEventListener("click", (e) => {
-  if (e.target === settingsModal) {
-    settingsModal.style.display = "none";
-  }
-});
-
-// Save settings form submit
-settingsForm.addEventListener("submit", (e) => {
-  e.preventDefault();
-  goals.calories = Number(calorieGoalInput.value) || 0;
-  goals.protein = Number(proteinGoalInput.value) || 0;
-  goals.fat = Number(fatGoalInput.value) || 0;
-  goals.carbs = Number(carbGoalInput.value) || 0;
-
-  // Update background color CSS variable
-  document.documentElement.style.setProperty('--bg-color', bgColorInput.value);
-
-  saveSettings();
-  updateProgressBars();
-  settingsModal.style.display = "none";
-});
-
-// Main form submit handler
-form.addEventListener("submit", e => {
-  e.preventDefault();
-
-  const foodNameRaw = document.getElementById("foodName").value.trim().toLowerCase().replace(/\s/g, "");
-  const amountRaw = document.getElementById("foodAmount").value.trim();
-
-  const food = foodDB[foodNameRaw];
-  if (!food) {
-    resultDiv.innerHTML = `<p><strong>Error:</strong> Food "${foodNameRaw}" not found in database.</p>`;
-    return;
-  }
-
-  const grams = parseAmount(amountRaw, food);
-  if (grams === null) {
-    resultDiv.innerHTML = `<p><strong>Error:</strong> Invalid amount "${amountRaw}". Use number of units or grams (e.g. 1 or 150g).</p>`;
-    return;
-  }
-
-  // Calculate nutrition
-  const factor = grams / 100;
-  const calories = food.caloriesPer100g * factor;
-  const protein = food.proteinPer100g * factor;
-  const fat = food.fatPer100g * factor;
-  const carbs = food.carbsPer100g * factor;
-  const bloat = food.bloat;
-
-  // Update daily totals
-  dailyTotals.calories += calories;
-  dailyTotals.protein += protein;
-  dailyTotals.fat += fat;
-  dailyTotals.carbs += carbs;
-  localStorage.setItem("dailyTotals", JSON.stringify(dailyTotals));
-
-  // Update UI
-  updateTrackerUI();
-  updateProgressBars();
-
-  // Show result
-  resultDiv.innerHTML = `
-    <p><strong>${foodNameRaw}</strong> (${grams}g):</p>
-    <ul>
-      <li>Calories: ${round(calories)} kcal</li>
-      <li>Protein: ${round(protein)} g</li>
-      <li>Fat: ${round(fat)} g</li>
-      <li>Carbs: ${round(carbs)} g</li>
-      <li>Face Bloat Score: ${bloat}</li>
-    </ul>
-    <a href="https://www.google.com/search?q=${encodeURIComponent(foodNameRaw)}+nutrition" target="_blank" rel="noopener noreferrer">Search nutrition info</a>
-  `;
-
-  // Clear input fields but keep focus on foodName
-  form.reset();
-  document.getElementById("foodName").focus();
-});
-
-// Initialize
-loadData();
-</script>
-
-</body>
-</html>
+  loadCustomFoods
