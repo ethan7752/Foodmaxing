@@ -68,16 +68,20 @@
 <h1>Ethan's Food Ai</h1>
 
 <form id="foodForm">
-  <label for="foodName">Food Name (e.g. banana)</label>
-  <input id="foodName" type="text" placeholder="banana" required />
-
-  <label for="foodAmount">Amount (e.g. 1 or 200g)</label>
-  <input id="foodAmount" type="text" placeholder="1 or 200g" required />
-
+  <input type="text" id="foodName" placeholder="Food name" required />
+  <input type="text" id="foodAmount" placeholder="Amount (e.g., 1 or 150g)" required />
   <button type="submit">Calculate</button>
 </form>
 
-<div class="result" id="result"></div>
+<div id="result"></div>
+
+<!-- Daily tracker bar -->
+<div id="dailyTracker" style="position: fixed; bottom: 0; left: 0; right: 0; background: #222; color: #eee; padding: 0.75rem 1rem; font-size: 0.9rem; display: flex; justify-content: space-between; align-items: center; max-width: 480px; margin: 0 auto; box-sizing: border-box;">
+  <div id="trackerTotals">
+    Calories: 0 kcal | Protein: 0 g | Fat: 0 g | Carbs: 0 g
+  </div>
+  <button id="resetTracker" style="background:#5e81ac; color:#fff; border:none; padding:0.3rem 0.6rem; border-radius:4px; cursor:pointer;">Reset</button>
+</div>
 
 <script>
 // Expanded food database with many more entries
@@ -247,7 +251,6 @@ function round(num) {
   return Math.round(num * 10) / 10;
 }
 
-// Tracker totals object
 let dailyTotals = {
   calories: 0,
   protein: 0,
@@ -265,7 +268,6 @@ function updateTrackerUI() {
     `Calories: ${round(dailyTotals.calories)} kcal | Protein: ${round(dailyTotals.protein)} g | Fat: ${round(dailyTotals.fat)} g | Carbs: ${round(dailyTotals.carbs)} g`;
 }
 
-// Load saved totals from localStorage on page load
 function loadTracker() {
   const saved = localStorage.getItem("dailyTotals");
   if (saved) {
@@ -274,12 +276,10 @@ function loadTracker() {
   }
 }
 
-// Save totals to localStorage
 function saveTracker() {
   localStorage.setItem("dailyTotals", JSON.stringify(dailyTotals));
 }
 
-// Reset tracker button handler
 resetBtn.addEventListener("click", () => {
   dailyTotals = { calories: 0, protein: 0, fat: 0, carbs: 0 };
   updateTrackerUI();
@@ -287,7 +287,7 @@ resetBtn.addEventListener("click", () => {
 });
 
 form.addEventListener("submit", e => {
-  e.preventDefault();
+  e.preventDefault();  // this stops page reload
 
   const foodNameRaw = document.getElementById("foodName").value.trim().toLowerCase().replace(/\s/g, "");
   const amountRaw = document.getElementById("foodAmount").value.trim();
@@ -314,7 +314,6 @@ form.addEventListener("submit", e => {
 
   const searchUrl = `https://www.woolworths.co.nz/shop/searchproducts?search=${encodeURIComponent(foodNameRaw)}`;
 
-  // Show results with Add to Daily Tracker button
   resultDiv.innerHTML = `
     <strong>${grams}g of ${foodNameRaw}</strong><br/>
     Calories: ${round(calories)} kcal<br/>
@@ -336,8 +335,8 @@ form.addEventListener("submit", e => {
   });
 });
 
-// On page load, restore saved tracker values
 loadTracker();
+</script>
 </script>
 <!-- Daily tracker bar -->
 <div id="dailyTracker" style="position: fixed; bottom: 0; left: 0; right: 0; background: #222; color: #eee; padding: 0.75rem 1rem; font-size: 0.9rem; display: flex; justify-content: space-between; align-items: center; max-width: 480px; margin: 0 auto; box-sizing: border-box;">
