@@ -1,230 +1,69 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <link rel="manifest" href="manifest.json" />
-<meta name="apple-mobile-web-app-capable" content="yes" />
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-<meta name="apple-mobile-web-app-title" content="Ethan's Food Ai" />
-<link rel="apple-touch-icon" href="icon-192.png" />
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Ethan's Food Ai</title>
-  <style>
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-        Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
-      margin: 10px;
-      background: #121212;
-      color: #e0e0e0;
-    }
-    h1, h2 {
-      text-align: center;
-      color: #81a1c1;
-    }
-    form {
-      max-width: 400px;
-      margin: 0 auto 20px auto;
-      background: #1e1e1e;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 0 15px #222;
-    }
-    label {
-      display: block;
-      margin-top: 10px;
-      font-weight: bold;
-      color: #a0a0a0;
-    }
-    input[type=text],
-    input[type=number] {
-      width: 100%;
-      padding: 8px;
-      margin-top: 6px;
-      box-sizing: border-box;
-      border-radius: 4px;
-      border: 1px solid #444;
-      font-size: 16px;
-      background: #2c2c2c;
-      color: #ddd;
-    }
-    input[type=text]::placeholder,
-    input[type=number]::placeholder {
-      color: #666;
-    }
-    button {
-      margin-top: 15px;
-      width: 100%;
-      padding: 12px;
-      font-size: 18px;
-      background: #5e81ac;
-      border: none;
-      border-radius: 6px;
-      color: white;
-      cursor: pointer;
-      transition: background 0.3s ease;
-    }
-    button:hover {
-      background: #81a1c1;
-    }
-    #result {
-      max-width: 400px;
-      margin: 0 auto 30px auto;
-      background: #1e1e1e;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 0 15px #222;
-      display: none;
-      color: #ddd;
-    }
-    #history {
-      max-width: 400px;
-      margin: 0 auto 50px auto;
-      background: #1e1e1e;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 0 15px #222;
-      color: #ddd;
-    }
-    .entry {
-      border-bottom: 1px solid #333;
-      padding: 10px 0;
-    }
-    .entry:last-child {
-      border-bottom: none;
-    }
-    .entry button {
-      float: right;
-      color: #ff5555;
-      background: none;
-      border: none;
-      font-weight: bold;
-      cursor: pointer;
-      font-size: 18px;
-      line-height: 1;
-      padding: 0;
-    }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Ethan's Food Ai</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #eee;
+    font-family: Arial, sans-serif;
+    max-width: 480px;
+    margin: 2rem auto;
+    padding: 1rem;
+  }
+  input, button {
+    padding: 0.5rem;
+    font-size: 1rem;
+    margin: 0.5rem 0;
+    width: 100%;
+    box-sizing: border-box;
+    border-radius: 4px;
+    border: none;
+  }
+  input {
+    background: #222;
+    color: #eee;
+  }
+  button {
+    background: #5e81ac;
+    color: white;
+    cursor: pointer;
+  }
+  button:hover {
+    background: #4a699f;
+  }
+  .result {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: #222;
+    border-radius: 6px;
+  }
+</style>
 </head>
 <body>
-  <h1>Ethan's Food Ai</h1>
-  <form id="foodForm">
-    <label for="foodName">Food Name:</label>
-    <input type="text" id="foodName" placeholder="e.g. steak" required />
 
-    <label for="foodAmount">Amount (grams):</label>
-    <input type="number" id="foodAmount" placeholder="e.g. 200" required min="1" />
+<h1>Ethan's Food Ai</h1>
 
-    <button type="submit">Get Rating</button>
-  </form>
+<form id="foodForm">
+  <label for="foodName">Food Name (e.g. banana)</label>
+  <input id="foodName" type="text" placeholder="banana" required />
 
-  <div id="result">
-    <h2>Result:</h2>
-    <p><strong>Food:</strong> <span id="resFood"></span></p>
-    <p><strong>Amount:</strong> <span id="resAmount"></span> g</p>
-    <p><strong>Bloat Scale:</strong> <span id="resBloat"></span> / 10</p>
-    <p><strong>Calories:</strong> <span id="resCalories"></span> kcal</p>
-    <p><strong>Protein:</strong> <span id="resProtein"></span> g</p>
-    <p><strong>Fat:</strong> <span id="resFat"></span> g</p>
-    <p><strong>Carbs:</strong> <span id="resCarbs"></span> g</p>
-  </div>
+  <label for="foodAmount">Amount (e.g. 1 or 200g)</label>
+  <input id="foodAmount" type="text" placeholder="1 or 200g" required />
 
-  <div id="history">
-    <h2>Saved Entries:</h2>
-    <div id="historyList"></div>
-  </div>
+  <button type="submit">Calculate</button>
+</form>
 
-  <script>
-    const foodDB = {
-      steak: { bloat: 7, caloriesPer100g: 250, proteinPer100g: 26, fatPer100g: 20, carbsPer100g: 0 },
-      banana: { bloat: 1, caloriesPer100g: 89, proteinPer100g: 1.1, fatPer100g: 0.3, carbsPer100g: 23 },
-      "white rice": { bloat: 5, caloriesPer100g: 130, proteinPer100g: 2.4, fatPer100g: 0.3, carbsPer100g: 28 },
-      avocado: { bloat: 2, caloriesPer100g: 160, proteinPer100g: 2, fatPer100g: 15, carbsPer100g: 9 },
-      "chicken breast": { bloat: 3, caloriesPer100g: 165, proteinPer100g: 31, fatPer100g: 3.6, carbsPer100g: 0 },
-      broccoli: { bloat: 4, caloriesPer100g: 55, proteinPer100g: 3.7, fatPer100g: 0.6, carbsPer100g: 11 },
-      egg: { bloat: 1, caloriesPer100g: 155, proteinPer100g: 13, fatPer100g: 11, carbsPer100g: 1.1 },
-      milk: { bloat: 6, caloriesPer100g: 42, proteinPer100g: 3.4, fatPer100g: 1, carbsPer100g: 5 },
-      almonds: { bloat: 3, caloriesPer100g: 579, proteinPer100g: 21, fatPer100g: 50, carbsPer100g: 22 },
-      "sweet potato": { bloat: 4, caloriesPer100g: 86, proteinPer100g: 1.6, fatPer100g: 0.1, carbsPer100g: 20 }
-    };
+<div class="result" id="result"></div>
 
-    const form = document.getElementById("foodForm");
-    const resultDiv = document.getElementById("result");
-    const historyList = document.getElementById("historyList");
-
-    // Load saved entries from localStorage
-    let savedEntries = JSON.parse(localStorage.getItem("foodEntries")) || [];
-    renderHistory();
-
-    form.addEventListener("submit", e => {
-      e.preventDefault();
-
-      const foodNameRaw = document.getElementById("foodName").value.trim().toLowerCase();
-      const amount = parseFloat(document.getElementById("foodAmount").value);
-
-      if (!foodDB[foodNameRaw]) {
-        alert("Food not found in database. Try another or add it yourself later.");
-        return;
-      }
-
-      const food = foodDB[foodNameRaw];
-
-      const bloat = food.bloat;
-      const calories = ((food.caloriesPer100g * amount) / 100).toFixed(1);
-      const protein = ((food.proteinPer100g * amount) / 100).toFixed(1);
-      const fat = ((food.fatPer100g * amount) / 100).toFixed(1);
-      const carbs = ((food.carbsPer100g * amount) / 100).toFixed(1);
-
-      document.getElementById("resFood").textContent = foodNameRaw;
-      document.getElementById("resAmount").textContent = amount;
-      document.getElementById("resBloat").textContent = bloat;
-      document.getElementById("resCalories").textContent = calories;
-      document.getElementById("resProtein").textContent = protein;
-      document.getElementById("resFat").textContent = fat;
-      document.getElementById("resCarbs").textContent = carbs;
-
-      resultDiv.style.display = "block";
-
-      // Save entry
-      const entry = {
-        food: foodNameRaw,
-        amount,
-        bloat,
-        calories,
-        protein,
-        fat,
-        carbs,
-        date: new Date().toLocaleString()
-      };
-
-      savedEntries.unshift(entry); // newest first
-      localStorage.setItem("foodEntries", JSON.stringify(savedEntries));
-      renderHistory();
-    });
-
-    function renderHistory() {
-      if (savedEntries.length === 0) {
-        historyList.innerHTML = "<p>No saved entries yet.</p>";
-        return;
-      }
-      historyList.innerHTML = "";
-      savedEntries.forEach((entry, index) => {
-        const div = document.createElement("div");
-        div.className = "entry";
-        div.innerHTML = `
-          <strong>${entry.food}</strong> - ${entry.amount}g<br/>
-          Bloat: ${entry.bloat} / 10, Calories: ${entry.calories} kcal, Protein: ${entry.protein}g<br/>
-          <small>${entry.date}</small>
-          <button onclick="deleteEntry(${index})" title="Delete entry">×</button>
-        `;
-        historyList.appendChild(div);
-      });
-    }
-
-    function deleteEntry(index) {
-      savedEntries.splice(index, 1);
-      localStorage.setItem("foodEntries", JSON.stringify(savedEntries));
-      renderHistory();
-    }
-  </script>
-</body>
-</html>
+<script>
+const foodDB = {
+  banana: {
+    bloat: 1,
+    caloriesPer100g: 89,
+    proteinPer100g: 1.1,
+    fatPer100g: 0.3,
+    carbsPer100g: 23,
+    weightPerUnit: 118
