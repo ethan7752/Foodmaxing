@@ -831,7 +831,7 @@
     // === Add meal to log ===
     addMealBtn.addEventListener("click", () => {
         const foodNameRaw = foodInput.value.trim();
-        const normName = foodInput.dataset.selectedNormalizedFood || normalizeName(foodNameRaw); // Use stored normalized name or re-normalize
+        const normName = foodInput.dataset.selectedNormalizedFood || normalizeName(foodNameRaw); 
         
         if (!foodNameRaw) {
             alert("Please enter a food name.");
@@ -896,7 +896,7 @@
         foodInput.value = "";
         amountInput.value = "";
         mealPhotoInput.value = "";
-        foodInput.dataset.selectedNormalizedFood = ""; // Clear stored normalized name
+        foodInput.dataset.selectedNormalizedFood = ""; 
         hideFoodSuggestions();
     }
    // ... existing functions ...
@@ -911,17 +911,17 @@ function renderAllFoodsList(searchTerm = "") {
         foodsDatabase[a].name.localeCompare(foodsDatabase[b].name)
     );
 
-    const fragment = document.createDocumentFragment(); // Use a document fragment for better performance
+    const fragment = document.createDocumentFragment(); 
 
     sortedFoodNames.forEach(normalizedFoodName => {
         const food = foodsDatabase[normalizedFoodName];
         if (food.name.toLowerCase().includes(searchTerm.toLowerCase())) {
             const foodItemDiv = document.createElement("div");
-            foodItemDiv.classList.add("suggestion-item"); // Reuse existing style for list items
-            foodItemDiv.style.display = "flex"; // Use flexbox for layout
-            foodItemDiv.style.justifyContent = "space-between"; // Space between name and info button
-            foodItemDiv.style.alignItems = "center"; // Align items vertically
-            foodItemDiv.style.paddingRight = "10px"; // Add some padding on the right
+            foodItemDiv.classList.add("suggestion-item"); 
+            foodItemDiv.style.display = "flex"; 
+            foodItemDiv.style.justifyContent = "space-between"; 
+            foodItemDiv.style.alignItems = "center"; 
+            foodItemDiv.style.paddingRight = "10px"; 
 
             const foodNameSpan = document.createElement("span");
             foodNameSpan.textContent = food.name;
@@ -930,12 +930,12 @@ function renderAllFoodsList(searchTerm = "") {
             const infoButton = document.createElement("button");
             infoButton.textContent = "Info";
             infoButton.classList.add("btn-info");
-            infoButton.style.padding = "4px 8px"; // Smaller button
+            infoButton.style.padding = "4px 8px"; 
             infoButton.style.fontSize = "0.7em";
-            infoButton.style.marginTop = "0"; // Override default margin
-            infoButton.style.marginLeft = "10px"; // Space from text
+            infoButton.style.marginTop = "0"; 
+            infoButton.style.marginLeft = "10px"; 
             infoButton.addEventListener("click", (event) => {
-                event.stopPropagation(); // Prevent modal from closing if clicked
+                event.stopPropagation(); 
                 showFoodInfoModal(normalizedFoodName);
             });
             foodItemDiv.appendChild(infoButton);
@@ -999,36 +999,13 @@ function renderAllFoodsList(searchTerm = "") {
                 showFoodInfoModal(meal.normalizedName);
             });
 
-            // NEW: All Foods Modal Functionality
-            // This section was previously in a comment block, moved here to ensure it's executed.
-            showAllFoodsBtn.addEventListener("click", () => {
-                allFoodsSearchInput.value = ""; // Clear search when opening
-                renderAllFoodsList(""); // Render all foods initially
-                allFoodsModalBg.classList.add("show");
-            });
-
-            closeAllFoodsModal.addEventListener("click", () => {
-                allFoodsModalBg.classList.remove("show");
-            });
-
-            allFoodsModalBg.addEventListener("click", (e) => {
-                if (e.target === allFoodsModalBg) {
-                    allFoodsModalBg.classList.remove("show");
-                }
-            });
-
-            allFoodsSearchInput.addEventListener("input", (e) => {
-                renderAllFoodsList(e.target.value);
-            });
-            // End of All Foods Modal Functionality - this listener should not be inside `forEach` loop
-
             foodNameCell.appendChild(infoBtn); // Append info button under food name
 
             // NEW: Show Image Button
             if (meal.photo) {
                 const showImageBtn = document.createElement("button");
                 showImageBtn.textContent = "Show";
-                showImageBtn.classList.add("btn-info", "btn-show-image"); // Added btn-show-image class
+                showImageBtn.classList.add("btn-info", "btn-show-image"); 
                 showImageBtn.title = `Show photo for ${meal.name}`;
                 showImageBtn.addEventListener("click", () => {
                     modalImage.src = meal.photo;
