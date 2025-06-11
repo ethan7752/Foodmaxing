@@ -906,24 +906,22 @@ function renderAllFoodsList(searchTerm = "") {
     allFoodsList.innerHTML = "";
     const normalizedSearchTerm = normalizeName(searchTerm);
 
-    // Sort food names alphabetically by their original name
-    const sortedFoodNames = Object.keys(foodsDatabase).sort((a, b) =>
-        foodsDatabase[a].name.localeCompare(foodsDatabase[b].name) // This line is causing the error.
-    );
-    // The error occurs if foodsDatabase[a] or foodsDatabase[b] is undefined.
-    // This can happen if the keys in foodsDatabase are not consistent or if there's an issue with the foodDatabase.js file itself.
+    // Filter and sort food names alphabetically by their original name
+    const sortedFoodNames = Object.keys(foodsDatabase)
+        .filter(normalizedName => foodsDatabase[normalizedName] && foodsDatabase[normalizedName].name.toLowerCase().includes(searchTerm.toLowerCase()))
+        .sort((a, b) => foodsDatabase[a].name.localeCompare(foodsDatabase[b].name));
 
     const fragment = document.createDocumentFragment();
 
-    sortedFoodNames.forEach(normalizedFoodName => {
-        const food = foodsDatabase[normalizedFoodName];
-        // Add a check to ensure 'food' is not undefined before proceeding
-        if (!food) {
-            console.warn(`Food data for normalized name "${normalizedFoodName}" not found in database.`);
-            return; // Skip this iteration if food data is missing
-        }
-
-        if (food.name.toLowerCase().includes(searchTerm.toLowerCase())) {
+    if (sortedFoodNames.length === 0) {
+        const noResultsDiv = document.createElement("div");
+        noResultsDiv.classList.add("empty-state");
+        noResultsDiv.textContent = "No foods found matching your search.";
+        fragment.appendChild(noResultsDiv);
+    } else {
+        sortedFoodNames.forEach(normalizedFoodName => {
+            const food = foodsDatabase[normalizedFoodName];
+            // No need for 'if (!food)' here, as it's filtered above
             const foodItemDiv = document.createElement("div");
             foodItemDiv.classList.add("suggestion-item");
             foodItemDiv.style.display = "flex";
@@ -949,7 +947,11 @@ function renderAllFoodsList(searchTerm = "") {
             foodItemDiv.appendChild(infoButton);
 
             fragment.appendChild(foodItemDiv);
-        }
+        });
+    }
+
+    allFoodsList.appendChild(fragment);
+}
     });
 
     if (fragment.children.length === 0) {
