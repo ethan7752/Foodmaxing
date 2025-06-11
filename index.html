@@ -294,22 +294,22 @@
 
     /* Autocomplete Suggestions Styles */
     .suggestions-dropdown {
-        position: absolute;
-        top: calc(85px + 10px); /* Adjust based on label height and input height */
-        left: 20px; /* Aligned with section padding */
-        right: 20px; /* Aligned with section padding */
-        background-color: var(--card-bg);
-        border: 1px solid var(--border-color);
-        border-top: none;
-        border-radius: 0 0 8px 8px;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        max-height: 200px;
-        overflow-y: auto;
-        z-index: 100;
-        display: none;
-        list-style: none;
-        padding: 0;
-        margin: 0;
+       position: absolute;
+       top: calc(60px); /* Adjust this value based on the input field's bottom position within its section */
+       left: 20px;
+       right: 20px;
+       background-color: var(--card-bg);
+       border: 1px solid var(--border-color);
+       border-top: none;
+       border-radius: 0 0 8px 8px;
+       box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+       max-height: 200px;
+       overflow-y: auto;
+       z-index: 100;
+       display: none;
+       list-style: none;
+       padding: 0;
+       margin: 0;
     }
     .dark-mode .suggestions-dropdown {
         box-shadow: 0 4px 6px rgba(0,0,0,0.3);
@@ -444,11 +444,13 @@
         background-color: var(--suggestion-hover-bg); /* Light background for photo row */
     }
 
-    .meal-photo-log img {
-        max-width: 100%;
-        height: auto;
-        border-radius: 8px;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+     .meal-photo-log img {
+       max-height: 100px; /* Adjust this value as needed */
+       width: auto; /* Keep aspect ratio */
+       display: block; /* Prevent extra space below the image */
+       margin: 10px auto; /* Center the image in the row */
+       border-radius: 8px;
+       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
 </style>
 </head>
