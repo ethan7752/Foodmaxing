@@ -375,6 +375,42 @@
         max-width: 400px;
     }
 
+    /* New: Styling for the All Foods Modal */
+    #allFoodsModalBg .modal-content {
+        max-width: 800px; /* Wider for food list */
+        max-height: 90vh; /* Max height for scrolling */
+        display: flex;
+        flex-direction: column;
+    }
+
+    #allFoodsList {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); /* Responsive grid */
+        gap: 10px;
+        list-style: none;
+        padding: 0;
+        margin: 20px 0 0 0; /* Space from title */
+        overflow-y: auto; /* Allow scrolling within the list */
+        flex-grow: 1; /* Allow the list to take available height */
+    }
+
+    #allFoodsList li {
+        background-color: var(--suggestion-hover-bg); /* Lighter background for items */
+        padding: 10px;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+        text-align: center;
+        font-weight: 500;
+        color: var(--primary-color);
+    }
+
+    #allFoodsList li:hover {
+        background-color: var(--primary-color);
+        color: white;
+    }
+
+
     .modal-buttons {
         display: flex;
         justify-content: flex-end;
@@ -619,7 +655,22 @@
     </div>
 </div>
 
-<script src="foodDatabase.js"></script>
+<!-- NEW: All Foods Modal Structure -->
+<div id="allFoodsModalBg" class="modal-bg">
+    <div class="modal-content">
+        <span class="modal-close" id="closeAllFoodsModal">&times;</span>
+        <h2>All Available Foods</h2>
+        <ul id="allFoodsList">
+            <!-- Food items will be loaded here dynamically -->
+        </ul>
+    </div>
+</div>
+
+<!-- Changed script import to module type and assigned to window.foodsDatabase -->
+<script type="module">
+    import foodsDatabase from './foodDatabase.js';
+    window.foodsDatabase = foodsDatabase;
+</script>
 
 <script defer>
     // === Storage keys ===
@@ -686,7 +737,7 @@
     const newworldLink = document.getElementById("newworldLink");
 
     const resetHistoryBtn = document.getElementById("resetHistoryBtn");
-    const showAllFoodsBtn = document.getElementById("showAllFoodsBtn"); // New button element
+    const showAllFoodsBtn = document.getElementById("showAllFoodsBtn"); 
 
     // Generic Alert Modal elements
     const alertModalBg = document.getElementById("alertModalBg");
@@ -702,6 +753,12 @@
     const confirmModalOkBtn = document.getElementById("confirmModalOkBtn");
     const confirmModalCancelBtn = document.getElementById("confirmModalCancelBtn");
     const closeConfirmModal = document.getElementById("closeConfirmModal");
+
+    // NEW: All Foods Modal elements
+    const allFoodsModalBg = document.getElementById("allFoodsModalBg");
+    const closeAllFoodsModal = document.getElementById("closeAllFoodsModal");
+    const allFoodsList = document.getElementById("allFoodsList");
+
 
     let confirmCallback = null; // To store the callback for the confirm modal
 
@@ -1256,10 +1313,49 @@
         );
     });
 
-    // NEW: Show All Foods button functionality
+    // NEW: Show All Foods button functionality (UPDATED)
     showAllFoodsBtn.addEventListener("click", () => {
-        // Open allFoods.html in a new window/tab
-        window.open("allFoods.html", "_blank", "width=800,height=600,resizable=yes,scrollbars=yes");
+        renderAllFoods();
+        allFoodsModalBg.classList.add("show");
+    });
+
+    // NEW: Function to render all foods into the new modal
+    function renderAllFoods() {
+        allFoodsList.innerHTML = ''; // Clear previous list
+        // Ensure window.foodsDatabase is defined before accessing its keys
+        const foodNames = window.foodsDatabase ? Object.keys(window.foodsDatabase).sort((a, b) => window.foodsDatabase[a].name.localeCompare(window.foodsDatabase[b].name)) : [];
+
+        if (foodNames.length === 0) {
+            allFoodsList.innerHTML = '<li>No foods found in database.</li>';
+            return;
+        }
+
+        foodNames.forEach(normalizedName => {
+            const food = window.foodsDatabase[normalizedName];
+            const listItem = document.createElement('li');
+            listItem.textContent = food.name;
+            listItem.dataset.normalizedName = normalizedName; // Store normalized name for lookup
+            listItem.addEventListener('click', () => {
+                foodInput.value = food.name;
+                foodInput.dataset.selectedNormalizedFood = normalizedName;
+                allFoodsModalBg.classList.remove('show'); // Close the all foods modal
+                hideFoodSuggestions(); // Hide any existing suggestions
+                // Optional: focus on amount input or add meal button
+                amountInput.focus();
+            });
+            allFoodsList.appendChild(listItem);
+        });
+    }
+
+    // NEW: Close All Foods Modal
+    closeAllFoodsModal.addEventListener("click", () => {
+        allFoodsModalBg.classList.remove("show");
+    });
+
+    allFoodsModalBg.addEventListener("click", (e) => {
+        if (e.target === allFoodsModalBg) {
+            allFoodsModalBg.classList.remove("show");
+        }
     });
 
 
