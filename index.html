@@ -575,7 +575,6 @@
     <button id="resetHistoryBtn" class="reset-button">Reset All History</button>
 </div>
 
-<!-- Generic Alert Modal -->
 <div id="alertModalBg" class="modal-bg">
     <div class="modal-content small-modal">
         <span class="modal-close" id="closeAlertModal">&times;</span>
@@ -587,7 +586,6 @@
     </div>
 </div>
 
-<!-- Generic Confirm Modal -->
 <div id="confirmModalBg" class="modal-bg">
     <div class="modal-content small-modal">
         <span class="modal-close" id="closeConfirmModal">&times;</span>
@@ -655,22 +653,16 @@
     </div>
 </div>
 
-<!-- NEW: All Foods Modal Structure -->
 <div id="allFoodsModalBg" class="modal-bg">
     <div class="modal-content">
         <span class="modal-close" id="closeAllFoodsModal">&times;</span>
         <h2>All Available Foods</h2>
         <ul id="allFoodsList">
-            <!-- Food items will be loaded here dynamically -->
-        </ul>
+            </ul>
     </div>
 </div>
 
-<!-- Changed script import to module type and assigned to window.foodsDatabase -->
-<script type="module">
-    import foodsDatabase from './foodDatabase.js';
-    window.foodsDatabase = foodsDatabase;
-</script>
+<script src="./foodDatabase.js"></script>
 
 <script defer>
     // === Storage keys ===
