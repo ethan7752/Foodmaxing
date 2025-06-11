@@ -3,155 +3,242 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Food & Water Tracker with Photos + Settings</title>
+<title>Food Tracker with Photos + Settings</title>
 <style>
+  :root {
+    --primary-color: #6c5ce7;
+    --primary-hover: #5649c0;
+    --danger-color: #ff7675;
+    --danger-hover: #e84343;
+    --success-color: #00b894;
+    --success-hover: #00a884;
+    --info-color: #0984e3;
+    --info-hover: #0776c8;
+    --text-color: #2d3436;
+    --bg-color: #f8f9fa;
+    --card-bg: #ffffff;
+    --border-color: #dfe6e9;
+  }
+
+  .dark-mode {
+    --primary-color: #a29bfe;
+    --primary-hover: #847bff;
+    --danger-color: #ff7675;
+    --danger-hover: #e84343;
+    --success-color: #55efc4;
+    --success-hover: #00b894;
+    --info-color: #74b9ff;
+    --info-hover: #0984e3;
+    --text-color: #f5f6fa;
+    --bg-color: #121212;
+    --card-bg: #1e1e1e;
+    --border-color: #333333;
+  }
+
   body {
-    font-family: Arial, sans-serif;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     max-width: 700px;
     margin: auto;
     padding: 20px;
-    background: #f8f9fa;
-  }
-    body.dark-mode {
-    background-color: #121212;
-    color: #eee;
+    background: var(--bg-color);
+    color: var(--text-color);
+    transition: all 0.3s ease;
   }
 
-  body.dark-mode input, 
-  body.dark-mode select, 
-  body.dark-mode button, 
-  body.dark-mode textarea {
-    background-color: #222;
-    color: #eee;
-    border-color: #444;
-  }
-
-  body.dark-mode .log-entry {
-    background-color: #1e1e1e;
-    border: 1px solid #333;
-  }
   h1, h2 {
     text-align: center;
-    margin-bottom: 10px;
-    <button id="darkModeToggle" style="margin-bottom: 1rem; padding: 0.5rem 1rem; background:#5e81ac; color:#fff; border:none; border-radius:4px; cursor:pointer;">Toggle Dark Mode</button>
+    margin-bottom: 15px;
+    color: var(--primary-color);
   }
+
   label {
-    font-weight: bold;
+    font-weight: 600;
     margin-top: 12px;
     display: block;
+    color: var(--text-color);
   }
+
   input[type=number], input[type=text], select, input[type=file] {
     width: 100%;
-    padding: 7px;
-    margin-top: 4px;
+    padding: 10px;
+    margin-top: 6px;
     box-sizing: border-box;
     font-size: 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    background-color: var(--card-bg);
+    color: var(--text-color);
   }
+
   button {
     margin-top: 12px;
     padding: 10px 16px;
-    font-weight: bold;
+    font-weight: 600;
     cursor: pointer;
     border: none;
-    background-color: #007bff;
+    background-color: var(--primary-color);
     color: white;
     border-radius: 5px;
-    transition: background-color 0.3s ease;
+    transition: all 0.2s ease;
+    font-size: 0.95rem;
   }
+
   button:hover {
-    background-color: #0056b3;
+    background-color: var(--primary-hover);
+    transform: translateY(-1px);
   }
+
+  button:active {
+    transform: translateY(0);
+  }
+
+  .btn-danger {
+    background-color: var(--danger-color);
+  }
+
+  .btn-danger:hover {
+    background-color: var(--danger-hover);
+  }
+
+  .btn-success {
+    background-color: var(--success-color);
+  }
+
+  .btn-success:hover {
+    background-color: var(--success-hover);
+  }
+
+  .btn-info {
+    background-color: var(--info-color);
+  }
+
+  .btn-info:hover {
+    background-color: var(--info-hover);
+  }
+
   .section {
-    background: white;
-    padding: 15px 20px;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    background: var(--card-bg);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     margin-bottom: 20px;
+    border: 1px solid var(--border-color);
   }
+
   #mealHistoryDiv .list-item {
-    background: #e9ecef;
-    padding: 10px 15px;
-    margin: 8px 0;
-    border-radius: 7px;
+    background: var(--card-bg);
+    padding: 15px;
+    margin: 10px 0;
+    border-radius: 8px;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    border: 1px solid var(--border-color);
+    transition: transform 0.2s ease;
   }
+
+  #mealHistoryDiv .list-item:hover {
+    transform: translateX(5px);
+  }
+
   #mealHistoryDiv .list-item div {
     flex: 1;
   }
+
   #mealHistoryDiv button {
-    margin-left: 8px;
-    padding: 6px 10px;
-    font-size: 0.9rem;
-    background-color: #28a745;
+    margin-left: 10px;
+    padding: 8px 12px;
+    font-size: 0.85rem;
   }
-  #mealHistoryDiv button.delete-btn {
-    background-color: #dc3545;
-  }
+
   .flex-row {
     display: flex;
-    gap: 10px;
+    gap: 15px;
     flex-wrap: wrap;
   }
+
   .flex-row > div {
     flex: 1;
     min-width: 140px;
   }
+
   .progress-bar-container {
-    background: #ddd;
+    background: var(--border-color);
     border-radius: 15px;
     height: 22px;
     overflow: hidden;
-    margin-top: 12px;
+    margin-top: 15px;
   }
+
   .progress-bar {
     height: 100%;
-    background-color: #28a745;
+    background-color: var(--success-color);
     width: 0;
     transition: width 0.3s ease;
   }
+
   #settingsPanel {
     display: none;
-    background: #fff3cd;
-    padding: 15px;
-    border-radius: 8px;
+    background: var(--card-bg);
+    padding: 20px;
+    border-radius: 10px;
     margin-bottom: 20px;
-    box-shadow: 0 0 8px rgba(0,0,0,0.1);
+    border: 1px solid var(--border-color);
   }
-  #settingsPanel label {
-    font-weight: normal;
-  }
+
   .small-label {
     font-weight: normal;
     font-size: 0.85rem;
-    color: #555;
+    color: var(--text-color);
+    opacity: 0.8;
   }
+
   /* Modal styles */
   #imageModalBg {
     display: none;
     position: fixed;
     z-index: 10000;
-    left: 0; top: 0;
-    width: 100vw; height: 100vh;
-    background-color: rgba(0,0,0,0.85);
+    left: 0; 
+    top: 0;
+    width: 100vw; 
+    height: 100vh;
+    background-color: rgba(0,0,0,0.9);
     justify-content: center;
     align-items: center;
   }
+
   #imageModalBg img {
     max-width: 90vw;
     max-height: 90vh;
     border-radius: 8px;
-    border: 3px solid white;
+    border: 3px solid var(--primary-color);
   }
+
   #imageModalBg.show {
     display: flex;
+  }
+
+  .header-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 20px;
+    color: var(--text-color);
+    opacity: 0.7;
   }
 </style>
 </head>
 <body>
 
-<h1>Food & Water Tracker with Photos + Settings</h1>
+<div class="header-controls">
+  <h1>Food Tracker with Photos</h1>
+  <button id="darkModeToggle" class="btn-info">Toggle Dark Mode</button>
+</div>
 
 <div class="section" id="inputSection">
   <label for="foodInput">Food Name</label>
@@ -174,17 +261,11 @@
   <label for="mealPhotoInput">Meal Photo (optional)</label>
   <input id="mealPhotoInput" type="file" accept="image/*" capture="environment" />
 
-  <button id="addMealBtn">Add Meal to Log</button>
-</div>
-
-<div class="section" id="waterSection">
-  <label for="waterInput">Add Water Intake (ml)</label>
-  <input id="waterInput" type="number" min="0" placeholder="e.g. 250" />
-  <button id="addWaterBtn">Add Water</button>
+  <button id="addMealBtn" class="btn-success">Add Meal to Log</button>
 </div>
 
 <div class="section">
-  <button id="toggleSettingsBtn">Show Settings ⚙️</button>
+  <button id="toggleSettingsBtn" class="btn-info">Show Settings ⚙️</button>
 </div>
 
 <div class="section" id="settingsPanel">
@@ -198,7 +279,7 @@
     <option value="imperial">Imperial (oz, fl oz)</option>
   </select>
 
-  <button id="saveSettingsBtn" style="background-color:#17a2b8;">Save Settings</button>
+  <button id="saveSettingsBtn" class="btn-success">Save Settings</button>
 </div>
 
 <div class="section" id="totalsSection">
@@ -207,7 +288,6 @@
   <div>Protein: <span id="totalProtein">0</span> g</div>
   <div>Fat: <span id="totalFat">0</span> g</div>
   <div>Carbs: <span id="totalCarbs">0</span> g</div>
-  <div>Water: <span id="totalWater">0</span> ml</div>
 
   <div class="progress-bar-container" title="Calories Progress">
     <div id="calorieProgress" class="progress-bar"></div>
@@ -216,7 +296,7 @@
 
 <div class="section" id="mealLogSection">
   <h2>Meal Log</h2>
-  <div id="mealHistoryDiv">No meals logged yet.</div>
+  <div id="mealHistoryDiv" class="empty-state">No meals logged yet.</div>
 </div>
 
 <!-- Image modal -->
@@ -224,91 +304,88 @@
 
 <script>
   // === Sample food database (per 100g) ===
-  // You can expand this as needed or replace with API calls
   const foodsDatabase = {
     banana: { caloriesPer100g: 89, proteinPer100g: 1.1, fatPer100g: 0.3, carbsPer100g: 23, weightPerUnit: 118 },
-  apple: { caloriesPer100g: 52, proteinPer100g: 0.3, fatPer100g: 0.2, carbsPer100g: 14, weightPerUnit: 182 },
-  chickenbreast: { caloriesPer100g: 165, proteinPer100g: 31, fatPer100g: 3.6, carbsPer100g: 0, weightPerUnit: 150 },
-  salmon: { caloriesPer100g: 206, proteinPer100g: 22, fatPer100g: 12, carbsPer100g: 0, weightPerUnit: 154 },
-  broccoli: { caloriesPer100g: 34, proteinPer100g: 2.8, fatPer100g: 0.4, carbsPer100g: 7, weightPerUnit: 91 },
-  egg: { caloriesPer100g: 155, proteinPer100g: 13, fatPer100g: 11, carbsPer100g: 1.1, weightPerUnit: 50 },
-  rice: { caloriesPer100g: 130, proteinPer100g: 2.7, fatPer100g: 0.3, carbsPer100g: 28, weightPerUnit: 100 },
-  avocado: { caloriesPer100g: 160, proteinPer100g: 2, fatPer100g: 15, carbsPer100g: 9, weightPerUnit: 150 },
-  almonds: { caloriesPer100g: 579, proteinPer100g: 21, fatPer100g: 50, carbsPer100g: 22, weightPerUnit: 1 }, // input grams
-  oats: { caloriesPer100g: 389, proteinPer100g: 17, fatPer100g: 7, carbsPer100g: 66, weightPerUnit: 40 },
-  bread: { caloriesPer100g: 265, proteinPer100g: 9, fatPer100g: 3.2, carbsPer100g: 49, weightPerUnit: 30 },
-  cheese: { caloriesPer100g: 402, proteinPer100g: 25, fatPer100g: 33, carbsPer100g: 1.3, weightPerUnit: 30 },
-  peanutbutter: { caloriesPer100g: 588, proteinPer100g: 25, fatPer100g: 50, carbsPer100g: 20, weightPerUnit: 32 },
-  yogurt: { caloriesPer100g: 59, proteinPer100g: 10, fatPer100g: 0.4, carbsPer100g: 3.6, weightPerUnit: 100 },
-  carrot: { caloriesPer100g: 41, proteinPer100g: 0.9, fatPer100g: 0.2, carbsPer100g: 10, weightPerUnit: 61 },
-  potato: { caloriesPer100g: 77, proteinPer100g: 2, fatPer100g: 0.1, carbsPer100g: 17, weightPerUnit: 150 },
-  turkey: { caloriesPer100g: 135, proteinPer100g: 29, fatPer100g: 1, carbsPer100g: 0, weightPerUnit: 150 },
-  tuna: { caloriesPer100g: 132, proteinPer100g: 28, fatPer100g: 1, carbsPer100g: 0, weightPerUnit: 140 },
-  lentils: { caloriesPer100g: 116, proteinPer100g: 9, fatPer100g: 0.4, carbsPer100g: 20, weightPerUnit: 100 },
-  chickpeas: { caloriesPer100g: 164, proteinPer100g: 9, fatPer100g: 3, carbsPer100g: 27, weightPerUnit: 100 },
-  spinach: { caloriesPer100g: 23, proteinPer100g: 2.9, fatPer100g: 0.4, carbsPer100g: 3.6, weightPerUnit: 30 },
-  kale: { caloriesPer100g: 49, proteinPer100g: 4.3, fatPer100g: 0.9, carbsPer100g: 8.8, weightPerUnit: 30 },
-  sweetpotato: { caloriesPer100g: 86, proteinPer100g: 1.6, fatPer100g: 0.1, carbsPer100g: 20, weightPerUnit: 130 },
-  cucumber: { caloriesPer100g: 16, proteinPer100g: 0.7, fatPer100g: 0.1, carbsPer100g: 3.6, weightPerUnit: 300 },
-  tomato: { caloriesPer100g: 18, proteinPer100g: 0.9, fatPer100g: 0.2, carbsPer100g: 3.9, weightPerUnit: 123 },
-  bellpepper: { caloriesPer100g: 31, proteinPer100g: 1, fatPer100g: 0.3, carbsPer100g: 6, weightPerUnit: 120 },
-  mushroom: { caloriesPer100g: 22, proteinPer100g: 3.1, fatPer100g: 0.3, carbsPer100g: 3.3, weightPerUnit: 15 },
-  cod: { caloriesPer100g: 82, proteinPer100g: 18, fatPer100g: 0.7, carbsPer100g: 0, weightPerUnit: 140 },
-  shrimp: { caloriesPer100g: 99, proteinPer100g: 24, fatPer100g: 0.3, carbsPer100g: 0, weightPerUnit: 12 },
-  groundbeef: { caloriesPer100g: 250, proteinPer100g: 26, fatPer100g: 15, carbsPer100g: 0, weightPerUnit: 100 },
-  tofu: { caloriesPer100g: 76, proteinPer100g: 8, fatPer100g: 4.8, carbsPer100g: 1.9, weightPerUnit: 100 },
-  blackbeans: { caloriesPer100g: 132, proteinPer100g: 9, fatPer100g: 0.5, carbsPer100g: 23, weightPerUnit: 100 },
-  quinoa: { caloriesPer100g: 120, proteinPer100g: 4.1, fatPer100g: 1.9, carbsPer100g: 21, weightPerUnit: 185 },
-  flaxseed: { caloriesPer100g: 534, proteinPer100g: 18, fatPer100g: 42, carbsPer100g: 29, weightPerUnit: 10 },
-  chiaseed: { caloriesPer100g: 486, proteinPer100g: 17, fatPer100g: 31, carbsPer100g: 42, weightPerUnit: 10 },
-  sunflowerseeds: { caloriesPer100g: 584, proteinPer100g: 21, fatPer100g: 51, carbsPer100g: 20, weightPerUnit: 10 },
-  pumpkinseeds: { caloriesPer100g: 559, proteinPer100g: 30, fatPer100g: 49, carbsPer100g: 11, weightPerUnit: 10 },
-  watermelon: { caloriesPer100g: 30, proteinPer100g: 0.6, fatPer100g: 0.2, carbsPer100g: 8, weightPerUnit: 280 },
-  grapes: { caloriesPer100g: 69, proteinPer100g: 0.7, fatPer100g: 0.2, carbsPer100g: 18, weightPerUnit: 151 },
-  orange: { caloriesPer100g: 47, proteinPer100g: 0.9, fatPer100g: 0.1, carbsPer100g: 12, weightPerUnit: 130 },
-  pear: { caloriesPer100g: 57, proteinPer100g: 0.4, fatPer100g: 0.1, carbsPer100g: 15, weightPerUnit: 178 },
-  blueberry: { caloriesPer100g: 57, proteinPer100g: 0.7, fatPer100g: 0.3, carbsPer100g: 14, weightPerUnit: 148 },
-  strawberry: { caloriesPer100g: 32, proteinPer100g: 0.7, fatPer100g: 0.3, carbsPer100g: 7.7, weightPerUnit: 12 },
-  raspberry: { caloriesPer100g: 52, proteinPer100g: 1.2, fatPer100g: 0.7, carbsPer100g: 12, weightPerUnit: 4 },
-  blackberries: { caloriesPer100g: 43, proteinPer100g: 1.4, fatPer100g: 0.5, carbsPer100g: 10, weightPerUnit: 5 },
-  pineapple: { caloriesPer100g: 50, proteinPer100g: 0.5, fatPer100g: 0.1, carbsPer100g: 13, weightPerUnit: 165 },
-  mango: { caloriesPer100g: 60, proteinPer100g: 0.8, fatPer100g: 0.4, carbsPer100g: 15, weightPerUnit: 200 },
-  coconutmeat: { caloriesPer100g: 354, proteinPer100g: 3.3, fatPer100g: 33, carbsPer100g: 15, weightPerUnit: 80 },
-  darkchocolate: { caloriesPer100g: 546, proteinPer100g: 4.9, fatPer100g: 31, carbsPer100g: 61, weightPerUnit: 10 },
-  honey: { caloriesPer100g: 304, proteinPer100g: 0.3, fatPer100g: 0, carbsPer100g: 82, weightPerUnit: 21 },
-  milk: { caloriesPer100g: 42, proteinPer100g: 3.4, fatPer100g: 1, carbsPer100g: 5, weightPerUnit: 244 },
-  butter: { caloriesPer100g: 717, proteinPer100g: 0.9, fatPer100g: 81, carbsPer100g: 0.1, weightPerUnit: 14 },
-  cream: { caloriesPer100g: 340, proteinPer100g: 2, fatPer100g: 37, carbsPer100g: 3, weightPerUnit: 15 },
-  coffee: { caloriesPer100g: 2, proteinPer100g: 0.1, fatPer100g: 0, carbsPer100g: 0, weightPerUnit: 10 },
-  tea: { caloriesPer100g: 1, proteinPer100g: 0, fatPer100g: 0, carbsPer100g: 0, weightPerUnit: 10 },
-  beer: { caloriesPer100g: 43, proteinPer100g: 0.5, fatPer100g: 0, carbsPer100g: 3.6, weightPerUnit: 355 },
-  wine: { caloriesPer100g: 85, proteinPer100g: 0.1, fatPer100g: 0, carbsPer100g: 2.6, weightPerUnit: 150 },
-  coke: { caloriesPer100g: 42, proteinPer100g: 0, fatPer100g: 0, carbsPer100g: 11, weightPerUnit: 330 },
-  orangejuice: { caloriesPer100g: 45, proteinPer100g: 0.7, fatPer100g: 0.2, carbsPer100g: 10, weightPerUnit: 250 },
-  tofu: { caloriesPer100g: 76, proteinPer100g: 8, fatPer100g: 4.8, carbsPer100g: 1.9, weightPerUnit: 100 },
-  edamame: { caloriesPer100g: 122, proteinPer100g: 11, fatPer100g: 5, carbsPer100g: 10, weightPerUnit: 100 },
-  sardines: { caloriesPer100g: 208, proteinPer100g: 25, fatPer100g: 11, carbsPer100g: 0, weightPerUnit: 92 },
-  mackerel: { caloriesPer100g: 205, proteinPer100g: 19, fatPer100g: 13, carbsPer100g: 0, weightPerUnit: 150 },
-  pumpkin: { caloriesPer100g: 26, proteinPer100g: 1, fatPer100g: 0.1, carbsPer100g: 7, weightPerUnit: 245 },
-  zucchini: { caloriesPer100g: 17, proteinPer100g: 1.2, fatPer100g: 0.3, carbsPer100g: 3.1, weightPerUnit: 196 },
-  eggplant: { caloriesPer100g: 25, proteinPer100g: 1, fatPer100g: 0.2, carbsPer100g: 6, weightPerUnit: 458 },
-  onion: { caloriesPer100g: 40, proteinPer100g: 1.1, fatPer100g: 0.1, carbsPer100g: 9, weightPerUnit: 110 },
-  garlic: { caloriesPer100g: 149, proteinPer100g: 6.4, fatPer100g: 0.5, carbsPer100g: 33, weightPerUnit: 3 },
-  corn: { caloriesPer100g: 86, proteinPer100g: 3.2, fatPer100g: 1.2, carbsPer100g: 19, weightPerUnit: 90 },
-  peas: { caloriesPer100g: 81, proteinPer100g: 5, fatPer100g: 0.4, carbsPer100g: 14, weightPerUnit: 100 },
-  kale: { caloriesPer100g: 49, proteinPer100g: 4.3, fatPer100g: 0.9, carbsPer100g: 8.8, weightPerUnit: 30 },
-  swisschard: { caloriesPer100g: 19, proteinPer100g: 1.8, fatPer100g: 0.2, carbsPer100g: 3.7, weightPerUnit: 36 },
-  collardgreens: { caloriesPer100g: 32, proteinPer100g: 3, fatPer100g: 0.6, carbsPer100g: 7, weightPerUnit: 36 }
+    apple: { caloriesPer100g: 52, proteinPer100g: 0.3, fatPer100g: 0.2, carbsPer100g: 14, weightPerUnit: 182 },
+    chickenbreast: { caloriesPer100g: 165, proteinPer100g: 31, fatPer100g: 3.6, carbsPer100g: 0, weightPerUnit: 150 },
+    salmon: { caloriesPer100g: 206, proteinPer100g: 22, fatPer100g: 12, carbsPer100g: 0, weightPerUnit: 154 },
+    broccoli: { caloriesPer100g: 34, proteinPer100g: 2.8, fatPer100g: 0.4, carbsPer100g: 7, weightPerUnit: 91 },
+    egg: { caloriesPer100g: 155, proteinPer100g: 13, fatPer100g: 11, carbsPer100g: 1.1, weightPerUnit: 50 },
+    rice: { caloriesPer100g: 130, proteinPer100g: 2.7, fatPer100g: 0.3, carbsPer100g: 28, weightPerUnit: 100 },
+    avocado: { caloriesPer100g: 160, proteinPer100g: 2, fatPer100g: 15, carbsPer100g: 9, weightPerUnit: 150 },
+    almonds: { caloriesPer100g: 579, proteinPer100g: 21, fatPer100g: 50, carbsPer100g: 22, weightPerUnit: 1 },
+    oats: { caloriesPer100g: 389, proteinPer100g: 17, fatPer100g: 7, carbsPer100g: 66, weightPerUnit: 40 },
+    bread: { caloriesPer100g: 265, proteinPer100g: 9, fatPer100g: 3.2, carbsPer100g: 49, weightPerUnit: 30 },
+    cheese: { caloriesPer100g: 402, proteinPer100g: 25, fatPer100g: 33, carbsPer100g: 1.3, weightPerUnit: 30 },
+    peanutbutter: { caloriesPer100g: 588, proteinPer100g: 25, fatPer100g: 50, carbsPer100g: 20, weightPerUnit: 32 },
+    yogurt: { caloriesPer100g: 59, proteinPer100g: 10, fatPer100g: 0.4, carbsPer100g: 3.6, weightPerUnit: 100 },
+    carrot: { caloriesPer100g: 41, proteinPer100g: 0.9, fatPer100g: 0.2, carbsPer100g: 10, weightPerUnit: 61 },
+    potato: { caloriesPer100g: 77, proteinPer100g: 2, fatPer100g: 0.1, carbsPer100g: 17, weightPerUnit: 150 },
+    turkey: { caloriesPer100g: 135, proteinPer100g: 29, fatPer100g: 1, carbsPer100g: 0, weightPerUnit: 150 },
+    tuna: { caloriesPer100g: 132, proteinPer100g: 28, fatPer100g: 1, carbsPer100g: 0, weightPerUnit: 140 },
+    lentils: { caloriesPer100g: 116, proteinPer100g: 9, fatPer100g: 0.4, carbsPer100g: 20, weightPerUnit: 100 },
+    chickpeas: { caloriesPer100g: 164, proteinPer100g: 9, fatPer100g: 3, carbsPer100g: 27, weightPerUnit: 100 },
+    spinach: { caloriesPer100g: 23, proteinPer100g: 2.9, fatPer100g: 0.4, carbsPer100g: 3.6, weightPerUnit: 30 },
+    kale: { caloriesPer100g: 49, proteinPer100g: 4.3, fatPer100g: 0.9, carbsPer100g: 8.8, weightPerUnit: 30 },
+    sweetpotato: { caloriesPer100g: 86, proteinPer100g: 1.6, fatPer100g: 0.1, carbsPer100g: 20, weightPerUnit: 130 },
+    cucumber: { caloriesPer100g: 16, proteinPer100g: 0.7, fatPer100g: 0.1, carbsPer100g: 3.6, weightPerUnit: 300 },
+    tomato: { caloriesPer100g: 18, proteinPer100g: 0.9, fatPer100g: 0.2, carbsPer100g: 3.9, weightPerUnit: 123 },
+    bellpepper: { caloriesPer100g: 31, proteinPer100g: 1, fatPer100g: 0.3, carbsPer100g: 6, weightPerUnit: 120 },
+    mushroom: { caloriesPer100g: 22, proteinPer100g: 3.1, fatPer100g: 0.3, carbsPer100g: 3.3, weightPerUnit: 15 },
+    cod: { caloriesPer100g: 82, proteinPer100g: 18, fatPer100g: 0.7, carbsPer100g: 0, weightPerUnit: 140 },
+    shrimp: { caloriesPer100g: 99, proteinPer100g: 24, fatPer100g: 0.3, carbsPer100g: 0, weightPerUnit: 12 },
+    groundbeef: { caloriesPer100g: 250, proteinPer100g: 26, fatPer100g: 15, carbsPer100g: 0, weightPerUnit: 100 },
+    tofu: { caloriesPer100g: 76, proteinPer100g: 8, fatPer100g: 4.8, carbsPer100g: 1.9, weightPerUnit: 100 },
+    blackbeans: { caloriesPer100g: 132, proteinPer100g: 9, fatPer100g: 0.5, carbsPer100g: 23, weightPerUnit: 100 },
+    quinoa: { caloriesPer100g: 120, proteinPer100g: 4.1, fatPer100g: 1.9, carbsPer100g: 21, weightPerUnit: 185 },
+    flaxseed: { caloriesPer100g: 534, proteinPer100g: 18, fatPer100g: 42, carbsPer100g: 29, weightPerUnit: 10 },
+    chiaseed: { caloriesPer100g: 486, proteinPer100g: 17, fatPer100g: 31, carbsPer100g: 42, weightPerUnit: 10 },
+    sunflowerseeds: { caloriesPer100g: 584, proteinPer100g: 21, fatPer100g: 51, carbsPer100g: 20, weightPerUnit: 10 },
+    pumpkinseeds: { caloriesPer100g: 559, proteinPer100g: 30, fatPer100g: 49, carbsPer100g: 11, weightPerUnit: 10 },
+    watermelon: { caloriesPer100g: 30, proteinPer100g: 0.6, fatPer100g: 0.2, carbsPer100g: 8, weightPerUnit: 280 },
+    grapes: { caloriesPer100g: 69, proteinPer100g: 0.7, fatPer100g: 0.2, carbsPer100g: 18, weightPerUnit: 151 },
+    orange: { caloriesPer100g: 47, proteinPer100g: 0.9, fatPer100g: 0.1, carbsPer100g: 12, weightPerUnit: 130 },
+    pear: { caloriesPer100g: 57, proteinPer100g: 0.4, fatPer100g: 0.1, carbsPer100g: 15, weightPerUnit: 178 },
+    blueberry: { caloriesPer100g: 57, proteinPer100g: 0.7, fatPer100g: 0.3, carbsPer100g: 14, weightPerUnit: 148 },
+    strawberry: { caloriesPer100g: 32, proteinPer100g: 0.7, fatPer100g: 0.3, carbsPer100g: 7.7, weightPerUnit: 12 },
+    raspberry: { caloriesPer100g: 52, proteinPer100g: 1.2, fatPer100g: 0.7, carbsPer100g: 12, weightPerUnit: 4 },
+    blackberries: { caloriesPer100g: 43, proteinPer100g: 1.4, fatPer100g: 0.5, carbsPer100g: 10, weightPerUnit: 5 },
+    pineapple: { caloriesPer100g: 50, proteinPer100g: 0.5, fatPer100g: 0.1, carbsPer100g: 13, weightPerUnit: 165 },
+    mango: { caloriesPer100g: 60, proteinPer100g: 0.8, fatPer100g: 0.4, carbsPer100g: 15, weightPerUnit: 200 },
+    coconutmeat: { caloriesPer100g: 354, proteinPer100g: 3.3, fatPer100g: 33, carbsPer100g: 15, weightPerUnit: 80 },
+    darkchocolate: { caloriesPer100g: 546, proteinPer100g: 4.9, fatPer100g: 31, carbsPer100g: 61, weightPerUnit: 10 },
+    honey: { caloriesPer100g: 304, proteinPer100g: 0.3, fatPer100g: 0, carbsPer100g: 82, weightPerUnit: 21 },
+    milk: { caloriesPer100g: 42, proteinPer100g: 3.4, fatPer100g: 1, carbsPer100g: 5, weightPerUnit: 244 },
+    butter: { caloriesPer100g: 717, proteinPer100g: 0.9, fatPer100g: 81, carbsPer100g: 0.1, weightPerUnit: 14 },
+    cream: { caloriesPer100g: 340, proteinPer100g: 2, fatPer100g: 37, carbsPer100g: 3, weightPerUnit: 15 },
+    coffee: { caloriesPer100g: 2, proteinPer100g: 0.1, fatPer100g: 0, carbsPer100g: 0, weightPerUnit: 10 },
+    tea: { caloriesPer100g: 1, proteinPer100g: 0, fatPer100g: 0, carbsPer100g: 0, weightPerUnit: 10 },
+    beer: { caloriesPer100g: 43, proteinPer100g: 0.5, fatPer100g: 0, carbsPer100g: 3.6, weightPerUnit: 355 },
+    wine: { caloriesPer100g: 85, proteinPer100g: 0.1, fatPer100g: 0, carbsPer100g: 2.6, weightPerUnit: 150 },
+    coke: { caloriesPer100g: 42, proteinPer100g: 0, fatPer100g: 0, carbsPer100g: 11, weightPerUnit: 330 },
+    orangejuice: { caloriesPer100g: 45, proteinPer100g: 0.7, fatPer100g: 0.2, carbsPer100g: 10, weightPerUnit: 250 },
+    tofu: { caloriesPer100g: 76, proteinPer100g: 8, fatPer100g: 4.8, carbsPer100g: 1.9, weightPerUnit: 100 },
+    edamame: { caloriesPer100g: 122, proteinPer100g: 11, fatPer100g: 5, carbsPer100g: 10, weightPerUnit: 100 },
+    sardines: { caloriesPer100g: 208, proteinPer100g: 25, fatPer100g: 11, carbsPer100g: 0, weightPerUnit: 92 },
+    mackerel: { caloriesPer100g: 205, proteinPer100g: 19, fatPer100g: 13, carbsPer100g: 0, weightPerUnit: 150 },
+    pumpkin: { caloriesPer100g: 26, proteinPer100g: 1, fatPer100g: 0.1, carbsPer100g: 7, weightPerUnit: 245 },
+    zucchini: { caloriesPer100g: 17, proteinPer100g: 1.2, fatPer100g: 0.3, carbsPer100g: 3.1, weightPerUnit: 196 },
+    eggplant: { caloriesPer100g: 25, proteinPer100g: 1, fatPer100g: 0.2, carbsPer100g: 6, weightPerUnit: 458 },
+    onion: { caloriesPer100g: 40, proteinPer100g: 1.1, fatPer100g: 0.1, carbsPer100g: 9, weightPerUnit: 110 },
+    garlic: { caloriesPer100g: 149, proteinPer100g: 6.4, fatPer100g: 0.5, carbsPer100g: 33, weightPerUnit: 3 },
+    corn: { caloriesPer100g: 86, proteinPer100g: 3.2, fatPer100g: 1.2, carbsPer100g: 19, weightPerUnit: 90 },
+    peas: { caloriesPer100g: 81, proteinPer100g: 5, fatPer100g: 0.4, carbsPer100g: 14, weightPerUnit: 100 },
+    kale: { caloriesPer100g: 49, proteinPer100g: 4.3, fatPer100g: 0.9, carbsPer100g: 8.8, weightPerUnit: 30 },
+    swisschard: { caloriesPer100g: 19, proteinPer100g: 1.8, fatPer100g: 0.2, carbsPer100g: 3.7, weightPerUnit: 36 },
+    collardgreens: { caloriesPer100g: 32, proteinPer100g: 3, fatPer100g: 0.6, carbsPer100g: 7, weightPerUnit: 36 }
   };
 
   // === Storage keys ===
   const STORAGE_LOG_KEY = "dailyFoodLogWithPhotos";
-  const STORAGE_WATER_KEY = "dailyWaterIntake";
   const STORAGE_SETTINGS_KEY = "foodTrackerSettings";
 
   // === Load persisted data ===
   let dailyLog = JSON.parse(localStorage.getItem(STORAGE_LOG_KEY)) || [];
-  let dailyWater = parseInt(localStorage.getItem(STORAGE_WATER_KEY), 10) || 0;
   let settings = JSON.parse(localStorage.getItem(STORAGE_SETTINGS_KEY)) || {
     calorieGoal: 2500,
     unitPreference: "metric",
@@ -321,14 +398,10 @@
   const mealPhotoInput = document.getElementById("mealPhotoInput");
   const addMealBtn = document.getElementById("addMealBtn");
 
-  const waterInput = document.getElementById("waterInput");
-  const addWaterBtn = document.getElementById("addWaterBtn");
-
   const totalCaloriesSpan = document.getElementById("totalCalories");
   const totalProteinSpan = document.getElementById("totalProtein");
   const totalFatSpan = document.getElementById("totalFat");
   const totalCarbsSpan = document.getElementById("totalCarbs");
-  const totalWaterSpan = document.getElementById("totalWater");
   const calorieProgressBar = document.getElementById("calorieProgress");
 
   const mealHistoryDiv = document.getElementById("mealHistoryDiv");
@@ -343,54 +416,38 @@
   const modalImage = document.getElementById("modalImage");
   const darkModeToggle = document.getElementById('darkModeToggle');
 
-// Load saved dark mode preference
-if (localStorage.getItem('darkMode') === 'enabled') {
-  document.body.classList.add('dark-mode');
-}
-
-// Toggle dark mode on button click
-darkModeToggle.addEventListener('click', () => {
-  document.body.classList.toggle('dark-mode');
-
-  if (document.body.classList.contains('dark-mode')) {
-    localStorage.setItem('darkMode', 'enabled');
-  } else {
-    localStorage.setItem('darkMode', 'disabled');
+  // === Initialize dark mode ===
+  function initDarkMode() {
+    if (localStorage.getItem('darkMode') === 'enabled') {
+      document.body.classList.add('dark-mode');
+    }
   }
-});
 
+  // Toggle dark mode
+  darkModeToggle.addEventListener('click', () => {
+    document.body.classList.toggle('dark-mode');
+    localStorage.setItem('darkMode', document.body.classList.contains('dark-mode') ? 'enabled' : 'disabled');
+  });
 
   // === Helpers ===
   function fmt(n) {
     return n.toFixed(1);
   }
   function normalizeName(name) {
-    return name.trim().toLowerCase();
+    return name.trim().toLowerCase().replace(/\s+/g, '');
   }
 
   // === Unit conversion helpers ===
-  // For future extension - currently using metric only
   function convertWeightToPreferredUnit(g) {
     if (settings.unitPreference === "imperial") {
-      // grams to ounces
       return (g / 28.3495).toFixed(1) + " oz";
     }
     return g.toFixed(1) + " g";
-  }
-  function convertWaterToPreferredUnit(ml) {
-    if (settings.unitPreference === "imperial") {
-      // ml to fl oz
-      return (ml / 29.5735).toFixed(1) + " fl oz";
-    }
-    return ml + " ml";
   }
 
   // === Save helpers ===
   function saveLog(log) {
     localStorage.setItem(STORAGE_LOG_KEY, JSON.stringify(log));
-  }
-  function saveWater(waterMl) {
-    localStorage.setItem(STORAGE_WATER_KEY, waterMl.toString());
   }
   function saveSettings(settingsObj) {
     localStorage.setItem(STORAGE_SETTINGS_KEY, JSON.stringify(settingsObj));
@@ -401,20 +458,19 @@ darkModeToggle.addEventListener('click', () => {
     if (portionType === "grams") {
       let factor = amount / 100;
       return {
-        calories: foodData.calories * factor,
-        protein: foodData.protein * factor,
-        fat: foodData.fat * factor,
-        carbs: foodData.carbs * factor,
+        calories: foodData.caloriesPer100g * factor,
+        protein: foodData.proteinPer100g * factor,
+        fat: foodData.fatPer100g * factor,
+        carbs: foodData.carbsPer100g * factor,
         weight: amount,
       };
     } else if (portionType === "servings") {
-      // Assuming 1 serving = 100g for simplicity
       let factor = amount;
       return {
-        calories: foodData.calories * factor,
-        protein: foodData.protein * factor,
-        fat: foodData.fat * factor,
-        carbs: foodData.carbs * factor,
+        calories: foodData.caloriesPer100g * factor,
+        protein: foodData.proteinPer100g * factor,
+        fat: foodData.fatPer100g * factor,
+        carbs: foodData.carbsPer100g * factor,
         weight: factor * 100,
       };
     }
@@ -486,19 +542,6 @@ darkModeToggle.addEventListener('click', () => {
     }
   });
 
-  // === Add water ===
-  addWaterBtn.addEventListener("click", () => {
-    const val = parseInt(waterInput.value, 10);
-    if (isNaN(val) || val <= 0) {
-      alert("Enter a positive number of ml to add.");
-      return;
-    }
-    dailyWater += val;
-    saveWater(dailyWater);
-    waterInput.value = "";
-    updateTotalsAndProgress();
-  });
-
   // === Reset input fields ===
   function resetInputs() {
     foodInput.value = "";
@@ -510,9 +553,10 @@ darkModeToggle.addEventListener('click', () => {
   function renderMealHistory() {
     mealHistoryDiv.innerHTML = "";
     if (dailyLog.length === 0) {
-      mealHistoryDiv.textContent = "No meals logged yet.";
+      mealHistoryDiv.innerHTML = '<div class="empty-state">No meals logged yet.</div>';
       return;
     }
+    
     dailyLog.forEach((meal, i) => {
       const div = document.createElement("div");
       div.classList.add("list-item");
@@ -525,10 +569,12 @@ darkModeToggle.addEventListener('click', () => {
 
       // Buttons container
       const btnsDiv = document.createElement("div");
+      btnsDiv.style.display = "flex";
 
       if (meal.photo) {
         const showImgBtn = document.createElement("button");
         showImgBtn.textContent = "Show Image";
+        showImgBtn.classList.add("btn-info");
         showImgBtn.title = "View meal photo";
         showImgBtn.addEventListener("click", () => {
           modalImage.src = meal.photo;
@@ -539,7 +585,7 @@ darkModeToggle.addEventListener('click', () => {
 
       const delBtn = document.createElement("button");
       delBtn.textContent = "Delete";
-      delBtn.classList.add("delete-btn");
+      delBtn.classList.add("btn-danger");
       delBtn.title = "Delete this meal from log";
       delBtn.addEventListener("click", () => {
         if (confirm(`Delete meal "${meal.name}"?`)) {
@@ -552,7 +598,6 @@ darkModeToggle.addEventListener('click', () => {
       btnsDiv.appendChild(delBtn);
 
       div.appendChild(btnsDiv);
-
       mealHistoryDiv.appendChild(div);
     });
   }
@@ -573,7 +618,6 @@ darkModeToggle.addEventListener('click', () => {
     totalProteinSpan.textContent = fmt(totalProtein);
     totalFatSpan.textContent = fmt(totalFat);
     totalCarbsSpan.textContent = fmt(totalCarbs);
-    totalWaterSpan.textContent = convertWaterToPreferredUnit(dailyWater);
 
     const pct = Math.min((totalCalories / settings.calorieGoal) * 100, 100);
     calorieProgressBar.style.width = pct + "%";
@@ -615,6 +659,7 @@ darkModeToggle.addEventListener('click', () => {
   });
 
   // === Initialize ===
+  initDarkMode();
   renderMealHistory();
   updateTotalsAndProgress();
 </script>
