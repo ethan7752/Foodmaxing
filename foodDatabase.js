@@ -1,4 +1,5 @@
-const foodsDatabase = {
+// Directly assign to window.foodsDatabase to make it globally accessible
+window.foodsDatabase = {
     // Fruits
     banana: { caloriesPer100g: 89, proteinPer100g: 1.1, fatPer100g: 0.3, carbsPer100g: 23, sugarPer100g: 12.2, sodiumPer100g: 1, weightPerUnit: 118, bloatScale: 1 }, // Can cause mild bloating in some
     apple: { caloriesPer100g: 52, proteinPer100g: 0.3, fatPer100g: 0.2, carbsPer100g: 14, sugarPer100g: 10.4, sodiumPer100g: 1, weightPerUnit: 182, bloatScale: 1 }, // FODMAPs in some
@@ -149,7 +150,7 @@ const foodsDatabase = {
     cookies: { caloriesPer100g: 489, proteinPer100g: 5, fatPer100g: 23, carbsPer100g: 66, sugarPer100g: 30, sodiumPer100g: 300, weightPerUnit: 20, bloatScale: 3 }, // Refined flour, sugar
     cake: { caloriesPer100g: 400, proteinPer100g: 5, fatPer100g: 20, carbsPer100g: 55, sugarPer100g: 40, sodiumPer100g: 250, weightPerUnit: 100, bloatScale: 4 }, // High sugar, refined flour
     brownie: { caloriesPer100g: 460, proteinPer100g: 5, fatPer100g: 25, carbsPer100g: 55, sugarPer100g: 40, sodiumPer100g: 200, weightPerUnit: 80, bloatScale: 4 }, // High sugar, refined flour
-    icecream: { caloriesPer100g: 207, proteinPer100g: 3.5, fatPer100g: 11, carbsPer100g: 23, sugarPer100g: 21, sodiumPer100g: 80, weightPerUnit: 65, bloatScale: 2 }, // Lactose, high sugar
+    icecream: { caloriesPer100g: 207, proteinPer100g: 3.5, fatPer100g: 11, carbsPer100g: 23, sugarPer100g: 21, sodiumPer100g: 80, weightPer100g: 65, bloatScale: 2 }, // Lactose, high sugar
     cheesecake: { caloriesPer100g: 320, proteinPer100g: 6, fatPer100g: 20, carbsPer100g: 30, sugarPer100g: 25, sodiumPer100g: 200, weightPerUnit: 100, bloatScale: 3 }, // Dairy, sugar, sometimes gluten
     mousse: { caloriesPer100g: 250, proteinPer100g: 4, fatPer100g: 15, carbsPer100g: 25, sugarPer100g: 20, sodiumPer100g: 50, weightPerUnit: 50, bloatScale: 2 }, // Dairy, sugar
     jelly: { caloriesPer100g: 50, proteinPer100g: 1, fatPer100g: 0, carbsPer100g: 12, sugarPer100g: 12, sodiumPer100g: 20, weightPerUnit: 100, bloatScale: 1 }, // Sugar
@@ -181,7 +182,7 @@ const foodsDatabase = {
     // Meals & Dishes (General approximations)
     pizza: { caloriesPer100g: 267, proteinPer100g: 11, fatPer100g: 10, carbsPer100g: 30, sugarPer100g: 3, sodiumPer100g: 600, weightPerUnit: 100, bloatScale: 7 }, // High sodium, processed, sometimes high fat, gluten
     burger: { caloriesPer100g: 295, proteinPer100g: 15, fatPer100g: 15, carbsPer100g: 25, sugarPer100g: 4, sodiumPer100g: 650, weightPerUnit: 150, bloatScale: 8 }, // High sodium, processed, sometimes heavy on refined carbs
-    fries: { caloriesPer100g: 312, proteinPer100g: 3.4, fatPer100g: 15, carbsPer100g: 41, sugarPer100g: 0.3, sodiumPer100g: 210, weightPerUnit: 100, bloatScale: 4 }, // High sodium, fried
+    fries: { caloriesPer100g: 312, proteinPer100g: 3.4, fatPer100g: 15, carbsPer100g: 41, sugarPer100g: 0.3, sodiumPer100g: 210, weightPer100g: 100, bloatScale: 4 }, // High sodium, fried
     hotdog: { caloriesPer100g: 290, proteinPer100g: 11, fatPer100g: 26, carbsPer100g: 1, sugarPer100g: 1, sodiumPer100g: 800, weightPerUnit: 50, bloatScale: 9 }, // Very high sodium, processed meats
     bacon: { caloriesPer100g: 541, proteinPer100g: 37, fatPer100g: 42, carbsPer100g: 0, sugarPer100g: 0, sodiumPer100g: 1500, weightPerUnit: 15, bloatScale: 9 }, // Extremely high sodium, high fat
     sushi: { caloriesPer100g: 150, proteinPer100g: 5, fatPer100g: 2, carbsPer100g: 28, sugarPer100g: 6, sodiumPer100g: 250, weightPerUnit: 100, bloatScale: 2 }, // Rice can be a bit bloaty, soy sauce adds sodium
@@ -192,17 +193,17 @@ const foodsDatabase = {
     burrito: { caloriesPer100g: 250, proteinPer100g: 12, fatPer100g: 12, carbsPer100g: 20, sugarPer100g: 3, sodiumPer100g: 500, weightPerUnit: 300, bloatScale: 6 }, // Large size, beans, rice, cheese, high sodium
     sandwich: { caloriesPer100g: 250, proteinPer100g: 10, fatPer100g: 8, carbsPer100g: 30, sugarPer100g: 3, sodiumPer100g: 400, weightPerUnit: 150, bloatScale: 3 }, // Bread, sometimes high sodium fillings
     soup: { caloriesPer100g: 60, proteinPer100g: 3, fatPer100g: 3, carbsPer100g: 5, sugarPer100g: 1, sodiumPer100g: 300, weightPerUnit: 250, bloatScale: 2 }, // Varies, but many are high in sodium
-    eggsbenedict: { caloriesPer100g: 200, proteinPer100g: 10, fatPer100g: 15, carbsPer100g: 5, sugarPer100g: 1, sodiumPer100g: 400, weightPerUnit: 200, bloatScale: 5 }, // Hollandaise sauce (fat, sometimes dairy), high sodium
+    eggsbenedict: { caloriesPer100g: 200, proteinPer100g: 10, fatPer100g: 15, carbsPer100g: 5, sugarPer100g: 1, sodiumPer100g: 400, weightPer100g: 200, bloatScale: 5 }, // Hollandaise sauce (fat, sometimes dairy), high sodium
     pancakes: { caloriesPer100g: 227, proteinPer100g: 5, fatPer100g: 9, carbsPer100g: 30, sugarPer100g: 6, sodiumPer100g: 300, weightPerUnit: 50, bloatScale: 2 }, // Refined flour, sugar
     waffles: { caloriesPer100g: 250, proteinPer100g: 6, fatPer100g: 12, carbsPer100g: 30, sugarPer100g: 7, sodiumPer100g: 350, weightPerUnit: 50, bloatScale: 2 }, // Refined flour, sugar
     muffin: { caloriesPer100g: 350, proteinPer100g: 6, fatPer100g: 15, carbsPer100g: 45, sugarPer100g: 20, sodiumPer100g: 300, weightPerUnit: 100, bloatScale: 3 }, // Refined flour, sugar
     doughnut: { caloriesPer100g: 450, proteinPer100g: 5, fatPer100g: 25, carbsPer100g: 50, sugarPer100g: 25, sodiumPer100g: 200, weightPerUnit: 50, bloatScale: 4 }, // Fried, high sugar, refined flour
-    cupcake: { caloriesPer100g: 380, proteinPer100g: 4, fatPer100g: 20, carbsPer100g: 50, sugarPer100g: 35, sodiumPer100g: 150, weightPerUnit: 60, bloatScale: 4 }, // High sugar, refined flour
+    cupcake: { caloriesPer100g: 380, proteinPer100g: 4, fatPer100g: 20, carbsPer100g: 50, sugarPer100g: 35, sodiumPer100g: 150, weightPer100g: 60, bloatScale: 4 }, // High sugar, refined flour
     oatmeal: { caloriesPer100g: 68, proteinPer100g: 2.5, fatPer100g: 1.2, carbsPer100g: 12, sugarPer100g: 0.1, sodiumPer100g: 0, weightPerUnit: 200, bloatScale: 1 }, // Fiber can cause mild bloating for some
     granola: { caloriesPer100g: 470, proteinPer100g: 10, fatPer100g: 20, carbsPer100g: 60, sugarPer100g: 20, sodiumPer100g: 150, weightPerUnit: 40, bloatScale: 2 }, // High sugar, sometimes high fiber
     muesli: { caloriesPer100g: 370, proteinPer100g: 10, fatPer100g: 10, carbsPer100g: 60, sugarPer100g: 15, sodiumPer100g: 50, weightPerUnit: 40, bloatScale: 1 }, // Less sugar than granola, good fiber
     croissant: { caloriesPer100g: 406, proteinPer100g: 8, fatPer100g: 21, carbsPer100g: 45, sugarPer100g: 10, sodiumPer100g: 430, weightPerUnit: 60, bloatScale: 3 }, // High fat, refined flour, sodium
-    baguette: { caloriesPer100g: 260, proteinPer100g: 9, fatPer100g: 1, carbsPer100g: 50, sugarPer100g: 2, sodiumPer100g: 450, weightPerUnit: 50, bloatScale: 2 }, // Refined flour, sodium
+    baguette: { caloriesPer100g: 260, proteinPer100g: 9, fatPer100g: 1, carbsPer100g: 50, sugarPer100g: 2, sodiumPer100g: 450, weightPer100g: 50, bloatScale: 2 }, // Refined flour, sodium
     sourdough: { caloriesPer100g: 250, proteinPer100g: 10, fatPer100g: 1.5, carbsPer100g: 48, sugarPer100g: 1, sodiumPer100g: 350, weightPerUnit: 50, bloatScale: 0 }, // Fermented, generally easier to digest
     wonton: { caloriesPer100g: 270, proteinPer100g: 10, fatPer100g: 5, carbsPer100g: 45, sugarPer100g: 2, sodiumPer100g: 300, weightPerUnit: 10, bloatScale: 2 }, // Dough, sometimes high sodium filling
     dumpling: { caloriesPer100g: 250, proteinPer100g: 10, fatPer100g: 8, carbsPer100g: 35, sugarPer100g: 2, sodiumPer100g: 350, weightPerUnit: 20, bloatScale: 2 }, // Dough, sometimes high sodium filling
@@ -217,9 +218,9 @@ const foodsDatabase = {
     mayonnaise: { caloriesPer100g: 679, proteinPer100g: 1, fatPer100g: 75, carbsPer100g: 2.5, sugarPer100g: 2.5, sodiumPer100g: 540, weightPerUnit: 15, bloatScale: 1 }, // High fat
     ketchup: { caloriesPer100g: 112, proteinPer100g: 1.2, fatPer100g: 0.1, carbsPer100g: 28, sugarPer100g: 22, sodiumPer100g: 1110, weightPerUnit: 17, bloatScale: 3 }, // High sodium, high sugar
     mustard: { caloriesPer100g: 66, proteinPer100g: 4.6, fatPer100g: 3.8, carbsPer100g: 6.8, sugarPer100g: 1.9, sodiumPer100g: 1120, weightPerUnit: 17, bloatScale: 3 }, // High sodium
-    saladcream: { caloriesPer100g: 279, proteinPer100g: 1.4, fatPer100g: 26, carbsPer100g: 10, sugarPer100g: 8.6, sodiumPer100g: 780, weightPerUnit: 15, bloatScale: 2 }, // High sodium, fats, sugar
+    saladcream: { caloriesPer100g: 279, proteinPer100g: 1.4, fatPer100g: 26, carbsPer100g: 10, sugarPer100g: 8.6, sodiumPer100g: 780, weightPer100g: 15, bloatScale: 2 }, // High sodium, fats, sugar
     chips: { caloriesPer100g: 536, proteinPer100g: 6, fatPer100g: 35, carbsPer100g: 50, sugarPer100g: 0.4, sodiumPer100g: 560, weightPerUnit: 30, bloatScale: 8 }, // Very high sodium, fried, processed
-    pretzels: { caloriesPer100g: 380, proteinPer100g: 10, fatPer100g: 5, carbsPer100g: 75, sugarPer100g: 2, sodiumPer100g: 1200, weightPerUnit: 10, bloatScale: 7 }, // Very high sodium, refined carbs
+    pretzels: { caloriesPer100g: 380, proteinPer100g: 10, fatPer100g: 5, carbsPer100g: 75, sugarPer100g: 2, sodiumPer100g: 1200, weightPer100g: 10, bloatScale: 7 }, // Very high sodium, refined carbs
     popcorn: { caloriesPer100g: 380, proteinPer100g: 11, fatPer100g: 5, carbsPer100g: 70, sugarPer100g: 0.5, sodiumPer100g: 7, weightPerUnit: 10, bloatScale: 1 }, // High fiber for some, can be salty
     proteinbar: { caloriesPer100g: 380, proteinPer100g: 30, fatPer100g: 15, carbsPer100g: 30, sugarPer100g: 10, sodiumPer100g: 200, weightPerUnit: 60, bloatScale: 1 }, // Depends on ingredients, some artificial sweeteners
     wheyprotein: { caloriesPer100g: 370, proteinPer100g: 80, fatPer100g: 5, carbsPer100g: 5, sugarPer100g: 3, sodiumPer100g: 150, weightPerUnit: 30, bloatScale: 1 }, // Lactose for some, artificial sweeteners
@@ -234,19 +235,19 @@ const foodsDatabase = {
     cerealbar: { caloriesPer100g: 400, proteinPer100g: 5, fatPer100g: 15, carbsPer100g: 60, sugarPer100g: 25, sodiumPer100g: 200, weightPerUnit: 30, bloatScale: 2 },
     bagel: { caloriesPer100g: 250, proteinPer100g: 10, fatPer100g: 1.5, carbsPer100g: 50, sugarPer100g: 5, sodiumPer100g: 450, weightPerUnit: 100, bloatScale: 3 }, // Refined flour, sodium
     scone: { caloriesPer100g: 350, proteinPer100g: 7, fatPer100g: 18, carbsPer100g: 40, sugarPer100g: 10, sodiumPer100g: 250, weightPerUnit: 60, bloatScale: 2 },
-    biscuits: { caloriesPer100g: 450, proteinPer100g: 7, fatPer100g: 20, carbsPer100g: 60, sugarPer100g: 20, sodiumPer100g: 300, weightPerUnit: 20, bloatScale: 3 }, // Refined flour, sugar, fat
+    biscuits: { caloriesPer100g: 450, proteinPer100g: 7, fatPer100g: 20, carbsPer100g: 60, sugarPer100g: 20, sodiumPer100g: 300, weightPer100g: 20, bloatScale: 3 }, // Refined flour, sugar, fat
     crackers: { caloriesPer100g: 400, proteinPer100g: 10, fatPer100g: 10, carbsPer100g: 60, sugarPer100g: 5, sodiumPer100g: 500, weightPerUnit: 10, bloatScale: 3 }, // Refined flour, sodium
     ricecrackers: { caloriesPer100g: 380, proteinPer100g: 7, fatPer100g: 2, carbsPer100g: 80, sugarPer100g: 2, sodiumPer100g: 400, weightPerUnit: 10, bloatScale: 3 }, // Can be high in sodium
     olives: { caloriesPer100g: 115, proteinPer100g: 0.8, fatPer100g: 11, carbsPer100g: 6, sugarPer100g: 0, sodiumPer100g: 1556, weightPerUnit: 5, bloatScale: 7 }, // Extremely high sodium
     pickles: { caloriesPer100g: 11, proteinPer100g: 0.7, fatPer100g: 0.2, carbsPer100g: 2.5, sugarPer100g: 1.2, sodiumPer100g: 1200, weightPerUnit: 10, bloatScale: 6 }, // Very high sodium
-    sauerkraut: { caloriesPer100g: 19, proteinPer100g: 1, fatPer100g: 0.1, carbsPer100g: 4.3, sugarPer100g: 1.8, sodiumPer100g: 660, weightPerUnit: 100, bloatScale: -2 }, // Fermented, good for gut health, but high sodium
+    sauerkraut: { caloriesPer100g: 19, proteinPer100g: 1, fatPer100g: 0.1, carbsPer100g: 4.3, sugarPer100g: 1.8, sodiumPer100g: 660, weightPer100g: 100, bloatScale: -2 }, // Fermented, good for gut health, but high sodium
     kimchi: { caloriesPer100g: 15, proteinPer100g: 1.1, fatPer100g: 0.5, carbsPer100g: 2.8, sugarPer100g: 1.5, sodiumPer100g: 670, weightPer100g: 100, bloatScale: -2 }, // Fermented, good for gut health, but high sodium
     vinegar: { caloriesPer100g: 18, proteinPer100g: 0, fatPer100g: 0, carbsPer100g: 0.9, sugarPer100g: 0, sodiumPer100g: 5, weightPerUnit: 15, bloatScale: -1 }, // Can aid digestion
 
     // Seafood
     trout: { caloriesPer100g: 119, proteinPer100g: 20, fatPer100g: 4, carbsPer100g: 0, sugarPer100g: 0, sodiumPer100g: 40, weightPerUnit: 150, bloatScale: 0 },
     haddock: { caloriesPer100g: 85, proteinPer100g: 18, fatPer100g: 0.7, carbsPer100g: 0, sugarPer100g: 0, sodiumPer100g: 68, weightPerUnit: 150, bloatScale: 0 },
-    halibut: { caloriesPer100g: 111, proteinPer100g: 22, fatPer100g: 2, carbsPer100g: 0, sugarPer100g: 0, sodiumPer100g: 66, weightPerUnit: 150, bloatScale: 0 },
+    halibut: { caloriesPer100g: 111, proteinPer100g: 22, fatPer100g: 2, carbsPer100g: 0, sugarPer100g: 0, sodiumPer100g: 66, weightPer100g: 150, bloatScale: 0 },
     oysters: { caloriesPer100g: 68, proteinPer100g: 7, fatPer100g: 2, carbsPer100g: 4, sugarPer100g: 0, sodiumPer100g: 90, weightPerUnit: 15, bloatScale: 1 },
     clams: { caloriesPer100g: 48, proteinPer100g: 8, fatPer100g: 0.5, carbsPer100g: 2, sugarPer100g: 0, sodiumPer100g: 300, weightPerUnit: 10, bloatScale: 1 },
     mussels: { caloriesPer100g: 86, proteinPer100g: 12, fatPer100g: 2, carbsPer100g: 3, sugarPer100g: 0, sodiumPer100g: 280, weightPerUnit: 10, bloatScale: 1 },
@@ -255,10 +256,10 @@ const foodsDatabase = {
     peanuts: { caloriesPer100g: 567, proteinPer100g: 26, fatPer100g: 49, carbsPer100g: 16, sugarPer100g: 4.7, sodiumPer100g: 18, weightPerUnit: 1, bloatScale: 1 }, // Lectins, FODMAPs for some
     soybeans: { caloriesPer100g: 173, proteinPer100g: 17, fatPer100g: 9, carbsPer100g: 10, sugarPer100g: 3, sodiumPer100g: 2, weightPerUnit: 100, bloatScale: 3 }, // Oligosaccharides
     blackeyedpeas: { caloriesPer100g: 116, proteinPer100g: 8, fatPer100g: 0.5, carbsPer100g: 21, sugarPer100g: 3, sodiumPer100g: 4, weightPerUnit: 100, bloatScale: 4 }, // High in fiber and oligosaccharides
-    kidneybeans: { caloriesPer100g: 127, proteinPer100g: 9, fatPer100g: 0.5, carbsPer100g: 23, sugarPer100g: 0.3, sodiumPer100g: 2, weightPerUnit: 100, bloatScale: 5 }, // High in fiber and oligosaccharides
-    navybeans: { caloriesPer100g: 139, proteinPer100g: 9, fatPer100g: 0.6, carbsPer100g: 25, sugarPer100g: 0.3, sodiumPer100g: 2, weightPerUnit: 100, bloatScale: 5 }, // High in fiber and oligosaccharides
-    pintobeans: { caloriesPer100g: 143, proteinPer100g: 9, fatPer100g: 0.6, carbsPer100g: 26, sugarPer100g: 0.3, sodiumPer100g: 2, weightPerUnit: 100, bloatScale: 5 }, // High in fiber and oligosaccharides
-    limabeans: { caloriesPer100g: 115, proteinPer100g: 7, fatPer100g: 0.4, carbsPer100g: 21, sugarPer100g: 0.3, sodiumPer100g: 2, weightPerUnit: 100, bloatScale: 4 }, // Can be gassy
+    kidneybeans: { caloriesPer100g: 127, proteinPer100g: 9, fatPer100g: 0.5, carbsPer100g: 23, sugarPer100g: 0.3, sodiumPer100g: 2, weightPer100g: 100, bloatScale: 5 }, // High in fiber and oligosaccharides
+    navybeans: { caloriesPer100g: 139, proteinPer100g: 9, fatPer100g: 0.6, carbsPer100g: 25, sugarPer100g: 0.3, sodiumPer100g: 2, weightPer100g: 100, bloatScale: 5 }, // High in fiber and oligosaccharides
+    pintobeans: { caloriesPer100g: 143, proteinPer100g: 9, fatPer100g: 0.6, carbsPer100g: 26, sugarPer100g: 0.3, sodiumPer100g: 2, weightPer100g: 100, bloatScale: 5 }, // High in fiber and oligosaccharides
+    limabeans: { caloriesPer100g: 115, proteinPer100g: 7, fatPer100g: 0.4, carbsPer100g: 21, sugarPer100g: 0.3, sodiumPer100g: 2, weightPer100g: 100, bloatScale: 4 }, // Can be gassy
 
     // Grains
     buckwheat: { caloriesPer100g: 343, proteinPer100g: 13, fatPer100g: 3.4, carbsPer100g: 72, sugarPer100g: 0, sodiumPer100g: 1, weightPerUnit: 100, bloatScale: 0 },
@@ -270,7 +271,7 @@ const foodsDatabase = {
     tapioca: { caloriesPer100g: 159, proteinPer100g: 0.2, fatPer100g: 0, carbsPer100g: 39, sugarPer100g: 3.4, sodiumPer100g: 1, weightPerUnit: 100, bloatScale: 0 },
 
     // Sauces/Condiments
-    soy sauce: { caloriesPer100g: 53, proteinPer100g: 8, fatPer100g: 0.1, carbsPer100g: 5, sugarPer100g: 2.7, sodiumPer100g: 5600, weightPerUnit: 15, bloatScale: 10 }, // Extremely high sodium
+    "soy sauce": { caloriesPer100g: 53, proteinPer100g: 8, fatPer100g: 0.1, carbsPer100g: 5, sugarPer100g: 2.7, sodiumPer100g: 5600, weightPerUnit: 15, bloatScale: 10 }, // Extremely high sodium
     fishsauce: { caloriesPer100g: 40, proteinPer100g: 9, fatPer100g: 0, carbsPer100g: 0, sugarPer100g: 0, sodiumPer100g: 7000, weightPerUnit: 15, bloatScale: 10 }, // Extremely high sodium
     hoisinsauce: { caloriesPer100g: 236, proteinPer100g: 2.5, fatPer100g: 1.5, carbsPer100g: 54, sugarPer100g: 48, sodiumPer100g: 2300, weightPerUnit: 15, bloatScale: 8 }, // High sodium, high sugar
     teriyakisauce: { caloriesPer100g: 110, proteinPer100g: 2, fatPer100g: 0, carbsPer100g: 25, sugarPer100g: 20, sodiumPer100g: 1500, weightPerUnit: 15, bloatScale: 7 }, // High sodium, high sugar
@@ -278,7 +279,7 @@ const foodsDatabase = {
     tabasco: { caloriesPer100g: 12, proteinPer100g: 0.7, fatPer100g: 0.3, carbsPer100g: 1.8, sugarPer100g: 0, sodiumPer100g: 780, weightPerUnit: 5, bloatScale: 2 }, // High sodium, spicy
     wasabi: { caloriesPer100g: 279, proteinPer100g: 11, fatPer100g: 11, carbsPer100g: 35, sugarPer100g: 15, sodiumPer100g: 1200, weightPerUnit: 5, bloatScale: 4 }, // High sodium, strong flavor
     vinegar: { caloriesPer100g: 18, proteinPer100g: 0, fatPer100g: 0, carbsPer100g: 0.9, sugarPer100g: 0, sodiumPer100g: 5, weightPerUnit: 15, bloatScale: -1 }, // Can aid digestion
-    hotsauce: { caloriesPer100g: 20, proteinPer100g: 1, fatPer100g: 0.5, carbsPer100g: 3, sugarPer100g: 1.5, sodiumPer100g: 800, weightPerUnit: 15, bloatScale: 3 }, // High sodium, spiciness can irritate some
+    hotsauce: { caloriesPer100g: 20, proteinPer100g: 1, fatPer100g: 0.5, carbsPer100g: 3, sugarPer100g: 1.5, sodiumPer100g: 800, weightPer100g: 15, bloatScale: 3 }, // High sodium, spiciness can irritate some
     barbecuesauce: { caloriesPer100g: 130, proteinPer100g: 1, fatPer100g: 0.5, carbsPer100g: 30, sugarPer100g: 25, sodiumPer100g: 800, weightPerUnit: 15, bloatScale: 4 }, // High sugar, high sodium
     honey_mustard: { caloriesPer100g: 250, proteinPer100g: 2, fatPer100g: 18, carbsPer100g: 20, sugarPer100g: 18, sodiumPer100g: 600, weightPerUnit: 15, bloatScale: 3 }, // High sugar, high sodium
     ranchdressing: { caloriesPer100g: 470, proteinPer100g: 1, fatPer100g: 50, carbsPer100g: 5, sugarPer100g: 3, sodiumPer100g: 800, weightPerUnit: 15, bloatScale: 3 }, // High fat, high sodium, sometimes dairy
@@ -289,7 +290,7 @@ const foodsDatabase = {
     romainelettuce: { caloriesPer100g: 17, proteinPer100g: 1.2, fatPer100g: 0.3, carbsPer100g: 3.3, sugarPer100g: 1.2, sodiumPer100g: 8, weightPerUnit: 30, bloatScale: -1 },
     iceberglettuce: { caloriesPer100g: 14, proteinPer100g: 0.9, fatPer100g: 0.1, carbsPer100g: 2.9, sugarPer100g: 1.4, sodiumPer100g: 10, weightPerUnit: 30, bloatScale: -1 },
     butterlettuce: { caloriesPer100g: 13, proteinPer100g: 1.4, fatPer100g: 0.2, carbsPer100g: 2.2, sugarPer100g: 0.5, sodiumPer100g: 5, weightPerUnit: 30, bloatScale: -1 },
-    endive: { caloriesPer100g: 17, proteinPer100g: 1.2, fatPer100g: 0.2, carbsPer100g: 3.3, sugarPer100g: 0.7, sodiumPer100g: 22, weightPer100g: 30, bloatScale: 0 },
+    endive: { caloriesPer100g: 17, proteinPer100g: 1.2, fatPer100g: 0.2, carbsPer100g: 3.3, sugarPer100g: 0.7, sodiumPer100g: 22, weightPerUnit: 30, bloatScale: 0 },
     radicchio: { caloriesPer100g: 23, proteinPer100g: 1.4, fatPer100g: 0.2, carbsPer100g: 4.5, sugarPer100g: 0.6, sodiumPer100g: 22, weightPer100g: 30, bloatScale: 0 },
     watercress: { caloriesPer100g: 11, proteinPer100g: 2.3, fatPer100g: 0.1, carbsPer100g: 1.3, sugarPer100g: 0.2, sodiumPer100g: 41, weightPerUnit: 10, bloatScale: -2 },
     basil: { caloriesPer100g: 23, proteinPer100g: 3.2, fatPer100g: 0.6, carbsPer100g: 2.7, sugarPer100g: 0.3, sodiumPer100g: 4, weightPerUnit: 1, bloatScale: -1 },
@@ -316,7 +317,7 @@ const foodsDatabase = {
 
     // Alternative Proteins
     beyondburger: { caloriesPer100g: 250, proteinPer100g: 17, fatPer100g: 18, carbsPer100g: 3, sugarPer100g: 0, sodiumPer100g: 380, weightPerUnit: 113, bloatScale: 2 }, // Can contain ingredients that bloat some (e.g., pea protein)
-    impossibleburger: { caloriesPer100g: 240, proteinPer100g: 15, fatPer100g: 14, carbsPer100g: 9, sugarPer100g: 1, sodiumPer100g: 370, weightPerUnit: 113, bloatScale: 2 }, // Can contain ingredients that bloat some (e.g., soy protein)
+    impossibleburger: { caloriesPer100g: 240, proteinPer100g: 15, fatPer100g: 14, carbsPer100g: 9, sugarPer100g: 1, sodiumPer100g: 370, weightPer100g: 113, bloatScale: 2 }, // Can contain ingredients that bloat some (e.g., soy protein)
 
     // Sweeteners (artificial)
     splenda: { caloriesPer100g: 0, proteinPer100g: 0, fatPer100g: 0, carbsPer100g: 0, sugarPer100g: 0, sodiumPer100g: 0, weightPerUnit: 1, bloatScale: 3 }, // Sucralose can affect gut bacteria
@@ -335,5 +336,3 @@ const foodsDatabase = {
     spirulina: { caloriesPer100g: 290, proteinPer100g: 57, fatPer100g: 8, carbsPer100g: 24, sugarPer100g: 0, sodiumPer100g: 100, weightPerUnit: 5, bloatScale: 0 },
     chlorella: { caloriesPer100g: 400, proteinPer100g: 58, fatPer100g: 10, carbsPer100g: 10, sugarPer100g: 0, sodiumPer100g: 50, weightPerUnit: 5, bloatScale: 0 },
 };
-
-export default foodsDatabase;
