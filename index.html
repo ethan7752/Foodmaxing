@@ -194,7 +194,7 @@
   }
 
   /* Modal styles */
-  #imageModalBg {
+  .modal-bg {
     display: none;
     position: fixed;
     z-index: 10000;
@@ -207,6 +207,16 @@
     align-items: center;
   }
 
+  .modal-content {
+    background: var(--card-bg);
+    padding: 20px;
+    border-radius: 10px;
+    max-width: 90vw;
+    max-height: 90vh;
+    overflow-y: auto;
+    border: 3px solid var(--primary-color);
+  }
+
   #imageModalBg img {
     max-width: 90vw;
     max-height: 90vh;
@@ -214,7 +224,7 @@
     border: 3px solid var(--primary-color);
   }
 
-  #imageModalBg.show {
+  .modal-bg.show {
     display: flex;
   }
 
@@ -230,6 +240,37 @@
     padding: 20px;
     color: var(--text-color);
     opacity: 0.7;
+  }
+  
+  .food-info-links {
+    margin-top: 15px;
+  }
+  
+  .food-info-links a {
+    display: inline-block;
+    margin-right: 10px;
+    color: var(--primary-color);
+    text-decoration: none;
+  }
+  
+  .food-info-links a:hover {
+    text-decoration: underline;
+  }
+  
+  .food-info-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+  }
+  
+  .food-info-table th, .food-info-table td {
+    padding: 8px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+  }
+  
+  .food-info-table th {
+    background-color: rgba(0,0,0,0.05);
   }
 </style>
 </head>
@@ -268,20 +309,6 @@
   <button id="toggleSettingsBtn" class="btn-info">Show Settings ⚙️</button>
 </div>
 
-<div class="section" id="settingsPanel">
-  <h2>Settings</h2>
-  <label for="calorieGoalInput">Daily Calorie Goal (kcal)</label>
-  <input id="calorieGoalInput" type="number" min="500" max="10000" step="50" />
-
-  <label for="unitPreferenceSelect">Unit Preference</label>
-  <select id="unitPreferenceSelect">
-    <option value="metric">Metric (g, ml)</option>
-    <option value="imperial">Imperial (oz, fl oz)</option>
-  </select>
-
-  <button id="saveSettingsBtn" class="btn-success">Save Settings</button>
-</div>
-
 <div class="section" id="totalsSection">
   <h2>Daily Totals</h2>
   <div>Calories: <span id="totalCalories">0</span> kcal</div>
@@ -300,7 +327,36 @@
 </div>
 
 <!-- Image modal -->
-<div id="imageModalBg"><img id="modalImage" alt="Meal photo" /></div>
+<div id="imageModalBg" class="modal-bg"><img id="modalImage" alt="Meal photo" /></div>
+
+<!-- Settings modal -->
+<div id="settingsModalBg" class="modal-bg">
+  <div class="modal-content">
+    <h2>Settings</h2>
+    <label for="calorieGoalInput">Daily Calorie Goal (kcal)</label>
+    <input id="calorieGoalInput" type="number" min="500" max="10000" step="50" />
+
+    <label for="unitPreferenceSelect">Unit Preference</label>
+    <select id="unitPreferenceSelect">
+      <option value="metric">Metric (g, ml)</option>
+      <option value="imperial">Imperial (oz, fl oz)</option>
+    </select>
+
+    <div style="display: flex; gap: 10px; margin-top: 20px;">
+      <button id="saveSettingsBtn" class="btn-success">Save Settings</button>
+      <button id="closeSettingsBtn" class="btn-danger">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Food info modal -->
+<div id="foodInfoModalBg" class="modal-bg">
+  <div class="modal-content">
+    <h2 id="foodInfoTitle">Food Information</h2>
+    <div id="foodInfoContent"></div>
+    <button id="closeFoodInfoBtn" class="btn-danger" style="margin-top: 20px;">Close</button>
+  </div>
+</div>
 
 <script>
   // === Sample food database (per 100g) ===
@@ -407,14 +463,20 @@
   const mealHistoryDiv = document.getElementById("mealHistoryDiv");
 
   const toggleSettingsBtn = document.getElementById("toggleSettingsBtn");
-  const settingsPanel = document.getElementById("settingsPanel");
   const calorieGoalInput = document.getElementById("calorieGoalInput");
   const unitPreferenceSelect = document.getElementById("unitPreferenceSelect");
   const saveSettingsBtn = document.getElementById("saveSettingsBtn");
+  const closeSettingsBtn = document.getElementById("closeSettingsBtn");
 
   const imageModalBg = document.getElementById("imageModalBg");
   const modalImage = document.getElementById("modalImage");
   const darkModeToggle = document.getElementById('darkModeToggle');
+  
+  const settingsModalBg = document.getElementById("settingsModalBg");
+  const foodInfoModalBg = document.getElementById("foodInfoModalBg");
+  const foodInfoTitle = document.getElementById("foodInfoTitle");
+  const foodInfoContent = document.getElementById("foodInfoContent");
+  const closeFoodInfoBtn = document.getElementById("closeFoodInfoBtn");
 
   // === Initialize dark mode ===
   function initDarkMode() {
@@ -475,6 +537,68 @@
       };
     }
     return null;
+  }
+
+  // === Show food info modal ===
+  function showFoodInfo(foodName) {
+    const normName = normalizeName(foodName);
+    const foodData = foodsDatabase[normName];
+    
+    if (!foodData) {
+      alert("Food data not found");
+      return;
+    }
+    
+    foodInfoTitle.textContent = foodName;
+    
+    let html = `
+      <table class="food-info-table">
+        <thead>
+          <tr>
+            <th></th>
+            <th>Per 100g</th>
+            <th>Per Serving</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Calories</td>
+            <td>${fmt(foodData.caloriesPer100g)} kcal</td>
+            <td>${fmt(foodData.caloriesPer100g * (foodData.weightPerUnit / 100))} kcal</td>
+          </tr>
+          <tr>
+            <td>Protein</td>
+            <td>${fmt(foodData.proteinPer100g)}g</td>
+            <td>${fmt(foodData.proteinPer100g * (foodData.weightPerUnit / 100))}g</td>
+          </tr>
+          <tr>
+            <td>Fat</td>
+            <td>${fmt(foodData.fatPer100g)}g</td>
+            <td>${fmt(foodData.fatPer100g * (foodData.weightPerUnit / 100))}g</td>
+          </tr>
+          <tr>
+            <td>Carbs</td>
+            <td>${fmt(foodData.carbsPer100g)}g</td>
+            <td>${fmt(foodData.carbsPer100g * (foodData.weightPerUnit / 100))}g</td>
+          </tr>
+          <tr>
+            <td>Weight</td>
+            <td>100g</td>
+            <td>${fmt(foodData.weightPerUnit)}g</td>
+          </tr>
+        </tbody>
+      </table>
+      
+      <div class="food-info-links">
+        <h3>Find at:</h3>
+        <a href="https://www.woolworths.co.nz/shop/searchproducts?search=${encodeURIComponent(foodName)}" target="_blank">Woolworths</a>
+        <a href="https://www.paknsave.co.nz/shop/search?pg=1&q=${encodeURIComponent(foodName)}" target="_blank">Pak'nSave</a>
+        <a href="https://www.newworld.co.nz/shop/search?pg=1&q=${encodeURIComponent(foodName)}" target="_blank">New World</a>
+      </div>
+    `;
+    
+    foodInfoContent.innerHTML = html;
+    foodInfoModalBg.classList.add("show");
   }
 
   // === Add meal to log ===
