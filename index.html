@@ -908,20 +908,28 @@ function renderAllFoodsList(searchTerm = "") {
 
     // Sort food names alphabetically by their original name
     const sortedFoodNames = Object.keys(foodsDatabase).sort((a, b) =>
-        foodsDatabase[a].name.localeCompare(foodsDatabase[b].name)
+        foodsDatabase[a].name.localeCompare(foodsDatabase[b].name) // This line is causing the error.
     );
+    // The error occurs if foodsDatabase[a] or foodsDatabase[b] is undefined.
+    // This can happen if the keys in foodsDatabase are not consistent or if there's an issue with the foodDatabase.js file itself.
 
-    const fragment = document.createDocumentFragment(); 
+    const fragment = document.createDocumentFragment();
 
     sortedFoodNames.forEach(normalizedFoodName => {
         const food = foodsDatabase[normalizedFoodName];
+        // Add a check to ensure 'food' is not undefined before proceeding
+        if (!food) {
+            console.warn(`Food data for normalized name "${normalizedFoodName}" not found in database.`);
+            return; // Skip this iteration if food data is missing
+        }
+
         if (food.name.toLowerCase().includes(searchTerm.toLowerCase())) {
             const foodItemDiv = document.createElement("div");
-            foodItemDiv.classList.add("suggestion-item"); 
-            foodItemDiv.style.display = "flex"; 
-            foodItemDiv.style.justifyContent = "space-between"; 
-            foodItemDiv.style.alignItems = "center"; 
-            foodItemDiv.style.paddingRight = "10px"; 
+            foodItemDiv.classList.add("suggestion-item");
+            foodItemDiv.style.display = "flex";
+            foodItemDiv.style.justifyContent = "space-between";
+            foodItemDiv.style.alignItems = "center";
+            foodItemDiv.style.paddingRight = "10px";
 
             const foodNameSpan = document.createElement("span");
             foodNameSpan.textContent = food.name;
@@ -930,12 +938,12 @@ function renderAllFoodsList(searchTerm = "") {
             const infoButton = document.createElement("button");
             infoButton.textContent = "Info";
             infoButton.classList.add("btn-info");
-            infoButton.style.padding = "4px 8px"; 
+            infoButton.style.padding = "4px 8px";
             infoButton.style.fontSize = "0.7em";
-            infoButton.style.marginTop = "0"; 
-            infoButton.style.marginLeft = "10px"; 
+            infoButton.style.marginTop = "0";
+            infoButton.style.marginLeft = "10px";
             infoButton.addEventListener("click", (event) => {
-                event.stopPropagation(); 
+                event.stopPropagation();
                 showFoodInfoModal(normalizedFoodName);
             });
             foodItemDiv.appendChild(infoButton);
