@@ -276,5 +276,3 @@ const foodsDatabase = {
     mannitol_gum: { caloriesPer100g: 240, proteinPer100g: 0, fatPer100g: 0, carbsPer100g: 100, sugarPer100g: 0, sodiumPer100g: 0, weightPerUnit: 2, bloatScale: 4 }, // Sugar alcohol, can cause digestive issues
     maltitol_gum: { caloriesPer100g: 240, proteinPer100g: 0, fatPer100g: 0, carbsPer100g: 100, sugarPer100g: 0, sodiumPer100g: 0, weightPer100g: 2, bloatScale: 4 }, // Sugar alcohol, can cause digestive issues
 };
-
-export default foodsDatabase;
