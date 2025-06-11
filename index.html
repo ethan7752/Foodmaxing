@@ -904,12 +904,25 @@
 // NEW: Function to render all foods in the modal
 function renderAllFoodsList(searchTerm = "") {
     allFoodsList.innerHTML = "";
-    const normalizedSearchTerm = normalizeName(searchTerm);
+    const normalizedSearchTerm = normalizeName(searchTerm); // Use normalizeName for consistency
 
     // Filter and sort food names alphabetically by their original name
     const sortedFoodNames = Object.keys(foodsDatabase)
-        .filter(normalizedName => foodsDatabase[normalizedName] && foodsDatabase[normalizedName].name.toLowerCase().includes(searchTerm.toLowerCase()))
-        .sort((a, b) => foodsDatabase[a].name.localeCompare(foodsDatabase[b].name));
+        .filter(normalizedName => {
+            const food = foodsDatabase[normalizedName];
+            // Ensure food and food.name exist before including in the filtered list
+            return food && food.name && food.name.toLowerCase().includes(searchTerm.toLowerCase());
+        })
+        .sort((a, b) => {
+            const foodA = foodsDatabase[a];
+            const foodB = foodsDatabase[b];
+
+            // Safely compare names, defaulting to an empty string if name is missing
+            const nameA = foodA && foodA.name ? foodA.name : "";
+            const nameB = foodB && foodB.name ? foodB.name : "";
+
+            return nameA.localeCompare(nameB);
+        });
 
     const fragment = document.createDocumentFragment();
 
@@ -921,7 +934,9 @@ function renderAllFoodsList(searchTerm = "") {
     } else {
         sortedFoodNames.forEach(normalizedFoodName => {
             const food = foodsDatabase[normalizedFoodName];
-            // No need for 'if (!food)' here, as it's filtered above
+            // At this point, 'food' should always be defined due to the filter step
+            if (!food) return; // Extra defensive check, though it should be redundant now
+
             const foodItemDiv = document.createElement("div");
             foodItemDiv.classList.add("suggestion-item");
             foodItemDiv.style.display = "flex";
@@ -952,16 +967,6 @@ function renderAllFoodsList(searchTerm = "") {
 
     allFoodsList.appendChild(fragment);
 }
-    });
-
-    if (fragment.children.length === 0) {
-        const noResultsDiv = document.createElement("div");
-        noResultsDiv.classList.add("empty-state");
-        noResultsDiv.textContent = "No foods found matching your search.";
-        allFoodsList.appendChild(noResultsDiv);
-    } else {
-        allFoodsList.appendChild(fragment);
-    }
 }
     // === Render meal log ===
     function renderMealHistory() {
