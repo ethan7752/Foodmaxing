@@ -349,7 +349,6 @@
         background-color: var(--modal-bg);
         justify-content: center;
         align-items: center;
-        overflow-y: auto; /* Allow scrolling for modal content if it gets too long */
     }
 
     .modal-bg.show {
@@ -367,24 +366,7 @@
         box-shadow: 0 5px 15px rgba(0,0,0,0.3);
         position: relative;
         color: var(--text-color);
-        box-sizing: border-box; /* Include padding and border in the element's total width and height */
     }
-
-    /* Added for generic alert/confirm modals */
-    .modal-content.small-modal {
-        max-width: 400px;
-    }
-
-    .modal-buttons {
-        display: flex;
-        justify-content: flex-end;
-        gap: 10px;
-        margin-top: 20px;
-    }
-    .modal-buttons button {
-        margin-top: 0; /* Override default button margin */
-    }
-
 
     .modal-close {
         color: var(--text-color);
@@ -512,7 +494,6 @@
 
 <div class="section">
     <button id="openSettingsModalBtn" class="btn-info">Settings ⚙️</button>
-    <button id="showAllFoodsBtn" class="btn-info" style="margin-left: 10px;">Show All Foods 🥗</button>
 </div>
 
 <div class="section" id="totalsSection">
@@ -537,31 +518,6 @@
 
 <div class="reset-section">
     <button id="resetHistoryBtn" class="reset-button">Reset All History</button>
-</div>
-
-<!-- Generic Alert Modal -->
-<div id="alertModalBg" class="modal-bg">
-    <div class="modal-content small-modal">
-        <span class="modal-close" id="closeAlertModal">&times;</span>
-        <h2 id="alertModalTitle"></h2>
-        <p id="alertModalMessage"></p>
-        <div class="modal-buttons">
-            <button class="btn-primary" id="alertModalOkBtn">OK</button>
-        </div>
-    </div>
-</div>
-
-<!-- Generic Confirm Modal -->
-<div id="confirmModalBg" class="modal-bg">
-    <div class="modal-content small-modal">
-        <span class="modal-close" id="closeConfirmModal">&times;</span>
-        <h2 id="confirmModalTitle"></h2>
-        <p id="confirmModalMessage"></p>
-        <div class="modal-buttons">
-            <button class="btn-danger" id="confirmModalCancelBtn">Cancel</button>
-            <button class="btn-success" id="confirmModalOkBtn">Confirm</button>
-        </div>
-    </div>
 </div>
 
 <div id="imageModalBg" class="modal-bg">
@@ -661,7 +617,7 @@
 
     const imageModalBg = document.getElementById("imageModalBg");
     const modalImage = document.getElementById("modalImage");
-    const closeImageModal = document.getElementById("closeImageModal");
+    const closeImageModal = document.getElementById("closeImageModal"); // New: Close button for image modal
     const darkModeToggle = document.getElementById('darkModeToggle');
 
     const foodInfoModalBg = document.getElementById("foodInfoModalBg");
@@ -685,25 +641,8 @@
     const paknsaveLink = document.getElementById("paknsaveLink");
     const newworldLink = document.getElementById("newworldLink");
 
+    // NEW: Reset History Button element
     const resetHistoryBtn = document.getElementById("resetHistoryBtn");
-    const showAllFoodsBtn = document.getElementById("showAllFoodsBtn"); // New button element
-
-    // Generic Alert Modal elements
-    const alertModalBg = document.getElementById("alertModalBg");
-    const alertModalTitle = document.getElementById("alertModalTitle");
-    const alertModalMessage = document.getElementById("alertModalMessage");
-    const alertModalOkBtn = document.getElementById("alertModalOkBtn");
-    const closeAlertModal = document.getElementById("closeAlertModal");
-
-    // Generic Confirm Modal elements
-    const confirmModalBg = document.getElementById("confirmModalBg");
-    const confirmModalTitle = document.getElementById("confirmModalTitle");
-    const confirmModalMessage = document.getElementById("confirmModalMessage");
-    const confirmModalOkBtn = document.getElementById("confirmModalOkBtn");
-    const confirmModalCancelBtn = document.getElementById("confirmModalCancelBtn");
-    const closeConfirmModal = document.getElementById("closeConfirmModal");
-
-    let confirmCallback = null; // To store the callback for the confirm modal
 
     // === Autocomplete variables ===
     let currentSuggestions = [];
@@ -750,59 +689,6 @@
         localStorage.setItem(STORAGE_SETTINGS_KEY, JSON.stringify(settingsObj));
     }
 
-    // === Custom Alert and Confirm Modals ===
-    function showAlert(title, message) {
-        alertModalTitle.textContent = title;
-        alertModalMessage.textContent = message;
-        alertModalBg.classList.add('show');
-    }
-
-    alertModalOkBtn.addEventListener('click', () => {
-        alertModalBg.classList.remove('show');
-    });
-    closeAlertModal.addEventListener('click', () => {
-        alertModalBg.classList.remove('show');
-    });
-    alertModalBg.addEventListener('click', (e) => {
-        if (e.target === alertModalBg) {
-            alertModalBg.classList.remove('show');
-        }
-    });
-
-    function showConfirm(title, message, onConfirmCallback) {
-        confirmModalTitle.textContent = title;
-        confirmModalMessage.textContent = message;
-        confirmCallback = onConfirmCallback; // Store the callback
-        confirmModalBg.classList.add('show');
-    }
-
-    confirmModalOkBtn.addEventListener('click', () => {
-        if (confirmCallback) {
-            confirmCallback(true);
-        }
-        confirmModalBg.classList.remove('show');
-    });
-    confirmModalCancelBtn.addEventListener('click', () => {
-        if (confirmCallback) {
-            confirmCallback(false);
-        }
-        confirmModalBg.classList.remove('show');
-    });
-    closeConfirmModal.addEventListener('click', () => {
-        if (confirmCallback) {
-            confirmCallback(false);
-        }
-        confirmModalBg.classList.remove('show');
-    });
-    confirmModalBg.addEventListener('click', (e) => {
-        if (e.target === confirmModalBg) {
-            if (confirmCallback) {
-                confirmCallback(false);
-            }
-            confirmModalBg.classList.remove('show');
-        }
-    });
-
     // === Calculate macros based on amount and portion type ===
     function calculateMacros(foodData, amount, portionType) {
         let factor;
@@ -835,7 +721,7 @@
     foodInput.addEventListener('keydown', handleFoodInputKeydown);
 
     function showFoodSuggestions() {
-        const inputVal = foodInput.value.trim();
+        const inputVal = foodInput.value.trim(); // Use raw input for display, normalize for search
         foodSuggestionsDiv.innerHTML = '';
         currentSuggestions = [];
         selectedSuggestionIndex = -1;
@@ -845,23 +731,22 @@
             return;
         }
 
-        // Access the global foodsDatabase object
-        const foodNames = Object.keys(window.foodsDatabase);
-        const normalizedInputVal = normalizeName(inputVal);
+        const foodNames = Object.keys(foodsDatabase);
+        const normalizedInputVal = normalizeName(inputVal); // Normalize for matching
 
         const matchingFoods = foodNames.filter(name => name.startsWith(normalizedInputVal))
-                                        .sort((a, b) => window.foodsDatabase[a].name.localeCompare(window.foodsDatabase[b].name));
+                                        .sort((a, b) => foodsDatabase[a].name.localeCompare(foodsDatabase[b].name)); // Sort by original name
 
         if (matchingFoods.length > 0) {
             matchingFoods.forEach(foodNormalizedName => {
                 const suggestionItem = document.createElement('div');
                 suggestionItem.classList.add('suggestion-item');
-                suggestionItem.textContent = window.foodsDatabase[foodNormalizedName].name;
-                suggestionItem.dataset.foodName = foodNormalizedName;
+                suggestionItem.textContent = foodsDatabase[foodNormalizedName].name; // Display original name from database
+                suggestionItem.dataset.foodName = foodNormalizedName; // Store normalized name for lookup
 
                 suggestionItem.addEventListener('click', () => {
                     foodInput.value = suggestionItem.textContent;
-                    foodInput.dataset.selectedNormalizedFood = suggestionItem.dataset.foodName;
+                    foodInput.dataset.selectedNormalizedFood = suggestionItem.dataset.foodName; // Store normalized name for submission
                     foodSuggestionsDiv.style.display = 'none';
                 });
                 foodSuggestionsDiv.appendChild(suggestionItem);
@@ -910,7 +795,7 @@
                 selectedItem.classList.add('selected');
                 selectedItem.scrollIntoView({ block: 'nearest' });
                 foodInput.value = selectedItem.textContent;
-                foodInput.dataset.selectedNormalizedFood = selectedItem.dataset.foodName;
+                foodInput.dataset.selectedNormalizedFood = selectedItem.dataset.foodName; // Set the normalized name on selection
             }
         } else if (e.key === 'Enter') {
             addMealBtn.click();
@@ -927,29 +812,27 @@
     // === Add meal to log ===
     addMealBtn.addEventListener("click", () => {
         const foodNameRaw = foodInput.value.trim();
-        const normName = foodInput.dataset.selectedNormalizedFood || normalizeName(foodNameRaw);
+        const normName = foodInput.dataset.selectedNormalizedFood || normalizeName(foodNameRaw); // Use stored normalized name or re-normalize
         
         if (!foodNameRaw) {
-            showAlert("Input Error", "Please enter a food name.");
+            alert("Please enter a food name.");
             return;
         }
-        // Use window.foodsDatabase here
-        if (!(normName in window.foodsDatabase)) {
-            showAlert("Food Not Found", `Food "${foodNameRaw}" not found in database. Try another or check spelling.`);
+        if (!(normName in foodsDatabase)) {
+            alert(`Food "${foodNameRaw}" not found in database. Try another or check spelling.`);
             return;
         }
         const amount = parseFloat(amountInput.value);
         if (isNaN(amount) || amount <= 0) {
-            showAlert("Input Error", "Enter a valid positive amount.");
+            alert("Enter a valid positive amount.");
             return;
         }
         const portionType = portionTypeSelect.value;
 
-        // Use window.foodsDatabase here
-        const foodData = window.foodsDatabase[normName];
+        const foodData = foodsDatabase[normName];
         const macros = calculateMacros(foodData, amount, portionType);
         if (!macros) {
-            showAlert("Calculation Error", "Error calculating macros.");
+            alert("Error calculating macros.");
             return;
         }
 
@@ -994,7 +877,7 @@
         foodInput.value = "";
         amountInput.value = "";
         mealPhotoInput.value = "";
-        foodInput.dataset.selectedNormalizedFood = "";
+        foodInput.dataset.selectedNormalizedFood = ""; // Clear stored normalized name
         hideFoodSuggestions();
     }
 
@@ -1014,7 +897,8 @@
         // Create header row - UPDATED HEADERS
         const header = document.createElement('div');
         header.classList.add('meal-log-header');
-        const headers = ["Food", "Calories", "Protein(g)", "Fat(g)", "Carbs(g)", "Sugar(g)", "Sodium(mg)", "Bloat", ""];
+        // Changed "Kcal" to "Calories", "P(g)" to "Protein(g)", etc.
+        const headers = ["Food", "Calories", "Protein(g)", "Fat(g)", "Carbs(g)", "Sugar(g)", "Sodium(mg)", "Bloat", ""]; // Empty for X button
         headers.forEach(text => {
             const cell = document.createElement('div');
             cell.classList.add('grid-cell');
@@ -1042,19 +926,19 @@
             infoBtn.addEventListener("click", () => {
                 showFoodInfoModal(meal.normalizedName);
             });
-            foodNameCell.appendChild(infoBtn);
+            foodNameCell.appendChild(infoBtn); // Append info button under food name
 
             // NEW: Show Image Button
             if (meal.photo) {
                 const showImageBtn = document.createElement("button");
                 showImageBtn.textContent = "Show";
-                showImageBtn.classList.add("btn-info", "btn-show-image");
+                showImageBtn.classList.add("btn-info", "btn-show-image"); // Added btn-show-image class
                 showImageBtn.title = `Show photo for ${meal.name}`;
                 showImageBtn.addEventListener("click", () => {
                     modalImage.src = meal.photo;
                     imageModalBg.classList.add("show");
                 });
-                foodNameCell.appendChild(showImageBtn);
+                foodNameCell.appendChild(showImageBtn); // Append show image button next to info button
             }
 
             div.appendChild(foodNameCell);
@@ -1164,7 +1048,7 @@
         if (!isNaN(newGoal) && newGoal > 0) {
             settings.calorieGoal = newGoal;
         } else {
-            showAlert("Input Error", "Please enter a valid calorie goal.");
+            alert("Please enter a valid calorie goal.");
             return;
         }
         settings.unitPreference = unitPreferenceSelect.value;
@@ -1176,22 +1060,21 @@
     // Close image modal
     closeImageModal.addEventListener("click", () => {
         imageModalBg.classList.remove("show");
-        modalImage.src = "";
+        modalImage.src = ""; // Clear the image source
     });
 
     imageModalBg.addEventListener("click", (e) => {
         if (e.target === imageModalBg) {
             imageModalBg.classList.remove("show");
-            modalImage.src = "";
+            modalImage.src = ""; // Clear the image source
         }
     });
 
     // Food Info Modal
     function showFoodInfoModal(normalizedFoodName) {
-        // Use window.foodsDatabase here
-        const food = window.foodsDatabase[normalizedFoodName];
+        const food = foodsDatabase[normalizedFoodName];
         if (!food) {
-            showAlert("Error", "Food details not found.");
+            alert("Food details not found.");
             return;
         }
 
@@ -1204,7 +1087,7 @@
         infoSodium100g.textContent = fmt(food.sodiumPer100g);
         infoBloatScale100g.textContent = food.bloatScale;
 
-        const servingSize = food.weightPerUnit || 100;
+        const servingSize = food.weightPerUnit || 100; // Default to 100g if serving size not defined
         const servingFactor = servingSize / 100;
 
         infoServingSize.textContent = convertWeightToPreferredUnit(servingSize);
@@ -1236,30 +1119,18 @@
 
     // NEW: Reset History Functionality
     resetHistoryBtn.addEventListener("click", () => {
-        showConfirm(
-            "Reset History",
-            "Are you sure you want to reset all your meal history and settings? This cannot be undone.",
-            (confirmed) => {
-                if (confirmed) {
-                    dailyLog = [];
-                    settings = {
-                        calorieGoal: 2500,
-                        unitPreference: "metric",
-                    };
-                    saveLog(dailyLog);
-                    saveSettings(settings);
-                    renderMealHistory();
-                    updateTotalsAndProgress();
-                    showAlert("Reset Complete", "All history and settings have been reset.");
-                }
-            }
-        );
-    });
-
-    // NEW: Show All Foods button functionality
-    showAllFoodsBtn.addEventListener("click", () => {
-        // Open allFoods.html in a new window/tab
-        window.open("allFoods.html", "_blank", "width=800,height=600,resizable=yes,scrollbars=yes");
+        if (confirm("Are you sure you want to reset all your meal history and settings? This cannot be undone.")) {
+            dailyLog = [];
+            settings = {
+                calorieGoal: 2500,
+                unitPreference: "metric",
+            };
+            saveLog(dailyLog);
+            saveSettings(settings);
+            renderMealHistory();
+            updateTotalsAndProgress();
+            alert("All history and settings have been reset.");
+        }
     });
 
 
