@@ -232,14 +232,6 @@
         padding: 6px 10px;
         font-size: 0.8rem;
     }
-    .list-item .grid-cell.actions .btn-info { /* Info button inside actions cell */
-        padding: 4px 8px; /* Smaller info button */
-        font-size: 0.7em;
-        width: auto;
-        white-space: nowrap;
-        border-radius: 3px;
-        margin-top: 0px; /* No margin-top if stacked */
-    }
     .list-item .grid-cell.actions .btn-danger { /* X button style */
         padding: 4px 10px;
         font-size: 1.1em; /* Larger X */
@@ -255,6 +247,18 @@
         white-space: nowrap;
         border-radius: 3px;
         margin-top: 5px; /* Space from food name */
+        align-self: flex-start; /* Align to the start within the column */
+    }
+
+    /* New: Show Image Button next to Info button */
+    .list-item .grid-cell.food-name .btn-show-image {
+        padding: 4px 8px;
+        font-size: 0.7em;
+        width: auto;
+        white-space: nowrap;
+        border-radius: 3px;
+        margin-top: 5px; /* Space from food name */
+        margin-left: 5px; /* Space from Info button */
         align-self: flex-start; /* Align to the start within the column */
     }
 
@@ -294,22 +298,23 @@
 
     /* Autocomplete Suggestions Styles */
     .suggestions-dropdown {
-       position: absolute;
-       top: calc(60px); /* Adjust this value based on the input field's bottom position within its section */
-       left: 20px;
-       right: 20px;
-       background-color: var(--card-bg);
-       border: 1px solid var(--border-color);
-       border-top: none;
-       border-radius: 0 0 8px 8px;
-       box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-       max-height: 200px;
-       overflow-y: auto;
-       z-index: 100;
-       display: none;
-       list-style: none;
-       padding: 0;
-       margin: 0;
+        position: absolute;
+        /* Adjusted top to be relative to the foodInput's parent section, plus input height and margin */
+        top: calc(100% + 5px); /* Position below the foodInput within the .section */
+        left: 20px;
+        right: 20px;
+        background-color: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-top: none;
+        border-radius: 0 0 8px 8px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        max-height: 200px;
+        overflow-y: auto;
+        z-index: 100;
+        display: none;
+        list-style: none;
+        padding: 0;
+        margin: 0;
     }
     .dark-mode .suggestions-dropdown {
         box-shadow: 0 4px 6px rgba(0,0,0,0.3);
@@ -445,12 +450,12 @@
     }
 
      .meal-photo-log img {
-       max-height: 100px; /* Adjust this value as needed */
-       width: auto; /* Keep aspect ratio */
-       display: block; /* Prevent extra space below the image */
-       margin: 10px auto; /* Center the image in the row */
-       border-radius: 8px;
-       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        max-height: 100px; /* Adjust this value as needed */
+        width: auto; /* Keep aspect ratio */
+        display: block; /* Prevent extra space below the image */
+        margin: 10px auto; /* Center the image in the row */
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
 </style>
 </head>
@@ -515,7 +520,12 @@
     <button id="resetHistoryBtn" class="reset-button">Reset All History</button>
 </div>
 
-<div id="imageModalBg" class="modal-bg"><img id="modalImage" alt="Meal photo" /></div>
+<div id="imageModalBg" class="modal-bg">
+    <div class="modal-content">
+        <span class="modal-close" id="closeImageModal">&times;</span>
+        <img id="modalImage" alt="Meal photo" style="max-width: 100%; height: auto; display: block; margin: 0 auto;"/>
+    </div>
+</div>
 
 <div id="settingsModalBg" class="modal-bg">
     <div class="modal-content">
@@ -607,6 +617,7 @@
 
     const imageModalBg = document.getElementById("imageModalBg");
     const modalImage = document.getElementById("modalImage");
+    const closeImageModal = document.getElementById("closeImageModal"); // New: Close button for image modal
     const darkModeToggle = document.getElementById('darkModeToggle');
 
     const foodInfoModalBg = document.getElementById("foodInfoModalBg");
@@ -710,7 +721,7 @@
     foodInput.addEventListener('keydown', handleFoodInputKeydown);
 
     function showFoodSuggestions() {
-        const inputVal = normalizeName(foodInput.value);
+        const inputVal = foodInput.value.trim(); // Use raw input for display, normalize for search
         foodSuggestionsDiv.innerHTML = '';
         currentSuggestions = [];
         selectedSuggestionIndex = -1;
@@ -721,19 +732,21 @@
         }
 
         const foodNames = Object.keys(foodsDatabase);
+        const normalizedInputVal = normalizeName(inputVal); // Normalize for matching
 
-        const matchingFoods = foodNames.filter(name => name.startsWith(inputVal))
-                                        .sort((a, b) => a.localeCompare(b));
+        const matchingFoods = foodNames.filter(name => name.startsWith(normalizedInputVal))
+                                        .sort((a, b) => foodsDatabase[a].name.localeCompare(foodsDatabase[b].name)); // Sort by original name
 
         if (matchingFoods.length > 0) {
-            matchingFoods.forEach(foodName => {
+            matchingFoods.forEach(foodNormalizedName => {
                 const suggestionItem = document.createElement('div');
                 suggestionItem.classList.add('suggestion-item');
-                suggestionItem.textContent = foodsDatabase[foodName].name; // Display original name from database
-                suggestionItem.dataset.foodName = foodName;
+                suggestionItem.textContent = foodsDatabase[foodNormalizedName].name; // Display original name from database
+                suggestionItem.dataset.foodName = foodNormalizedName; // Store normalized name for lookup
 
                 suggestionItem.addEventListener('click', () => {
                     foodInput.value = suggestionItem.textContent;
+                    foodInput.dataset.selectedNormalizedFood = suggestionItem.dataset.foodName; // Store normalized name for submission
                     foodSuggestionsDiv.style.display = 'none';
                 });
                 foodSuggestionsDiv.appendChild(suggestionItem);
@@ -744,6 +757,7 @@
             foodSuggestionsDiv.style.display = 'none';
         }
     }
+
 
     function hideFoodSuggestions() {
         foodSuggestionsDiv.style.display = 'none';
@@ -781,11 +795,13 @@
                 selectedItem.classList.add('selected');
                 selectedItem.scrollIntoView({ block: 'nearest' });
                 foodInput.value = selectedItem.textContent;
+                foodInput.dataset.selectedNormalizedFood = selectedItem.dataset.foodName; // Set the normalized name on selection
             }
         } else if (e.key === 'Enter') {
             addMealBtn.click();
         }
     }
+
 
     document.addEventListener('click', (e) => {
         if (!foodInput.contains(e.target) && !foodSuggestionsDiv.contains(e.target)) {
@@ -795,9 +811,10 @@
 
     // === Add meal to log ===
     addMealBtn.addEventListener("click", () => {
-        const foodNameRaw = foodInput.value;
-        const normName = normalizeName(foodNameRaw);
-        if (!foodNameRaw.trim()) {
+        const foodNameRaw = foodInput.value.trim();
+        const normName = foodInput.dataset.selectedNormalizedFood || normalizeName(foodNameRaw); // Use stored normalized name or re-normalize
+        
+        if (!foodNameRaw) {
             alert("Please enter a food name.");
             return;
         }
@@ -860,6 +877,7 @@
         foodInput.value = "";
         amountInput.value = "";
         mealPhotoInput.value = "";
+        foodInput.dataset.selectedNormalizedFood = ""; // Clear stored normalized name
         hideFoodSuggestions();
     }
 
@@ -909,6 +927,20 @@
                 showFoodInfoModal(meal.normalizedName);
             });
             foodNameCell.appendChild(infoBtn); // Append info button under food name
+
+            // NEW: Show Image Button
+            if (meal.photo) {
+                const showImageBtn = document.createElement("button");
+                showImageBtn.textContent = "Show";
+                showImageBtn.classList.add("btn-info", "btn-show-image"); // Added btn-show-image class
+                showImageBtn.title = `Show photo for ${meal.name}`;
+                showImageBtn.addEventListener("click", () => {
+                    modalImage.src = meal.photo;
+                    imageModalBg.classList.add("show");
+                });
+                foodNameCell.appendChild(showImageBtn); // Append show image button next to info button
+            }
+
             div.appendChild(foodNameCell);
 
 
@@ -944,78 +976,57 @@
 
             const bloatCell = document.createElement('div');
             bloatCell.classList.add('grid-cell');
-            bloatCell.textContent = meal.bloatScale;
+            bloatCell.textContent = `${meal.bloatScale}/10`;
             div.appendChild(bloatCell);
 
-            // Delete button cell
-            const btnsCell = document.createElement('div');
-            btnsCell.classList.add('grid-cell', 'actions');
-
-            const delBtn = document.createElement("button");
-            delBtn.textContent = "X"; // Changed to 'X'
-            delBtn.classList.add("btn-danger");
-            delBtn.title = "Delete this meal from log";
-            delBtn.addEventListener("click", () => {
-                if (confirm(`Delete meal "${meal.name}"?`)) {
-                    dailyLog.splice(i, 1);
-                    saveLog(dailyLog);
-                    renderMealHistory();
-                    updateTotalsAndProgress();
-                }
+            const actionsCell = document.createElement('div');
+            actionsCell.classList.add('grid-cell', 'actions');
+            const deleteBtn = document.createElement("button");
+            deleteBtn.textContent = "X";
+            deleteBtn.classList.add("btn-danger");
+            deleteBtn.title = `Delete ${meal.name}`;
+            deleteBtn.addEventListener("click", () => {
+                dailyLog.splice(i, 1);
+                saveLog(dailyLog);
+                renderMealHistory();
+                updateTotalsAndProgress();
             });
-            btnsCell.appendChild(delBtn);
+            actionsCell.appendChild(deleteBtn);
+            div.appendChild(actionsCell);
 
-            div.appendChild(btnsCell);
             mealLogGrid.appendChild(div);
-
-            // Photo display (if available) - spans all columns
-            if (meal.photo) {
-                const photoDiv = document.createElement('div');
-                photoDiv.classList.add('meal-photo-log');
-                const img = document.createElement('img');
-                img.src = meal.photo;
-                img.alt = `Photo of ${meal.name}`;
-                photoDiv.appendChild(img);
-                mealLogGrid.appendChild(photoDiv);
-            }
         });
-        mealLogContainer.appendChild(mealLogGrid);
         mealHistoryDiv.appendChild(mealLogContainer);
+        mealLogContainer.appendChild(mealLogGrid);
     }
 
-    // === Update totals and calorie progress bar ===
+    // === Update totals and progress bar ===
     function updateTotalsAndProgress() {
-        let totalCalories = 0,
-            totalProtein = 0,
-            totalFat = 0,
-            totalCarbs = 0,
-            totalSugar = 0,
-            totalSodium = 0,
-            totalBloatScale = 0;
+        const totals = dailyLog.reduce((acc, meal) => {
+            acc.calories += meal.calories;
+            acc.protein += meal.protein;
+            acc.fat += meal.fat;
+            acc.carbs += meal.carbs;
+            acc.sugar += meal.sugar;
+            acc.sodium += meal.sodium;
+            acc.bloatScale += meal.bloatScale;
+            return acc;
+        }, { calories: 0, protein: 0, fat: 0, carbs: 0, sugar: 0, sodium: 0, bloatScale: 0 });
 
-        dailyLog.forEach((meal) => {
-            totalCalories += meal.calories;
-            totalProtein += meal.protein;
-            totalFat += meal.fat;
-            totalCarbs += meal.carbs;
-            totalSugar += meal.sugar;
-            totalSodium += meal.sodium;
-            totalBloatScale += meal.bloatScale;
-        });
+        totalCaloriesSpan.textContent = fmt(totals.calories);
+        totalProteinSpan.textContent = fmt(totals.protein);
+        totalFatSpan.textContent = fmt(totals.fat);
+        totalCarbsSpan.textContent = fmt(totals.carbs);
+        totalSugarSpan.textContent = fmt(totals.sugar);
+        totalSodiumSpan.textContent = fmt(totals.sodium);
+        totalBloatScaleSpan.textContent = fmt(totals.bloatScale);
 
-        totalCaloriesSpan.textContent = fmt(totalCalories);
-        totalProteinSpan.textContent = fmt(totalProtein);
-        totalFatSpan.textContent = fmt(totalFat);
-        totalCarbsSpan.textContent = fmt(totalCarbs);
-        totalSugarSpan.textContent = fmt(totalSugar);
-        totalSodiumSpan.textContent = fmt(totalSodium);
-        totalBloatScaleSpan.textContent = totalBloatScale;
-
-        const pct = Math.min((totalCalories / settings.calorieGoal) * 100, 100);
-        calorieProgressBar.style.width = pct + "%";
+        const caloriePercentage = (totals.calories / settings.calorieGoal) * 100;
+        calorieProgressBar.style.width = `${Math.min(caloriePercentage, 100)}%`;
+        calorieProgressBar.style.backgroundColor = caloriePercentage > 100 ? 'var(--danger-color)' : 'var(--success-color)';
     }
 
-    // === Settings Modal functionality ===
+    // === Modals functionality ===
     openSettingsModalBtn.addEventListener("click", () => {
         calorieGoalInput.value = settings.calorieGoal;
         unitPreferenceSelect.value = settings.unitPreference;
@@ -1026,74 +1037,72 @@
         settingsModalBg.classList.remove("show");
     });
 
-    settingsModalBg.addEventListener('click', (e) => {
+    settingsModalBg.addEventListener("click", (e) => {
         if (e.target === settingsModalBg) {
             settingsModalBg.classList.remove("show");
         }
     });
 
     saveSettingsBtn.addEventListener("click", () => {
-        const goal = parseInt(calorieGoalInput.value, 10);
-        if (isNaN(goal) || goal < 500 || goal > 10000) {
-            alert("Please enter a valid calorie goal between 500 and 10000.");
+        const newGoal = parseInt(calorieGoalInput.value);
+        if (!isNaN(newGoal) && newGoal > 0) {
+            settings.calorieGoal = newGoal;
+        } else {
+            alert("Please enter a valid calorie goal.");
             return;
         }
-        settings.calorieGoal = goal;
         settings.unitPreference = unitPreferenceSelect.value;
         saveSettings(settings);
-        updateTotalsAndProgress(); // Update totals to reflect new goal
+        updateTotalsAndProgress();
         settingsModalBg.classList.remove("show");
-        alert("Settings saved successfully!");
     });
 
+    // Close image modal
+    closeImageModal.addEventListener("click", () => {
+        imageModalBg.classList.remove("show");
+        modalImage.src = ""; // Clear the image source
+    });
 
-    // === Image Modal functionality ===
-    imageModalBg.addEventListener('click', (e) => {
-        if (e.target === imageModalBg || e.target === modalImage) {
+    imageModalBg.addEventListener("click", (e) => {
+        if (e.target === imageModalBg) {
             imageModalBg.classList.remove("show");
+            modalImage.src = ""; // Clear the image source
         }
     });
 
-    // === Food Info Modal functionality ===
+    // Food Info Modal
     function showFoodInfoModal(normalizedFoodName) {
-        const foodData = foodsDatabase[normalizedFoodName];
-        if (!foodData) {
-            alert("Food data not found for this item.");
+        const food = foodsDatabase[normalizedFoodName];
+        if (!food) {
+            alert("Food details not found.");
             return;
         }
 
-        foodInfoTitle.textContent = foodData.name;
-        infoCalories100g.textContent = fmt(foodData.caloriesPer100g || 0);
-        infoProtein100g.textContent = fmt(foodData.proteinPer100g || 0);
-        infoFat100g.textContent = fmt(foodData.fatPer100g || 0);
-        infoCarbs100g.textContent = fmt(foodData.carbsPer100g || 0);
-        infoSugar100g.textContent = fmt(foodData.sugarPer100g || 0);
-        infoSodium100g.textContent = fmt(foodData.sodiumPer100g || 0);
-        infoBloatScale100g.textContent = foodData.bloatScale !== undefined ? foodData.bloatScale : 'N/A';
+        foodInfoTitle.textContent = food.name;
+        infoCalories100g.textContent = fmt(food.caloriesPer100g);
+        infoProtein100g.textContent = fmt(food.proteinPer100g);
+        infoFat100g.textContent = fmt(food.fatPer100g);
+        infoCarbs100g.textContent = fmt(food.carbsPer100g);
+        infoSugar100g.textContent = fmt(food.sugarPer100g);
+        infoSodium100g.textContent = fmt(food.sodiumPer100g);
+        infoBloatScale100g.textContent = food.bloatScale;
 
-        if (foodData.weightPerUnit) {
-            const servingMacros = calculateMacros(foodData, 1, 'servings');
-            infoServingSize.textContent = `${fmt(foodData.weightPerUnit)} g`;
-            infoCaloriesServing.textContent = fmt(servingMacros.calories);
-            infoProteinServing.textContent = fmt(servingMacros.protein);
-            infoFatServing.textContent = fmt(servingMacros.fat);
-            infoCarbsServing.textContent = fmt(servingMacros.carbs);
-            infoSugarServing.textContent = fmt(servingMacros.sugar);
-            infoSodiumServing.textContent = fmt(servingMacros.sodium);
-        } else {
-            infoServingSize.textContent = 'N/A';
-            infoCaloriesServing.textContent = 'N/A';
-            infoProteinServing.textContent = 'N/A';
-            infoFatServing.textContent = 'N/A';
-            infoCarbsServing.textContent = 'N/A';
-            infoSugarServing.textContent = 'N/A';
-            infoSodiumServing.textContent = 'N/A';
-        }
+        const servingSize = food.weightPerUnit || 100; // Default to 100g if serving size not defined
+        const servingFactor = servingSize / 100;
 
-        const searchTerm = encodeURIComponent(foodData.name);
-        woolworthsLink.href = `https://www.woolworths.co.nz/shop/search/products?searchTerm=${searchTerm}`;
-        paknsaveLink.href = `https://www.paknsave.co.nz/shop/search/products?q=${searchTerm}`;
-        newworldLink.href = `https://www.newworld.co.nz/shop/search/products?q=${searchTerm}`;
+        infoServingSize.textContent = convertWeightToPreferredUnit(servingSize);
+        infoCaloriesServing.textContent = fmt(food.caloriesPer100g * servingFactor);
+        infoProteinServing.textContent = fmt(food.proteinPer100g * servingFactor);
+        infoFatServing.textContent = fmt(food.fatPer100g * servingFactor);
+        infoCarbsServing.textContent = fmt(food.carbsPer100g * servingFactor);
+        infoSugarServing.textContent = fmt(food.sugarPer100g * servingFactor);
+        infoSodiumServing.textContent = fmt(food.sodiumPer100g * servingFactor);
+
+        const searchQuery = encodeURIComponent(food.name);
+        woolworthsLink.href = `https://www.woolworths.co.nz/shop/search/products?searchTerm=${searchQuery}`;
+        paknsaveLink.href = `https://www.paknsave.co.nz/shop/legacy/products?q=${searchQuery}`;
+        newworldLink.href = `https://www.newworld.co.nz/shop/legacy/products?q=${searchQuery}`;
+
 
         foodInfoModalBg.classList.add("show");
     }
@@ -1102,29 +1111,33 @@
         foodInfoModalBg.classList.remove("show");
     });
 
-    foodInfoModalBg.addEventListener('click', (e) => {
+    foodInfoModalBg.addEventListener("click", (e) => {
         if (e.target === foodInfoModalBg) {
             foodInfoModalBg.classList.remove("show");
         }
     });
 
-    // NEW: Reset History Button functionality
-    resetHistoryBtn.addEventListener("click", function() {
-        if (confirm("Are you absolutely sure you want to delete ALL meal history? This action cannot be undone.")) {
-            localStorage.removeItem(STORAGE_LOG_KEY); // Clear from localStorage
-            dailyLog = []; // Clear in-memory array
-            renderMealHistory(); // Update UI to show empty log
-            updateTotalsAndProgress(); // Reset totals display
-            alert("All meal history has been permanently reset.");
+    // NEW: Reset History Functionality
+    resetHistoryBtn.addEventListener("click", () => {
+        if (confirm("Are you sure you want to reset all your meal history and settings? This cannot be undone.")) {
+            dailyLog = [];
+            settings = {
+                calorieGoal: 2500,
+                unitPreference: "metric",
+            };
+            saveLog(dailyLog);
+            saveSettings(settings);
+            renderMealHistory();
+            updateTotalsAndProgress();
+            alert("All history and settings have been reset.");
         }
     });
 
+
     // === Initial load ===
-    document.addEventListener("DOMContentLoaded", () => {
-        initDarkMode();
-        renderMealHistory();
-        updateTotalsAndProgress();
-    });
+    initDarkMode();
+    renderMealHistory();
+    updateTotalsAndProgress();
 </script>
 </body>
 </html>
