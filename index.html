@@ -579,6 +579,15 @@
     </div>
 </div>
 
+<div id="allFoodsModalBg" class="modal-bg">
+    <div class="modal-content">
+        <span class="modal-close" id="closeAllFoodsModal">&times;</span>
+        <h2>All Available Foods</h2>
+        <input type="text" id="allFoodsSearchInput" placeholder="Search foods..." style="width: 100%; padding: 8px; margin-bottom: 15px; border-radius: 5px; border: 1px solid var(--border-color); background-color: var(--card-bg); color: var(--text-color);">
+        <div id="allFoodsList" style="max-height: 400px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 8px;">
+        </div>
+    </div>
+</div>
 <script src="foodDatabase.js"></script>
 
 <script defer>
@@ -990,28 +999,29 @@ function renderAllFoodsList(searchTerm = "") {
                 showFoodInfoModal(meal.normalizedName);
             });
 
-            // ... existing modal event listeners ...
+            // NEW: All Foods Modal Functionality
+            // This section was previously in a comment block, moved here to ensure it's executed.
+            showAllFoodsBtn.addEventListener("click", () => {
+                allFoodsSearchInput.value = ""; // Clear search when opening
+                renderAllFoodsList(""); // Render all foods initially
+                allFoodsModalBg.classList.add("show");
+            });
 
-// NEW: All Foods Modal Functionality
-showAllFoodsBtn.addEventListener("click", () => {
-    allFoodsSearchInput.value = ""; // Clear search when opening
-    renderAllFoodsList(""); // Render all foods initially
-    allFoodsModalBg.classList.add("show");
-});
+            closeAllFoodsModal.addEventListener("click", () => {
+                allFoodsModalBg.classList.remove("show");
+            });
 
-closeAllFoodsModal.addEventListener("click", () => {
-    allFoodsModalBg.classList.remove("show");
-});
+            allFoodsModalBg.addEventListener("click", (e) => {
+                if (e.target === allFoodsModalBg) {
+                    allFoodsModalBg.classList.remove("show");
+                }
+            });
 
-allFoodsModalBg.addEventListener("click", (e) => {
-    if (e.target === allFoodsModalBg) {
-        allFoodsModalBg.classList.remove("show");
-    }
-});
+            allFoodsSearchInput.addEventListener("input", (e) => {
+                renderAllFoodsList(e.target.value);
+            });
+            // End of All Foods Modal Functionality - this listener should not be inside `forEach` loop
 
-allFoodsSearchInput.addEventListener("input", (e) => {
-    renderAllFoodsList(e.target.value);
-});
             foodNameCell.appendChild(infoBtn); // Append info button under food name
 
             // NEW: Show Image Button
@@ -1219,20 +1229,33 @@ allFoodsSearchInput.addEventListener("input", (e) => {
         }
     });
 
+    // NEW: All Foods Modal Functionality - Moved outside renderMealHistory
+    // These listeners should only be attached once when the script loads
+    showAllFoodsBtn.addEventListener("click", () => {
+        allFoodsSearchInput.value = ""; // Clear search when opening
+        renderAllFoodsList(""); // Render all foods initially
+        allFoodsModalBg.classList.add("show");
+    });
+
+    closeAllFoodsModal.addEventListener("click", () => {
+        allFoodsModalBg.classList.remove("show");
+    });
+
+    allFoodsModalBg.addEventListener("click", (e) => {
+        if (e.target === allFoodsModalBg) {
+            allFoodsModalBg.classList.remove("show");
+        }
+    });
+
+    allFoodsSearchInput.addEventListener("input", (e) => {
+        renderAllFoodsList(e.target.value);
+    });
+
 
     // === Initial load ===
     initDarkMode();
     renderMealHistory();
     updateTotalsAndProgress();
-    <div id="allFoodsModalBg" class="modal-bg">
-    <div class="modal-content">
-        <span class="modal-close" id="closeAllFoodsModal">&times;</span>
-        <h2>All Available Foods</h2>
-        <input type="text" id="allFoodsSearchInput" placeholder="Search foods..." style="width: 100%; padding: 8px; margin-bottom: 15px; border-radius: 5px; border: 1px solid var(--border-color); background-color: var(--card-bg); color: var(--text-color);">
-        <div id="allFoodsList" style="max-height: 400px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 8px;">
-            </div>
-    </div>
-</div>
 </script>
 </body>
 </html>
