@@ -496,6 +496,10 @@
     <button id="openSettingsModalBtn" class="btn-info">Settings ⚙️</button>
 </div>
 
+<div class="section">
+    <button id="showAllFoodsBtn" class="btn-info">Show All Foods 🍔</button>
+</div>
+
 <div class="section" id="totalsSection">
     <h2>Daily Totals</h2>
     <div>Calories: <span id="totalCalories">0</span> kcal</div>
@@ -640,6 +644,12 @@
     const woolworthsLink = document.getElementById("woolworthsLink");
     const paknsaveLink = document.getElementById("paknsaveLink");
     const newworldLink = document.getElementById("newworldLink");
+
+    const showAllFoodsBtn = document.getElementById("showAllFoodsBtn"); // NEW
+    const allFoodsModalBg = document.getElementById("allFoodsModalBg"); // NEW
+    const closeAllFoodsModal = document.getElementById("closeAllFoodsModal"); // NEW
+    const allFoodsList = document.getElementById("allFoodsList"); // NEW
+    const allFoodsSearchInput = document.getElementById("allFoodsSearchInput"); // NEW
 
     // NEW: Reset History Button element
     const resetHistoryBtn = document.getElementById("resetHistoryBtn");
@@ -880,7 +890,60 @@
         foodInput.dataset.selectedNormalizedFood = ""; // Clear stored normalized name
         hideFoodSuggestions();
     }
+   // ... existing functions ...
 
+// NEW: Function to render all foods in the modal
+function renderAllFoodsList(searchTerm = "") {
+    allFoodsList.innerHTML = "";
+    const normalizedSearchTerm = normalizeName(searchTerm);
+
+    // Sort food names alphabetically by their original name
+    const sortedFoodNames = Object.keys(foodsDatabase).sort((a, b) =>
+        foodsDatabase[a].name.localeCompare(foodsDatabase[b].name)
+    );
+
+    const fragment = document.createDocumentFragment(); // Use a document fragment for better performance
+
+    sortedFoodNames.forEach(normalizedFoodName => {
+        const food = foodsDatabase[normalizedFoodName];
+        if (food.name.toLowerCase().includes(searchTerm.toLowerCase())) {
+            const foodItemDiv = document.createElement("div");
+            foodItemDiv.classList.add("suggestion-item"); // Reuse existing style for list items
+            foodItemDiv.style.display = "flex"; // Use flexbox for layout
+            foodItemDiv.style.justifyContent = "space-between"; // Space between name and info button
+            foodItemDiv.style.alignItems = "center"; // Align items vertically
+            foodItemDiv.style.paddingRight = "10px"; // Add some padding on the right
+
+            const foodNameSpan = document.createElement("span");
+            foodNameSpan.textContent = food.name;
+            foodItemDiv.appendChild(foodNameSpan);
+
+            const infoButton = document.createElement("button");
+            infoButton.textContent = "Info";
+            infoButton.classList.add("btn-info");
+            infoButton.style.padding = "4px 8px"; // Smaller button
+            infoButton.style.fontSize = "0.7em";
+            infoButton.style.marginTop = "0"; // Override default margin
+            infoButton.style.marginLeft = "10px"; // Space from text
+            infoButton.addEventListener("click", (event) => {
+                event.stopPropagation(); // Prevent modal from closing if clicked
+                showFoodInfoModal(normalizedFoodName);
+            });
+            foodItemDiv.appendChild(infoButton);
+
+            fragment.appendChild(foodItemDiv);
+        }
+    });
+
+    if (fragment.children.length === 0) {
+        const noResultsDiv = document.createElement("div");
+        noResultsDiv.classList.add("empty-state");
+        noResultsDiv.textContent = "No foods found matching your search.";
+        allFoodsList.appendChild(noResultsDiv);
+    } else {
+        allFoodsList.appendChild(fragment);
+    }
+}
     // === Render meal log ===
     function renderMealHistory() {
         mealHistoryDiv.innerHTML = "";
@@ -926,6 +989,29 @@
             infoBtn.addEventListener("click", () => {
                 showFoodInfoModal(meal.normalizedName);
             });
+
+            // ... existing modal event listeners ...
+
+// NEW: All Foods Modal Functionality
+showAllFoodsBtn.addEventListener("click", () => {
+    allFoodsSearchInput.value = ""; // Clear search when opening
+    renderAllFoodsList(""); // Render all foods initially
+    allFoodsModalBg.classList.add("show");
+});
+
+closeAllFoodsModal.addEventListener("click", () => {
+    allFoodsModalBg.classList.remove("show");
+});
+
+allFoodsModalBg.addEventListener("click", (e) => {
+    if (e.target === allFoodsModalBg) {
+        allFoodsModalBg.classList.remove("show");
+    }
+});
+
+allFoodsSearchInput.addEventListener("input", (e) => {
+    renderAllFoodsList(e.target.value);
+});
             foodNameCell.appendChild(infoBtn); // Append info button under food name
 
             // NEW: Show Image Button
@@ -1138,6 +1224,15 @@
     initDarkMode();
     renderMealHistory();
     updateTotalsAndProgress();
+    <div id="allFoodsModalBg" class="modal-bg">
+    <div class="modal-content">
+        <span class="modal-close" id="closeAllFoodsModal">&times;</span>
+        <h2>All Available Foods</h2>
+        <input type="text" id="allFoodsSearchInput" placeholder="Search foods..." style="width: 100%; padding: 8px; margin-bottom: 15px; border-radius: 5px; border: 1px solid var(--border-color); background-color: var(--card-bg); color: var(--text-color);">
+        <div id="allFoodsList" style="max-height: 400px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 8px;">
+            </div>
+    </div>
+</div>
 </script>
 </body>
 </html>
