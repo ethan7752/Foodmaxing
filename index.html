@@ -435,7 +435,44 @@
             object-fit: contain; /* Ensure image is fully visible */
         }
 
+        .store-links {
+            margin-top: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center; /* Center the links */
+        }
+
+        .store-links a {
+            display: inline-block;
+            padding: 8px 15px;
+            background-color: var(--info-color);
+            color: white;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 0.9em;
+            transition: background-color 0.3s;
+        }
+
+        .store-links a:hover {
+            background-color: var(--info-hover);
+        }
+
+
         /* All Foods Modal Specifics */
+        .all-foods-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap; /* Allow wrapping on smaller screens */
+        }
+
+        .all-foods-controls input,
+        .all-foods-controls select {
+            flex: 1; /* Allow inputs to grow */
+            min-width: 120px; /* Minimum width for inputs */
+        }
+
         .all-foods-list {
             margin-top: 20px;
             max-height: 400px; /* Fixed height for scrolling */
@@ -488,6 +525,7 @@
             <h1>DietMax.io</h1>
             <div>
                 <button id="showAllFoodsBtn" class="btn-info">Show All Foods</button>
+                <button id="showSettingsBtn" class="btn-info">Settings</button>
                 <button id="darkModeToggle" class="btn-primary">Toggle Dark Mode</button>
             </div>
         </div>
@@ -556,12 +594,27 @@
                 </ul>
             <button id="resetHistoryBtn" class="btn-reset">Reset History</button>
         </section>
+    </div>
 
-        <section class="settings-section">
-            <h2>Settings</h2>
+    <div id="settingsModalBg" class="modal-background">
+        <div class="modal-content">
+            <span class="close-button" id="closeSettingsModal">&times;</span>
+            <h3>Settings</h3>
             <div class="form-group">
                 <label for="calorieGoalInput">Daily Calorie Goal:</label>
                 <input type="number" id="calorieGoalInput" value="2500" min="500" step="100" />
+            </div>
+            <div class="form-group">
+                <label for="proteinGoalInput">Daily Protein Goal (g):</label>
+                <input type="number" id="proteinGoalInput" value="100" min="0" step="10" />
+            </div>
+            <div class="form-group">
+                <label for="fatGoalInput">Daily Fat Goal (g):</label>
+                <input type="number" id="fatGoalInput" value="70" min="0" step="5" />
+            </div>
+            <div class="form-group">
+                <label for="carbGoalInput">Daily Carb Goal (g):</label>
+                <input type="number" id="carbGoalInput" value="300" min="0" step="10" />
             </div>
             <div class="form-group">
                 <label for="unitPreferenceSelect">Unit Preference:</label>
@@ -573,8 +626,9 @@
             <div class="settings-actions">
                 <button id="saveSettingsBtn" class="btn-primary">Save Settings</button>
             </div>
-        </section>
+        </div>
     </div>
+
 
     <div id="foodInfoModalBg" class="modal-background">
         <div class="modal-content">
@@ -594,6 +648,11 @@
                 <img id="modalFoodImage" src="" alt="Food Image" style="display: none;">
                 <span id="imagePlaceholderText">No Image Available</span>
             </div>
+            <div class="store-links">
+                <a id="woolworthsLink" href="#" target="_blank">Search Woolworths</a>
+                <a id="paknsaveLink" href="#" target="_blank">Search Pak'nSave</a>
+                <a id="newworldLink" href="#" target="_blank">Search New World</a>
+            </div>
         </div>
     </div>
 
@@ -601,7 +660,15 @@
         <div class="modal-content">
             <span class="close-button" id="closeAllFoodsModal">&times;</span>
             <h3>All Available Foods</h3>
-            <input type="text" id="allFoodsSearchInput" placeholder="Search foods..." />
+            <div class="all-foods-controls">
+                <input type="text" id="allFoodsSearchInput" placeholder="Search foods..." />
+                <select id="allFoodsSortSelect">
+                    <option value="name-asc">Name (A-Z)</option>
+                    <option value="name-desc">Name (Z-A)</option>
+                    <option value="calories-asc">Calories (Low to High)</option>
+                    <option value="calories-desc">Calories (High to Low)</option>
+                </select>
+            </div>
             <div id="allFoodsList" class="all-foods-list">
                 </div>
         </div>
@@ -631,10 +698,19 @@
         const averageBloatElement = document.getElementById("averageBloat");
         const autocompleteSuggestions = document.getElementById("autocomplete-suggestions");
         const resetHistoryBtn = document.getElementById("resetHistoryBtn");
+        const calorieProgressBar = document.getElementById("calorieProgressBar");
+
+        // Settings Modal Elements
+        const showSettingsBtn = document.getElementById("showSettingsBtn");
+        const settingsModalBg = document.getElementById("settingsModalBg");
+        const closeSettingsModal = document.getElementById("closeSettingsModal");
         const calorieGoalInput = document.getElementById("calorieGoalInput");
+        const proteinGoalInput = document.getElementById("proteinGoalInput");
+        const fatGoalInput = document.getElementById("fatGoalInput");
+        const carbGoalInput = document.getElementById("carbGoalInput");
         const unitPreferenceSelect = document.getElementById("unitPreferenceSelect");
         const saveSettingsBtn = document.getElementById("saveSettingsBtn");
-        const calorieProgressBar = document.getElementById("calorieProgressBar");
+
 
         // Food Info Modal Elements
         const foodInfoModalBg = document.getElementById("foodInfoModalBg");
@@ -651,6 +727,9 @@
         const modalWeightPerUnitValue = document.getElementById("modalWeightPerUnitValue");
         const modalFoodImage = document.getElementById("modalFoodImage");
         const imagePlaceholderText = document.getElementById("imagePlaceholderText");
+        const woolworthsLink = document.getElementById("woolworthsLink");
+        const paknsaveLink = document.getElementById("paknsaveLink");
+        const newworldLink = document.getElementById("newworldLink");
 
         // All Foods Modal Elements
         const showAllFoodsBtn = document.getElementById("showAllFoodsBtn");
@@ -658,11 +737,15 @@
         const closeAllFoodsModal = document.getElementById("closeAllFoodsModal");
         const allFoodsList = document.getElementById("allFoodsList");
         const allFoodsSearchInput = document.getElementById("allFoodsSearchInput");
+        const allFoodsSortSelect = document.getElementById("allFoodsSortSelect");
 
         // === Data Storage ===
         let dailyLog = JSON.parse(localStorage.getItem("dailyLog")) || [];
         let settings = JSON.parse(localStorage.getItem("settings")) || {
             calorieGoal: 2500,
+            proteinGoal: 100,
+            fatGoal: 70,
+            carbGoal: 300,
             unitPreference: "metric", // 'metric' or 'imperial'
         };
 
@@ -679,8 +762,12 @@
             localStorage.setItem("settings", JSON.stringify(s));
             // Update UI based on new settings immediately
             calorieGoalInput.value = s.calorieGoal;
+            proteinGoalInput.value = s.proteinGoal;
+            fatGoalInput.value = s.fatGoal;
+            carbGoalInput.value = s.carbGoal;
             unitPreferenceSelect.value = s.unitPreference;
             updateTotalsAndProgress(); // Recalculate totals for new goal
+            renderMealHistory(); // Re-render meal history to reflect unit changes
         }
 
         // === Dark Mode ===
@@ -813,7 +900,8 @@
                     displayQuantity = (meal.quantity / 28.35).toFixed(1); // Convert grams to ounces
                     displayUnit = "oz";
                 } else if (settings.unitPreference === "imperial" && meal.unit === "unit" && foodData && foodData.weightPerUnit) {
-                    displayQuantity = (meal.quantity * foodData.weightPerUnit / 28.35).toFixed(1); // Convert grams to ounces for units
+                    // If quantity is in units, convert to grams then to ounces
+                    displayQuantity = (meal.quantity * foodData.weightPerUnit / 28.35).toFixed(1);
                     displayUnit = "oz";
                 }
 
@@ -905,20 +993,53 @@
         }
 
         // === Settings ===
+        showSettingsBtn.addEventListener("click", () => {
+            // Load current settings into the modal input fields
+            calorieGoalInput.value = settings.calorieGoal;
+            proteinGoalInput.value = settings.proteinGoal;
+            fatGoalInput.value = settings.fatGoal;
+            carbGoalInput.value = settings.carbGoal;
+            unitPreferenceSelect.value = settings.unitPreference;
+            settingsModalBg.classList.add("show");
+        });
+
+        closeSettingsModal.addEventListener("click", () => {
+            settingsModalBg.classList.remove("show");
+        });
+
+        settingsModalBg.addEventListener("click", (e) => {
+            if (e.target === settingsModalBg) {
+                settingsModalBg.classList.remove("show");
+            }
+        });
+
         calorieGoalInput.addEventListener("input", () => {
             settings.calorieGoal = parseInt(calorieGoalInput.value) || 0;
             updateTotalsAndProgress(); // Update progress bar immediately
         });
 
+        proteinGoalInput.addEventListener("input", () => {
+            settings.proteinGoal = parseInt(proteinGoalInput.value) || 0;
+        });
+
+        fatGoalInput.addEventListener("input", () => {
+            settings.fatGoal = parseInt(fatGoalInput.value) || 0;
+        });
+
+        carbGoalInput.addEventListener("input", () => {
+            settings.carbGoal = parseInt(carbGoalInput.value) || 0;
+        });
+
         unitPreferenceSelect.addEventListener("change", () => {
             settings.unitPreference = unitPreferenceSelect.value;
             renderMealHistory(); // Re-render to show updated units
-            updateTotalsAndProgress(); // Recalculate if unit affects calculations
+            // No need to call updateTotalsAndProgress here, as it's called in saveSettings
         });
 
         saveSettingsBtn.addEventListener("click", () => {
             saveSettings(settings);
             alert("Settings saved!");
+            settingsModalBg.classList.remove("show"); // Close modal after saving
         });
 
         // === Food Info Modal ===
@@ -958,6 +1079,13 @@
                 imagePlaceholderText.style.display = "block";
             }
 
+            // Store links
+            const searchQuery = encodeURIComponent(modalFoodName.textContent);
+            woolworthsLink.href = `https://www.woolworths.co.nz/shop/search/products?searchTerm=${searchQuery}`;
+            paknsaveLink.href = `https://www.paknsave.co.nz/shop/legacy/products?q=${searchQuery}`;
+            newworldLink.href = `https://www.newworld.co.nz/shop/legacy/products?q=${searchQuery}`;
+
+
             foodInfoModalBg.classList.add("show");
         }
 
@@ -972,36 +1100,49 @@
         });
 
         // NEW: Function to render all foods in the modal
-        function renderAllFoodsList(searchTerm = "") {
+        function renderAllFoodsList() {
             allFoodsList.innerHTML = "";
-            const normalizedSearchTerm = normalizeName(searchTerm); // Normalize search term
+            const searchTerm = allFoodsSearchInput.value.trim();
+            const sortOrder = allFoodsSortSelect.value;
+            const normalizedSearchTerm = normalizeName(searchTerm);
 
-            // Filter and sort food names alphabetically by their original name
-            const sortedFoodNames = Object.keys(foodsDatabase)
-                .filter(normalizedName => normalizedName.includes(normalizedSearchTerm)) // Filter using normalized key
-                .sort((a, b) => {
-                    // Sort by the capitalized version of the normalized name
-                    const nameA = capitalizeFirstLetter(a);
-                    const nameB = capitalizeFirstLetter(b);
+            let filteredFoods = Object.keys(foodsDatabase)
+                .filter(normalizedName => normalizedName.includes(normalizedSearchTerm))
+                .map(normalizedName => ({
+                    normalizedName: normalizedName,
+                    foodData: foodsDatabase[normalizedName]
+                }));
+
+            filteredFoods.sort((a, b) => {
+                const nameA = capitalizeFirstLetter(a.normalizedName);
+                const nameB = capitalizeFirstLetter(b.normalizedName);
+
+                if (sortOrder === "name-asc") {
                     return nameA.localeCompare(nameB);
-                });
+                } else if (sortOrder === "name-desc") {
+                    return nameB.localeCompare(nameA);
+                } else if (sortOrder === "calories-asc") {
+                    return (a.foodData.caloriesPer100g || 0) - (b.foodData.caloriesPer100g || 0);
+                } else if (sortOrder === "calories-desc") {
+                    return (b.foodData.caloriesPer100g || 0) - (a.foodData.caloriesPer100g || 0);
+                }
+                return 0;
+            });
 
             const fragment = document.createDocumentFragment();
 
-            if (sortedFoodNames.length === 0) {
+            if (filteredFoods.length === 0) {
                 const noResultsDiv = document.createElement("div");
                 noResultsDiv.classList.add("empty-state");
-                noResultsDiv.textContent = "No foods found matching your search.";
+                noResultsDiv.textContent = "No foods found matching your search and filter criteria.";
                 fragment.appendChild(noResultsDiv);
             } else {
-                sortedFoodNames.forEach(normalizedName => {
-                    const food = foodsDatabase[normalizedName];
+                filteredFoods.forEach(({ normalizedName, foodData }) => {
                     const foodItemDiv = document.createElement("div");
                     foodItemDiv.classList.add("all-foods-list-item");
-                    // Use capitalized normalizedName for display
                     foodItemDiv.innerHTML = `
                         <span>${capitalizeFirstLetter(normalizedName)}</span>
-                        <p>Calories: ${food.caloriesPer100g || 'N/A'} kcal</p>
+                        <p>Calories: ${foodData.caloriesPer100g || 'N/A'} kcal</p>
                     `;
                     foodItemDiv.addEventListener("click", () => {
                         showFoodInfoInModal(normalizedName);
@@ -1026,10 +1167,13 @@
             dailyLog = [];
             settings = {
                 calorieGoal: 2500,
+                proteinGoal: 100,
+                fatGoal: 70,
+                carbGoal: 300,
                 unitPreference: "metric",
             };
             saveLog(dailyLog);
-            saveSettings(settings);
+            saveSettings(settings); // This will also update UI and totals
             renderMealHistory();
             updateTotalsAndProgress();
             alert("All history and settings have been reset.");
@@ -1040,7 +1184,8 @@
     // These listeners should only be attached once when the script loads
     showAllFoodsBtn.addEventListener("click", () => {
         allFoodsSearchInput.value = ""; // Clear search when opening
-        renderAllFoodsList(""); // Render all foods initially
+        allFoodsSortSelect.value = "name-asc"; // Reset sort to default
+        renderAllFoodsList(); // Render all foods initially
         allFoodsModalBg.classList.add("show");
     });
 
@@ -1054,16 +1199,31 @@
         }
     });
 
-    allFoodsSearchInput.addEventListener("input", (e) => {
-        renderAllFoodsList(e.target.value);
+    allFoodsSearchInput.addEventListener("input", () => {
+        renderAllFoodsList();
+    });
+
+    allFoodsSortSelect.addEventListener("change", () => {
+        renderAllFoodsList();
     });
 
 
     // === Initial load ===
     initDarkMode();
+    // Load settings from localStorage first, then use them for initial UI rendering
+    if (localStorage.getItem("settings")) {
+        settings = JSON.parse(localStorage.getItem("settings"));
+    }
+    // Set initial values for settings inputs
+    calorieGoalInput.value = settings.calorieGoal;
+    proteinGoalInput.value = settings.proteinGoal;
+    fatGoalInput.value = settings.fatGoal;
+    carbGoalInput.value = settings.carbGoal;
+    unitPreferenceSelect.value = settings.unitPreference;
+
     renderMealHistory();
-    updateTotalsAndProgress(); // Calculate totals on initial load
-    saveSettings(settings); // Ensure settings are loaded/saved on initial load
+    updateTotalsAndProgress();
+    // saveSettings(settings); // No need to save on initial load if just loading from localStorage
     </script>
 </body>
 </html>
