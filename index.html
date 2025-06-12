@@ -904,20 +904,19 @@
 // NEW: Function to render all foods in the modal
 function renderAllFoodsList(searchTerm = "") {
     allFoodsList.innerHTML = "";
-    const normalizedSearchTerm = normalizeName(searchTerm); // Use normalizeName for consistency
+    // const normalizedSearchTerm = normalizeName(searchTerm); // This line is not needed here
 
     // Filter and sort food names alphabetically by their original name
     const sortedFoodNames = Object.keys(foodsDatabase)
         .filter(normalizedName => {
             const food = foodsDatabase[normalizedName];
-            // Ensure food and food.name exist before including in the filtered list
+            // Check if food exists and its name contains the search term (case-insensitive)
             return food && food.name && food.name.toLowerCase().includes(searchTerm.toLowerCase());
         })
         .sort((a, b) => {
             const foodA = foodsDatabase[a];
             const foodB = foodsDatabase[b];
 
-            // Safely compare names, defaulting to an empty string if name is missing
             const nameA = foodA && foodA.name ? foodA.name : "";
             const nameB = foodB && foodB.name ? foodB.name : "";
 
