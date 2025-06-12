@@ -667,6 +667,12 @@
                     <option value="name-desc">Name (Z-A)</option>
                     <option value="calories-asc">Calories (Low to High)</option>
                     <option value="calories-desc">Calories (High to Low)</option>
+                    <option value="protein-asc">Protein (Low to High)</option>
+                    <option value="protein-desc">Protein (High to Low)</option>
+                    <option value="fat-asc">Fat (Low to High)</option>
+                    <option value="fat-desc">Fat (High to Low)</option>
+                    <option value="bloat-asc">Bloat (Low to High)</option>
+                    <option value="bloat-desc">Bloat (High to Low)</option>
                 </select>
             </div>
             <div id="allFoodsList" class="all-foods-list">
@@ -907,11 +913,11 @@
 
                 mealItem.innerHTML = `
                     <div class="meal-item-info">
-                        <h4>${meal.name}</h4>
-                        <p>${displayQuantity} ${displayUnit} - ${new Date(meal.timestamp).toLocaleString()}</p>
-                    </div>
-                    <div class="meal-item-actions">
-                        <button class="btn-info show-info-btn" data-normalized-name="${meal.normalizedName}">Info</button>
+                        <h4><span class="math-inline">\{meal\.name\}</h4\>
+<p\></span>{displayQuantity} ${displayUnit} - <span class="math-inline">\{new Date\(meal\.timestamp\)\.toLocaleString\(\)\}</p\>
+</div\>
+<div class\="meal\-item\-actions"\>
+<button class\="btn\-info show\-info\-btn" data\-normalized\-name\="</span>{meal.normalizedName}">Info</button>
                         <button class="btn-danger delete-btn" data-index="${index}">Delete</button>
                     </div>
                 `;
@@ -1125,6 +1131,18 @@
                     return (a.foodData.caloriesPer100g || 0) - (b.foodData.caloriesPer100g || 0);
                 } else if (sortOrder === "calories-desc") {
                     return (b.foodData.caloriesPer100g || 0) - (a.foodData.caloriesPer100g || 0);
+                } else if (sortOrder === "protein-asc") {
+                    return (a.foodData.proteinPer100g || 0) - (b.foodData.proteinPer100g || 0);
+                } else if (sortOrder === "protein-desc") {
+                    return (b.foodData.proteinPer100g || 0) - (a.foodData.proteinPer100g || 0);
+                } else if (sortOrder === "fat-asc") {
+                    return (a.foodData.fatPer100g || 0) - (b.foodData.fatPer100g || 0);
+                } else if (sortOrder === "fat-desc") {
+                    return (b.foodData.fatPer100g || 0) - (a.foodData.fatPer100g || 0);
+                } else if (sortOrder === "bloat-asc") {
+                    return (a.foodData.bloatScale || 0) - (b.foodData.bloatScale || 0);
+                } else if (sortOrder === "bloat-desc") {
+                    return (b.foodData.bloatScale || 0) - (a.foodData.bloatScale || 0);
                 }
                 return 0;
             });
@@ -1142,7 +1160,7 @@
                     foodItemDiv.classList.add("all-foods-list-item");
                     foodItemDiv.innerHTML = `
                         <span>${capitalizeFirstLetter(normalizedName)}</span>
-                        <p>Calories: ${foodData.caloriesPer100g || 'N/A'} kcal</p>
+                        <p>Calories: ${foodData.caloriesPer100g || 'N/A'} kcal | Protein: ${foodData.proteinPer100g || 'N/A'}g | Fat: ${foodData.fatPer100g || 'N/A'}g | Bloat: ${foodData.bloatScale || 'N/A'}/5</p>
                     `;
                     foodItemDiv.addEventListener("click", () => {
                         showFoodInfoInModal(normalizedName);
