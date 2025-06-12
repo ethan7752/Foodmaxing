@@ -77,6 +77,14 @@
             border-bottom: 1px solid var(--border-color);
         }
 
+        .main-header-buttons { /* New style for buttons under title */
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+
         .form-group {
             margin-bottom: 15px;
         }
@@ -352,6 +360,7 @@
             margin-top: 20px;
             display: flex;
             gap: 10px;
+            justify-content: flex-end; /* Align buttons to the right */
         }
 
         /* Modal Styles */
@@ -524,10 +533,12 @@
         <div class="header-controls">
             <h1>DietMax.io</h1>
             <div>
-                <button id="showAllFoodsBtn" class="btn-info">Show All Foods</button>
                 <button id="showSettingsBtn" class="btn-info">Settings</button>
-                <button id="darkModeToggle" class="btn-primary">Toggle Dark Mode</button>
             </div>
+        </div>
+
+        <div class="main-header-buttons">
+            <button id="showAllFoodsBtn" class="btn-info">Show All Foods</button>
         </div>
 
         <section id="add-meal-section">
@@ -624,6 +635,7 @@
                 </select>
             </div>
             <div class="settings-actions">
+                <button id="darkModeToggle" class="btn-primary">Toggle Dark Mode</button>
                 <button id="saveSettingsBtn" class="btn-primary">Save Settings</button>
             </div>
         </div>
@@ -804,7 +816,7 @@
             }
 
             const meal = {
-                name: foodName, // Store original input name
+                name: capitalizeFirstLetter(foodName), // Store original input name, capitalized
                 normalizedName: normalizedFoodName, // Store normalized name for database lookup
                 quantity: quantity,
                 unit: unit,
@@ -913,11 +925,11 @@
 
                 mealItem.innerHTML = `
                     <div class="meal-item-info">
-                        <h4><span class="math-inline">\{meal\.name\}</h4\>
-<p\></span>{displayQuantity} ${displayUnit} - <span class="math-inline">\{new Date\(meal\.timestamp\)\.toLocaleString\(\)\}</p\>
-</div\>
-<div class\="meal\-item\-actions"\>
-<button class\="btn\-info show\-info\-btn" data\-normalized\-name\="</span>{meal.normalizedName}">Info</button>
+                        <h4>${meal.name}</h4>
+                        <p>${displayQuantity} ${displayUnit} - ${new Date(meal.timestamp).toLocaleString()}</p>
+                    </div>
+                    <div class="meal-item-actions">
+                        <button class="btn-info show-info-btn" data-normalized-name="${meal.normalizedName}">Info</button>
                         <button class="btn-danger delete-btn" data-index="${index}">Delete</button>
                     </div>
                 `;
