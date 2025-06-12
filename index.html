@@ -1,1210 +1,1026 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>DietMax.io</title>
-<style>
-    :root {
-        --primary-color: #6c5ce7;
-        --primary-hover: #5649c0;
-        --danger-color: #ff7675;
-        --danger-hover: #e84343;
-        --success-color: #00b894;
-        --success-hover: #00a884;
-        --info-color: #0984e3;
-        --info-hover: #0776c8;
-        --text-color: #2d3436;
-        --bg-color: #f8f9fa;
-        --card-bg: #ffffff;
-        --border-color: #dfe6e9;
-        --modal-bg: rgba(0, 0, 0, 0.5);
-        --modal-content-bg: #ffffff;
-        --suggestion-hover-bg: #f0f0f0;
-        --suggestion-selected-bg: #e0e0e0;
-        --table-header-bg: #e9ecef;
-        --reset-button-bg: #FFC107; /* Orange for reset */
-        --reset-button-hover: #e0a800; /* Darker orange */
-    }
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>DietMax.io</title>
+    <style>
+        :root {
+            --primary-color: #6c5ce7;
+            --primary-hover: #5649c0;
+            --danger-color: #ff7675;
+            --danger-hover: #e84343;
+            --success-color: #00b894;
+            --success-hover: #00a884;
+            --info-color: #0984e3;
+            --info-hover: #0776c8;
+            --text-color: #2d3436;
+            --bg-color: #f8f9fa;
+            --card-bg: #ffffff;
+            --border-color: #dfe6e9;
+            --modal-bg: rgba(0, 0, 0, 0.5);
+            --modal-content-bg: #ffffff;
+            --suggestion-hover-bg: #f0f0f0;
+            --suggestion-selected-bg: #e0e0e0;
+            --table-header-bg: #e9ecef;
+            --reset-button-bg: #FFC107; /* Orange for reset */
+            --reset-button-hover: #e0a804;
+        }
 
-    .dark-mode {
-        --primary-color: #a29bfe;
-        --primary-hover: #847bff;
-        --danger-color: #ff7675;
-        --danger-hover: #e84343;
-        --success-color: #55efc4;
-        --success-hover: #00b894;
-        --info-color: #74b9ff;
-        --info-hover: #0984e3;
-        --text-color: #f5f6fa;
-        --bg-color: #121212;
-        --card-bg: #1e1e1e;
-        --border-color: #333333;
-        --modal-bg: rgba(255, 255, 255, 0.2);
-        --modal-content-bg: #2d2d2d;
-        --suggestion-hover-bg: #444;
-        --suggestion-selected-bg: #555;
-        --table-header-bg: #2d2d2d;
-        --reset-button-bg: #d4ac0d; /* Darker orange for dark mode */
-        --reset-button-hover: #b8900c;
-    }
+        /* Dark mode variables */
+        body.dark-mode {
+            --text-color: #f5f6fa;
+            --bg-color: #2d3436;
+            --card-bg: #3c4043;
+            --border-color: #444;
+            --modal-content-bg: #3c4043;
+            --suggestion-hover-bg: #4c5053;
+            --suggestion-selected-bg: #5c6063;
+            --table-header-bg: #4c5053;
+        }
 
-    body {
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        max-width: 700px;
-        margin: auto;
-        padding: 20px;
-        background: var(--bg-color);
-        color: var(--text-color);
-        transition: all 0.3s ease;
-    }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: background-color 0.3s, color 0.3s;
+        }
 
-    h1, h2 {
-        text-align: center;
-        margin-bottom: 15px;
-        color: var(--primary-color);
-    }
+        .container {
+            width: 100%;
+            max-width: 900px;
+            background-color: var(--card-bg);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s;
+        }
 
-    label {
-        font-weight: 600;
-        margin-top: 12px;
-        display: block;
-        color: var(--text-color);
-    }
+        h1, h2, h3 {
+            color: var(--primary-color);
+            text-align: center;
+            margin-bottom: 20px;
+        }
 
-    input[type=number], input[type=text], select, input[type=file] {
-        width: 100%;
-        padding: 10px;
-        margin-top: 6px;
-        box-sizing: border-box;
-        font-size: 1rem;
-        border: 1px solid var(--border-color);
-        border-radius: 5px;
-        background-color: var(--card-bg);
-        color: var(--text-color);
-    }
+        .header-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
 
-    button {
-        margin-top: 12px;
-        padding: 10px 16px;
-        font-weight: 600;
-        cursor: pointer;
-        border: none;
-        background-color: var(--primary-color);
-        color: white;
-        border-radius: 5px;
-        transition: all 0.2s ease;
-        font-size: 0.95rem;
-    }
+        .form-group {
+            margin-bottom: 15px;
+        }
 
-    button:hover {
-        background-color: var(--primary-hover);
-        transform: translateY(-1px);
-    }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: var(--text-color);
+        }
 
-    button:active {
-        transform: translateY(0);
-    }
+        input[type="text"],
+        input[type="number"],
+        select {
+            width: calc(100% - 22px); /* Adjust for padding and border */
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            font-size: 1rem;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: border-color 0.3s, background-color 0.3s, color 0.3s;
+        }
 
-    .btn-danger {
-        background-color: var(--danger-color);
-    }
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        select:focus {
+            border-color: var(--primary-color);
+            outline: none;
+        }
 
-    .btn-danger:hover {
-        background-color: var(--danger-hover);
-    }
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s, opacity 0.3s;
+            color: white;
+            margin-right: 10px; /* Spacing for multiple buttons */
+        }
 
-    .btn-success {
-        background-color: var(--success-color);
-    }
+        button:last-child {
+            margin-right: 0;
+        }
 
-    .btn-success:hover {
-        background-color: var(--success-hover);
-    }
+        .btn-primary {
+            background-color: var(--primary-color);
+        }
 
-    .btn-info {
-        background-color: var(--info-color);
-    }
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+        }
 
-    .btn-info:hover {
-        background-color: var(--info-hover);
-    }
+        .btn-success {
+            background-color: var(--success-color);
+        }
 
-    .section {
-        background: var(--card-bg);
-        padding: 20px;
-        border-radius: 10px;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        margin-bottom: 20px;
-        border: 1px solid var(--border-color);
-        position: relative;
-    }
+        .btn-success:hover {
+            background-color: var(--success-hover);
+        }
 
-    /* Meal Log Table/Grid Styles */
-    .meal-log-container {
-        overflow-x: auto;
-        max-width: 100%;
-    }
+        .btn-danger {
+            background-color: var(--danger-color);
+        }
 
-    .meal-log-grid {
-        display: grid;
-        /* Updated column template for full words and info button under food name */
-        grid-template-columns: 1.8fr 0.8fr 0.7fr 0.7fr 0.7fr 0.7fr 0.7fr 0.7fr min-content; /* Adjust auto for action column */
-        gap: 5px;
-        align-items: flex-start; /* Align items to the top for stacked info button */
-        padding: 0;
-        margin: 0;
-        min-width: 750px; /* Ensure minimum width for all columns to fit */
-    }
+        .btn-danger:hover {
+            background-color: var(--danger-hover);
+        }
 
-    .meal-log-header, .list-item {
-        display: contents;
-    }
+        .btn-info {
+            background-color: var(--info-color);
+        }
 
-    .meal-log-header .grid-cell {
-        font-weight: 600;
-        background-color: var(--table-header-bg);
-        padding: 8px 5px;
-        text-align: center;
-        border-bottom: 1px solid var(--border-color);
-        position: sticky;
-        top: 0;
-        z-index: 10;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-    .meal-log-header .grid-cell:first-child { text-align: left; padding-left: 10px; }
-    .meal-log-header .grid-cell:last-child { text-align: center; padding-right: 5px; } /* Center the 'X' header */
+        .btn-info:hover {
+            background-color: var(--info-hover);
+        }
+
+        .btn-reset {
+            background-color: var(--reset-button-bg);
+            color: var(--text-color); /* Adjusted for better visibility */
+        }
+
+        .btn-reset:hover {
+            background-color: var(--reset-button-hover);
+        }
 
 
-    .list-item {
-        background: var(--card-bg);
-        border-bottom: 1px solid var(--border-color);
-        transition: background-color 0.2s ease;
-    }
-    .list-item:hover {
-        background-color: var(--suggestion-hover-bg);
-    }
-    .list-item:last-of-type {
-        border-bottom: none;
-    }
+        .summary-cards {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 20px;
+            margin-bottom: 30px;
+        }
 
-    .list-item .grid-cell {
-        padding: 8px 5px;
-        text-align: center;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        min-height: 40px; /* Ensure minimum height for rows */
-        display: flex; /* Use flex for vertical centering */
-        align-items: center; /* Center content vertically */
-        justify-content: center; /* Center content horizontally */
-    }
+        .card {
+            background-color: var(--card-bg);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            text-align: center;
+            flex: 1 1 calc(33% - 30px); /* Approx 3 cards per row with gap */
+            min-width: 150px;
+            border: 1px solid var(--border-color);
+            transition: background-color 0.3s, border-color 0.3s;
+        }
 
-    /* Specific styling for the food name cell to stack name and info button */
-    .list-item .grid-cell.food-name {
-        text-align: left;
-        padding-left: 10px;
-        font-weight: 500;
-        color: var(--primary-color);
-        flex-direction: column; /* Stack children vertically */
-        align-items: flex-start; /* Align food name and button to the left */
-        justify-content: center;
-        white-space: normal; /* Allow food name to wrap */
-    }
+        .card h3 {
+            margin-top: 0;
+            color: var(--primary-color);
+            font-size: 1.1em;
+        }
 
-    .list-item .grid-cell.food-name span {
-        margin-bottom: 3px; /* Space between name and button */
-        word-break: break-word; /* Allow name to break words */
-    }
+        .card p {
+            font-size: 1.8em;
+            font-weight: bold;
+            margin: 10px 0 0;
+            color: var(--text-color);
+        }
 
-    .list-item .grid-cell.actions {
-        text-align: right;
-        padding-right: 10px;
-        display: flex;
-        justify-content: center; /* Center the delete button */
-        gap: 5px; /* No gap needed if only X button */
-        align-items: center;
-    }
-    .list-item .grid-cell.actions button {
-        margin: 0;
-        padding: 6px 10px;
-        font-size: 0.8rem;
-    }
-    .list-item .grid-cell.actions .btn-danger { /* X button style */
-        padding: 4px 10px;
-        font-size: 1.1em; /* Larger X */
-        font-weight: bold;
-        width: auto;
-        min-width: 30px;
-        border-radius: 3px;
-    }
-    .list-item .grid-cell.food-name .btn-info { /* Info button specifically under food name */
-        padding: 4px 8px;
-        font-size: 0.7em;
-        width: auto;
-        white-space: nowrap;
-        border-radius: 3px;
-        margin-top: 5px; /* Space from food name */
-        align-self: flex-start; /* Align to the start within the column */
-    }
+        .progress-bar-container {
+            width: 100%;
+            background-color: var(--border-color);
+            border-radius: 5px;
+            height: 25px;
+            margin-top: 10px;
+            overflow: hidden; /* Ensure inner bar stays within bounds */
+        }
 
-    /* New: Show Image Button next to Info button */
-    .list-item .grid-cell.food-name .btn-show-image {
-        padding: 4px 8px;
-        font-size: 0.7em;
-        width: auto;
-        white-space: nowrap;
-        border-radius: 3px;
-        margin-top: 5px; /* Space from food name */
-        margin-left: 5px; /* Space from Info button */
-        align-self: flex-start; /* Align to the start within the column */
-    }
+        .progress-bar {
+            height: 100%;
+            background-color: var(--success-color);
+            width: 0%;
+            border-radius: 5px;
+            text-align: center;
+            line-height: 25px;
+            color: white;
+            transition: width 0.5s ease-in-out, background-color 0.3s;
+        }
 
+        .progress-bar.over-goal {
+            background-color: var(--danger-color);
+        }
 
-    .flex-row {
-        display: flex;
-        gap: 15px;
-        flex-wrap: wrap;
-    }
+        .meal-history {
+            margin-top: 30px;
+        }
 
-    .flex-row > div {
-        flex: 1;
-        min-width: 140px;
-    }
+        .meal-list {
+            list-style: none;
+            padding: 0;
+        }
 
-    .progress-bar-container {
-        background: var(--border-color);
-        border-radius: 15px;
-        height: 22px;
-        overflow: hidden;
-        margin-top: 15px;
-    }
+        .meal-item {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            transition: background-color 0.3s, border-color 0.3s;
+        }
 
-    .progress-bar {
-        height: 100%;
-        background-color: var(--success-color);
-        width: 0;
-        transition: width 0.3s ease;
-    }
+        .meal-item-info {
+            flex-grow: 1;
+        }
 
-    .small-label {
-        font-weight: normal;
-        font-size: 0.85rem;
-        color: var(--text-color);
-        opacity: 0.8;
-    }
+        .meal-item-info h4 {
+            margin: 0 0 5px;
+            color: var(--primary-color);
+        }
 
-    /* Autocomplete Suggestions Styles */
-    .suggestions-dropdown {
-        position: absolute;
-        /* Adjusted top to be relative to the foodInput's parent section, plus input height and margin */
-        top: calc(100% + 5px); /* Position below the foodInput within the .section */
-        left: 20px;
-        right: 20px;
-        background-color: var(--card-bg);
-        border: 1px solid var(--border-color);
-        border-top: none;
-        border-radius: 0 0 8px 8px;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        max-height: 200px;
-        overflow-y: auto;
-        z-index: 100;
-        display: none;
-        list-style: none;
-        padding: 0;
-        margin: 0;
-    }
-    .dark-mode .suggestions-dropdown {
-        box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-    }
+        .meal-item-info p {
+            margin: 0;
+            font-size: 0.9em;
+            color: var(--text-color);
+        }
 
-    .suggestion-item {
-        padding: 10px 15px;
-        cursor: pointer;
-        border-bottom: 1px solid var(--border-color);
-        color: var(--text-color);
-    }
+        .meal-item-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px; /* For smaller screens */
+        }
 
-    .suggestion-item:last-child {
-        border-bottom: none;
-    }
+        .meal-item-actions button {
+            padding: 8px 12px;
+            font-size: 0.85rem;
+            margin-right: 0; /* Override default button margin */
+        }
 
-    .suggestion-item:hover,
-    .suggestion-item.selected {
-        background-color: var(--suggestion-hover-bg);
-        color: var(--text-color);
-    }
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .summary-cards {
+                flex-direction: column;
+            }
+            .card {
+                flex-basis: 100%;
+            }
+            .meal-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .meal-item-actions {
+                width: 100%;
+                justify-content: flex-end;
+            }
+        }
 
-    /* Modal styles */
-    .modal-bg {
-        display: none;
-        position: fixed;
-        z-index: 10000;
-        left: 0;
-        top: 0;
-        width: 100vw;
-        height: 100vh;
-        background-color: var(--modal-bg);
-        justify-content: center;
-        align-items: center;
-    }
+        .autocomplete-suggestions {
+            border: 1px solid var(--border-color);
+            max-height: 150px;
+            overflow-y: auto;
+            position: absolute; /* Changed to absolute */
+            background-color: var(--card-bg);
+            z-index: 10;
+            width: calc(100% - 40px); /* Adjust width based on container padding */
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            border-radius: 0 0 5px 5px;
+        }
 
-    .modal-bg.show {
-        display: flex;
-    }
+        .suggestion-item {
+            padding: 10px;
+            cursor: pointer;
+            border-bottom: 1px solid var(--border-color);
+            transition: background-color 0.2s;
+        }
 
-    .modal-content {
-        background-color: var(--modal-content-bg);
-        margin: auto;
-        padding: 25px;
-        border: 1px solid var(--border-color);
-        border-radius: 10px;
-        width: 90%;
-        max-width: 500px;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-        position: relative;
-        color: var(--text-color);
-    }
+        .suggestion-item:last-child {
+            border-bottom: none;
+        }
 
-    .modal-close {
-        color: var(--text-color);
-        position: absolute;
-        top: 10px;
-        right: 15px;
-        font-size: 28px;
-        font-weight: bold;
-        cursor: pointer;
-    }
+        .suggestion-item.selected {
+            background-color: var(--suggestion-selected-bg);
+        }
 
-    .modal-close:hover,
-    .modal-close:focus {
-        color: var(--danger-color);
-        text-decoration: none;
-        cursor: pointer;
-    }
+        .suggestion-item:hover {
+            background-color: var(--suggestion-hover-bg);
+        }
 
-    .header-controls {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 20px;
-    }
+        /* Settings Section */
+        .settings-section {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+        }
 
-    .empty-state {
-        text-align: center;
-        padding: 20px;
-        color: var(--text-color);
-        opacity: 0.7;
-    }
+        .settings-section h2 {
+            margin-top: 0;
+            text-align: left;
+            color: var(--primary-color);
+        }
 
-    .modal-content h2 {
-        margin-top: 0;
-        color: var(--primary-color);
-    }
+        .settings-section .form-group {
+            display: flex;
+            flex-direction: column;
+        }
 
-    .modal-content p {
-        margin-bottom: 8px;
-    }
+        .settings-section label {
+            margin-bottom: 8px;
+        }
 
-    .store-links a {
-        display: block;
-        margin-bottom: 5px;
-        color: var(--info-color);
-        text-decoration: none;
-    }
+        .settings-section input[type="number"],
+        .settings-section select {
+            max-width: 200px; /* Keep settings inputs compact */
+        }
 
-    .store-links a:hover {
-        text-decoration: underline;
-    }
+        .settings-actions {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+        }
 
-    /* New: Reset History Button Styles */
-    .reset-section {
-        text-align: center;
-        margin-top: 30px;
-        padding-top: 20px;
-        border-top: 1px solid var(--border-color);
-    }
+        /* Modal Styles */
+        .modal-background {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 100; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: var(--modal-bg); /* Black w/ opacity */
+            justify-content: center; /* Center horizontally */
+            align-items: center; /* Center vertically */
+        }
 
-    .reset-button {
-        background-color: var(--reset-button-bg);
-        color: var(--text-color); /* Match text color for better contrast */
-        padding: 12px 20px;
-        font-size: 1.1em;
-        border-radius: 5px;
-    }
+        .modal-background.show {
+            display: flex; /* Show when 'show' class is added */
+        }
 
-    .reset-button:hover {
-        background-color: var(--reset-button-hover);
-        transform: translateY(-1px);
-    }
+        .modal-content {
+            background-color: var(--modal-content-bg);
+            margin: auto;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            width: 80%; /* Could be adjusted */
+            max-width: 600px;
+            position: relative;
+            transition: background-color 0.3s;
+            max-height: 80vh; /* Limit height */
+            overflow-y: auto; /* Enable scrolling for content */
+        }
 
-    /* Styles for the meal photo within the log */
-    .meal-photo-log {
-        grid-column: 1 / -1; /* Spans all columns */
-        padding: 10px 0;
-        text-align: center;
-        border-top: 1px solid var(--border-color); /* Separator */
-        background-color: var(--suggestion-hover-bg); /* Light background for photo row */
-    }
+        .close-button {
+            color: var(--text-color);
+            position: absolute;
+            top: 15px;
+            right: 25px;
+            font-size: 30px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
 
-     .meal-photo-log img {
-        max-height: 100px; /* Adjust this value as needed */
-        width: auto; /* Keep aspect ratio */
-        display: block; /* Prevent extra space below the image */
-        margin: 10px auto; /* Center the image in the row */
-        border-radius: 8px;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-</style>
+        .close-button:hover,
+        .close-button:focus {
+            color: var(--danger-color);
+            text-decoration: none;
+        }
+
+        .modal-content h3 {
+            color: var(--primary-color);
+            margin-top: 0;
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .food-info p {
+            margin-bottom: 10px;
+        }
+
+        .food-image-placeholder {
+            width: 100%;
+            height: 200px;
+            background-color: var(--border-color);
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.2em;
+            color: var(--text-color);
+            margin-top: 20px;
+            overflow: hidden; /* Ensure images fit */
+        }
+
+        .food-image-placeholder img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain; /* Ensure image is fully visible */
+        }
+
+        /* All Foods Modal Specifics */
+        .all-foods-list {
+            margin-top: 20px;
+            max-height: 400px; /* Fixed height for scrolling */
+            overflow-y: auto;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            padding: 10px;
+        }
+
+        .all-foods-list-item {
+            padding: 10px;
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: background-color 0.2s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .all-foods-list-item:last-child {
+            border-bottom: none;
+        }
+
+        .all-foods-list-item:hover {
+            background-color: var(--suggestion-hover-bg);
+        }
+
+        .all-foods-list-item span {
+            font-weight: bold;
+        }
+
+        .all-foods-list-item p {
+            margin: 0;
+            font-size: 0.85em;
+            color: #666;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 20px;
+            color: var(--text-color);
+            opacity: 0.7;
+        }
+
+    </style>
 </head>
 <body>
-
-<div class="header-controls">
-    <h1>DietMax.io</h1>
-    <button id="darkModeToggle" class="btn-info">Toggle Dark Mode</button>
-</div>
-
-<div class="section" id="inputSection">
-    <h2>Add New Meal</h2>
-    <label for="foodInput">Food Name</label>
-    <input id="foodInput" type="text" placeholder="e.g. chicken, apple, rice" autocomplete="off" />
-    <div id="foodSuggestions" class="suggestions-dropdown"></div>
-
-    <div class="flex-row">
-        <div>
-            <label for="amountInput">Amount</label>
-            <input id="amountInput" type="number" min="0" placeholder="e.g. 150" />
+    <div class="container">
+        <div class="header-controls">
+            <h1>DietMax.io</h1>
+            <div>
+                <button id="showAllFoodsBtn" class="btn-info">Show All Foods</button>
+                <button id="darkModeToggle" class="btn-primary">Toggle Dark Mode</button>
+            </div>
         </div>
-        <div>
-            <label for="portionTypeSelect">Portion Type</label>
-            <select id="portionTypeSelect">
-                <option value="grams">Grams (g)</option>
-                <option value="servings">Servings</option>
-            </select>
-        </div>
+
+        <section id="add-meal-section">
+            <h2>Add Meal to Log</h2>
+            <div class="form-group">
+                <label for="mealInput">Food Item:</label>
+                <input type="text" id="mealInput" placeholder="e.g., Apple" autocomplete="off" />
+                <div id="autocomplete-suggestions" class="autocomplete-suggestions" style="display: none;"></div>
+            </div>
+            <div class="form-group">
+                <label for="quantityInput">Quantity:</label>
+                <input type="number" id="quantityInput" value="1" min="0.1" step="0.1" />
+            </div>
+            <div class="form-group">
+                <label for="unitInput">Unit:</label>
+                <select id="unitInput">
+                    <option value="g">Grams (g)</option>
+                    <option value="unit">Unit</option>
+                </select>
+            </div>
+            <button id="addMealBtn" class="btn-success">Add Meal to Log</button>
+        </section>
+
+        <section id="daily-summary">
+            <h2>Daily Summary</h2>
+            <div class="summary-cards">
+                <div class="card">
+                    <h3>Total Calories</h3>
+                    <p id="totalCalories">0 kcal</p>
+                    <div class="progress-bar-container">
+                        <div id="calorieProgressBar" class="progress-bar">0%</div>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3>Total Protein</h3>
+                    <p id="totalProtein">0 g</p>
+                </div>
+                <div class="card">
+                    <h3>Total Fat</h3>
+                    <p id="totalFat">0 g</p>
+                </div>
+                <div class="card">
+                    <h3>Total Carbs</h3>
+                    <p id="totalCarbs">0 g</p>
+                </div>
+                <div class="card">
+                    <h3>Total Sugar</h3>
+                    <p id="totalSugar">0 g</p>
+                </div>
+                <div class="card">
+                    <h3>Total Sodium</h3>
+                    <p id="totalSodium">0 mg</p>
+                </div>
+                <div class="card">
+                    <h3>Bloat Scale</h3>
+                    <p id="averageBloat">0 / 5</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="meal-history">
+            <h2>Meal History</h2>
+            <ul id="mealList" class="meal-list">
+                </ul>
+            <button id="resetHistoryBtn" class="btn-reset">Reset History</button>
+        </section>
+
+        <section class="settings-section">
+            <h2>Settings</h2>
+            <div class="form-group">
+                <label for="calorieGoalInput">Daily Calorie Goal:</label>
+                <input type="number" id="calorieGoalInput" value="2500" min="500" step="100" />
+            </div>
+            <div class="form-group">
+                <label for="unitPreferenceSelect">Unit Preference:</label>
+                <select id="unitPreferenceSelect">
+                    <option value="metric">Metric (g, ml)</option>
+                    <option value="imperial">Imperial (oz, lbs)</option>
+                </select>
+            </div>
+            <div class="settings-actions">
+                <button id="saveSettingsBtn" class="btn-primary">Save Settings</button>
+            </div>
+        </section>
     </div>
 
-    <label for="mealPhotoInput">Meal Photo (optional)</label>
-    <input id="mealPhotoInput" type="file" accept="image/*" capture="environment" />
-
-    <button id="addMealBtn" class="btn-success">Add Meal to Log</button>
-</div>
-
-<div class="section">
-    <button id="openSettingsModalBtn" class="btn-info">Settings ⚙️</button>
-</div>
-
-<div class="section">
-    <button id="showAllFoodsBtn" class="btn-info">Show All Foods 🍔</button>
-</div>
-
-<div class="section" id="totalsSection">
-    <h2>Daily Totals</h2>
-    <div>Calories: <span id="totalCalories">0</span> kcal</div>
-    <div>Protein: <span id="totalProtein">0</span> g</div>
-    <div>Fat: <span id="totalFat">0</span> g</div>
-    <div>Carbs: <span id="totalCarbs">0</span> g</div>
-    <div>Sugar: <span id="totalSugar">0</span> g</div>
-    <div>Sodium: <span id="totalSodium">0</span> mg</div>
-    <div>Total Bloat Score: <span id="totalBloatScale">0</span></div>
-
-    <div class="progress-bar-container" title="Calories Progress">
-        <div id="calorieProgress" class="progress-bar"></div>
-    </div>
-</div>
-
-<div class="section" id="mealLogSection">
-    <h2>Meal Log</h2>
-    <div id="mealHistoryDiv" class="empty-state">No meals logged yet.</div>
-</div>
-
-<div class="reset-section">
-    <button id="resetHistoryBtn" class="reset-button">Reset All History</button>
-</div>
-
-<div id="imageModalBg" class="modal-bg">
-    <div class="modal-content">
-        <span class="modal-close" id="closeImageModal">&times;</span>
-        <img id="modalImage" alt="Meal photo" style="max-width: 100%; height: auto; display: block; margin: 0 auto;"/>
-    </div>
-</div>
-
-<div id="settingsModalBg" class="modal-bg">
-    <div class="modal-content">
-        <span class="modal-close" id="closeSettingsModal">&times;</span>
-        <h2>Settings</h2>
-        <label for="calorieGoalInput">Daily Calorie Goal (kcal)</label>
-        <input id="calorieGoalInput" type="number" min="500" max="10000" step="50" />
-
-        <label for="unitPreferenceSelect">Unit Preference</label>
-        <select id="unitPreferenceSelect">
-            <option value="metric">Metric (g, ml)</option>
-            <option value="imperial">Imperial (oz, fl oz)</option>
-        </select>
-
-        <button id="saveSettingsBtn" class="btn-success">Save Settings</button>
-    </div>
-</div>
-
-<div id="foodInfoModalBg" class="modal-bg">
-    <div class="modal-content">
-        <span class="modal-close" id="closeFoodInfoModal">&times;</span>
-        <h2 id="foodInfoTitle"></h2>
-        <h3>Macros per 100g:</h3>
-        <p>Calories: <span id="infoCalories100g"></span> kcal</p>
-        <p>Protein: <span id="infoProtein100g"></span> g</p>
-        <p>Fat: <span id="infoFat100g"></span> g</p>
-        <p>Carbs: <span id="infoCarbs100g"></span> g</p>
-        <p>Sugar: <span id="infoSugar100g"></span> g</p>
-        <p>Sodium: <span id="infoSodium100g"></span> mg</p>
-        <p>Bloat Scale: <span id="infoBloatScale100g"></span> /10</p>
-
-        <h3>Macros per Serving:</h3>
-        <p>Serving Size: <span id="infoServingSize"></span></p>
-        <p>Calories: <span id="infoCaloriesServing"></span> kcal</p>
-        <p>Protein: <span id="infoProteinServing"></span> g</p>
-        <p>Fat: <span id="infoFatServing"></span> g</p>
-        <p>Carbs: <span id="infoCarbsServing"></span> g</p>
-        <p>Sugar: <span id="infoSugarServing"></span> g</p>
-        <p>Sodium: <span id="infoSodiumServing"></span> mg</p>
-
-        <h3>Search on Supermarkets:</h3>
-        <div class="store-links">
-            <a id="woolworthsLink" href="#" target="_blank">Woolworths</a>
-            <a id="paknsaveLink" href="#" target="_blank">Pak'nSave</a>
-            <a id="newworldLink" href="#" target="_blank">New World</a>
+    <div id="foodInfoModalBg" class="modal-background">
+        <div class="modal-content">
+            <span class="close-button" id="closeFoodInfoModal">&times;</span>
+            <h3 id="modalFoodName"></h3>
+            <div class="food-info">
+                <p><strong>Calories:</strong> <span id="modalCalories"></span> kcal</p>
+                <p><strong>Protein:</strong> <span id="modalProtein"></span> g</p>
+                <p><strong>Fat:</strong> <span id="modalFat"></span> g</p>
+                <p><strong>Carbs:</strong> <span id="modalCarbs"></span> g</p>
+                <p><strong>Sugar:</strong> <span id="modalSugar"></span> g</p>
+                <p><strong>Sodium:</strong> <span id="modalSodium"></span> mg</p>
+                <p><strong>Bloat Scale:</strong> <span id="modalBloatScale"></span> / 5</p>
+                <p id="modalWeightPerUnit" style="display: none;"><strong>Weight Per Unit:</strong> <span id="modalWeightPerUnitValue"></span> g</p>
+            </div>
+            <div class="food-image-placeholder">
+                <img id="modalFoodImage" src="" alt="Food Image" style="display: none;">
+                <span id="imagePlaceholderText">No Image Available</span>
+            </div>
         </div>
     </div>
-</div>
 
-<div id="allFoodsModalBg" class="modal-bg">
-    <div class="modal-content">
-        <span class="modal-close" id="closeAllFoodsModal">&times;</span>
-        <h2>All Available Foods</h2>
-        <input type="text" id="allFoodsSearchInput" placeholder="Search foods..." style="width: 100%; padding: 8px; margin-bottom: 15px; border-radius: 5px; border: 1px solid var(--border-color); background-color: var(--card-bg); color: var(--text-color);">
-        <div id="allFoodsList" style="max-height: 400px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 8px;">
+    <div id="allFoodsModalBg" class="modal-background">
+        <div class="modal-content">
+            <span class="close-button" id="closeAllFoodsModal">&times;</span>
+            <h3>All Available Foods</h3>
+            <input type="text" id="allFoodsSearchInput" placeholder="Search foods..." />
+            <div id="allFoodsList" class="all-foods-list">
+                </div>
         </div>
     </div>
-</div>
-<script src="foodDatabase.js"></script>
 
-<script defer>
-    // === Storage keys ===
-    const STORAGE_LOG_KEY = "dailyFoodLogWithPhotos";
-    const STORAGE_SETTINGS_KEY = "foodTrackerSettings";
 
-    // === Load persisted data ===
-    let dailyLog = JSON.parse(localStorage.getItem(STORAGE_LOG_KEY)) || [];
-    let settings = JSON.parse(localStorage.getItem(STORAGE_SETTINGS_KEY)) || {
-        calorieGoal: 2500,
-        unitPreference: "metric",
-    };
-
-    // === DOM elements ===
-    const foodInput = document.getElementById("foodInput");
-    const foodSuggestionsDiv = document.getElementById("foodSuggestions");
-    const amountInput = document.getElementById("amountInput");
-    const portionTypeSelect = document.getElementById("portionTypeSelect");
-    const mealPhotoInput = document.getElementById("mealPhotoInput");
-    const addMealBtn = document.getElementById("addMealBtn");
-
-    const totalCaloriesSpan = document.getElementById("totalCalories");
-    const totalProteinSpan = document.getElementById("totalProtein");
-    const totalFatSpan = document.getElementById("totalFat");
-    const totalCarbsSpan = document.getElementById("totalCarbs");
-    const totalSugarSpan = document.getElementById("totalSugar");
-    const totalSodiumSpan = document.getElementById("totalSodium");
-    const totalBloatScaleSpan = document.getElementById("totalBloatScale");
-    const calorieProgressBar = document.getElementById("calorieProgress");
-
-    const mealHistoryDiv = document.getElementById("mealHistoryDiv");
-
-    const openSettingsModalBtn = document.getElementById("openSettingsModalBtn");
-    const settingsModalBg = document.getElementById("settingsModalBg");
-    const closeSettingsModal = document.getElementById("closeSettingsModal");
-    const calorieGoalInput = document.getElementById("calorieGoalInput");
-    const unitPreferenceSelect = document.getElementById("unitPreferenceSelect");
-    const saveSettingsBtn = document.getElementById("saveSettingsBtn");
-
-    const imageModalBg = document.getElementById("imageModalBg");
-    const modalImage = document.getElementById("modalImage");
-    const closeImageModal = document.getElementById("closeImageModal"); // New: Close button for image modal
-    const darkModeToggle = document.getElementById('darkModeToggle');
-
-    const foodInfoModalBg = document.getElementById("foodInfoModalBg");
-    const closeFoodInfoModal = document.getElementById("closeFoodInfoModal");
-    const foodInfoTitle = document.getElementById("foodInfoTitle");
-    const infoCalories100g = document.getElementById("infoCalories100g");
-    const infoProtein100g = document.getElementById("infoProtein100g");
-    const infoFat100g = document.getElementById("infoFat100g");
-    const infoCarbs100g = document.getElementById("infoCarbs100g");
-    const infoSugar100g = document.getElementById("infoSugar100g");
-    const infoSodium100g = document.getElementById("infoSodium100g");
-    const infoBloatScale100g = document.getElementById("infoBloatScale100g");
-    const infoServingSize = document.getElementById("infoServingSize");
-    const infoCaloriesServing = document.getElementById("infoCaloriesServing");
-    const infoProteinServing = document.getElementById("infoProteinServing");
-    const infoFatServing = document.getElementById("infoFatServing");
-    const infoCarbsServing = document.getElementById("infoCarbsServing");
-    const infoSugarServing = document.getElementById("infoSugarServing");
-    const infoSodiumServing = document.getElementById("infoSodiumServing");
-    const woolworthsLink = document.getElementById("woolworthsLink");
-    const paknsaveLink = document.getElementById("paknsaveLink");
-    const newworldLink = document.getElementById("newworldLink");
-
-    const showAllFoodsBtn = document.getElementById("showAllFoodsBtn"); // NEW
-    const allFoodsModalBg = document.getElementById("allFoodsModalBg"); // NEW
-    const closeAllFoodsModal = document.getElementById("closeAllFoodsModal"); // NEW
-    const allFoodsList = document.getElementById("allFoodsList"); // NEW
-    const allFoodsSearchInput = document.getElementById("allFoodsSearchInput"); // NEW
-
-    // NEW: Reset History Button element
-    const resetHistoryBtn = document.getElementById("resetHistoryBtn");
-
-    // === Autocomplete variables ===
-    let currentSuggestions = [];
-    let selectedSuggestionIndex = -1;
-
-    // === Initialize dark mode ===
-    function initDarkMode() {
-        if (localStorage.getItem('darkMode') === 'enabled') {
-            document.body.classList.add('dark-mode');
-        }
-    }
-
-    // Toggle dark mode
-    darkModeToggle.addEventListener('click', () => {
-        document.body.classList.toggle('dark-mode');
-        localStorage.setItem('darkMode', document.body.classList.contains('dark-mode') ? 'enabled' : 'disabled');
-    });
-
-    // === Helpers ===
-    function fmt(n) {
-        if (typeof n === 'number' && !isNaN(n)) {
-            return n.toFixed(1);
-        }
-        return '0.0';
-    }
-
-    function normalizeName(name) {
-        return name.trim().toLowerCase().replace(/\s+/g, '');
-    }
-
-    // === Unit conversion helpers ===
-    function convertWeightToPreferredUnit(g) {
-        if (settings.unitPreference === "imperial") {
-            return (g / 28.3495).toFixed(1) + " oz";
-        }
-        return g.toFixed(1) + " g";
-    }
-
-    // === Save helpers ===
-    function saveLog(log) {
-        localStorage.setItem(STORAGE_LOG_KEY, JSON.stringify(log));
-    }
-    function saveSettings(settingsObj) {
-        localStorage.setItem(STORAGE_SETTINGS_KEY, JSON.stringify(settingsObj));
-    }
-
-    // === Calculate macros based on amount and portion type ===
-    function calculateMacros(foodData, amount, portionType) {
-        let factor;
-        let calculatedWeight;
-
-        if (portionType === "grams") {
-            factor = amount / 100;
-            calculatedWeight = amount;
-        } else if (portionType === "servings") {
-            calculatedWeight = amount * (foodData.weightPerUnit || 100);
-            factor = calculatedWeight / 100;
-        } else {
-            return null;
+    <script src="foodDatabase.js"></script>
+    <script>
+        // Helper to capitalize the first letter of a string
+        function capitalizeFirstLetter(string) {
+            return string.charAt(0).toUpperCase() + string.slice(1);
         }
 
-        return {
-            calories: (foodData.caloriesPer100g || 0) * factor,
-            protein: (foodData.proteinPer100g || 0) * factor,
-            fat: (foodData.fatPer100g || 0) * factor,
-            carbs: (foodData.carbsPer100g || 0) * factor,
-            sugar: (foodData.sugarPer100g || 0) * factor,
-            sodium: (foodData.sodiumPer100g || 0) * factor,
-            bloatScale: (foodData.bloatScale || 0),
-            weight: calculatedWeight,
+        // === DOM Elements ===
+        const darkModeToggle = document.getElementById("darkModeToggle");
+        const mealInput = document.getElementById("mealInput");
+        const quantityInput = document.getElementById("quantityInput");
+        const unitInput = document.getElementById("unitInput");
+        const addMealBtn = document.getElementById("addMealBtn");
+        const mealList = document.getElementById("mealList");
+        const totalCaloriesElement = document.getElementById("totalCalories");
+        const totalProteinElement = document.getElementById("totalProtein");
+        const totalFatElement = document.getElementById("totalFat");
+        const totalCarbsElement = document.getElementById("totalCarbs");
+        const totalSugarElement = document.getElementById("totalSugar");
+        const totalSodiumElement = document.getElementById("totalSodium");
+        const averageBloatElement = document.getElementById("averageBloat");
+        const autocompleteSuggestions = document.getElementById("autocomplete-suggestions");
+        const resetHistoryBtn = document.getElementById("resetHistoryBtn");
+        const calorieGoalInput = document.getElementById("calorieGoalInput");
+        const unitPreferenceSelect = document.getElementById("unitPreferenceSelect");
+        const saveSettingsBtn = document.getElementById("saveSettingsBtn");
+        const calorieProgressBar = document.getElementById("calorieProgressBar");
+
+        // Food Info Modal Elements
+        const foodInfoModalBg = document.getElementById("foodInfoModalBg");
+        const closeFoodInfoModal = document.getElementById("closeFoodInfoModal");
+        const modalFoodName = document.getElementById("modalFoodName");
+        const modalCalories = document.getElementById("modalCalories");
+        const modalProtein = document.getElementById("modalProtein");
+        const modalFat = document.getElementById("modalFat");
+        const modalCarbs = document.getElementById("modalCarbs");
+        const modalSugar = document.getElementById("modalSugar");
+        const modalSodium = document.getElementById("modalSodium");
+        const modalBloatScale = document.getElementById("modalBloatScale");
+        const modalWeightPerUnit = document.getElementById("modalWeightPerUnit");
+        const modalWeightPerUnitValue = document.getElementById("modalWeightPerUnitValue");
+        const modalFoodImage = document.getElementById("modalFoodImage");
+        const imagePlaceholderText = document.getElementById("imagePlaceholderText");
+
+        // All Foods Modal Elements
+        const showAllFoodsBtn = document.getElementById("showAllFoodsBtn");
+        const allFoodsModalBg = document.getElementById("allFoodsModalBg");
+        const closeAllFoodsModal = document.getElementById("closeAllFoodsModal");
+        const allFoodsList = document.getElementById("allFoodsList");
+        const allFoodsSearchInput = document.getElementById("allFoodsSearchInput");
+
+        // === Data Storage ===
+        let dailyLog = JSON.parse(localStorage.getItem("dailyLog")) || [];
+        let settings = JSON.parse(localStorage.getItem("settings")) || {
+            calorieGoal: 2500,
+            unitPreference: "metric", // 'metric' or 'imperial'
         };
-    }
 
-    // === Autocomplete Functions ===
-    foodInput.addEventListener('input', showFoodSuggestions);
-    foodInput.addEventListener('keydown', handleFoodInputKeydown);
-
-    function showFoodSuggestions() {
-        const inputVal = foodInput.value.trim(); // Use raw input for display, normalize for search
-        foodSuggestionsDiv.innerHTML = '';
-        currentSuggestions = [];
-        selectedSuggestionIndex = -1;
-
-        if (inputVal.length === 0) {
-            foodSuggestionsDiv.style.display = 'none';
-            return;
+        // === Helper Functions ===
+        function normalizeName(name) {
+            return name.toLowerCase().replace(/[^a-z0-9]/g, "");
         }
 
-        const foodNames = Object.keys(foodsDatabase);
-        const normalizedInputVal = normalizeName(inputVal); // Normalize for matching
-
-        const matchingFoods = foodNames.filter(name => name.startsWith(normalizedInputVal))
-                                        .sort((a, b) => foodsDatabase[a].name.localeCompare(foodsDatabase[b].name)); // Sort by original name
-
-        if (matchingFoods.length > 0) {
-            matchingFoods.forEach(foodNormalizedName => {
-                const suggestionItem = document.createElement('div');
-                suggestionItem.classList.add('suggestion-item');
-                suggestionItem.textContent = foodsDatabase[foodNormalizedName].name; // Display original name from database
-                suggestionItem.dataset.foodName = foodNormalizedName; // Store normalized name for lookup
-
-                suggestionItem.addEventListener('click', () => {
-                    foodInput.value = suggestionItem.textContent;
-                    foodInput.dataset.selectedNormalizedFood = suggestionItem.dataset.foodName; // Store normalized name for submission
-                    foodSuggestionsDiv.style.display = 'none';
-                });
-                foodSuggestionsDiv.appendChild(suggestionItem);
-                currentSuggestions.push(suggestionItem);
-            });
-            foodSuggestionsDiv.style.display = 'block';
-        } else {
-            foodSuggestionsDiv.style.display = 'none';
+        function saveLog(log) {
+            localStorage.setItem("dailyLog", JSON.stringify(log));
         }
-    }
 
+        function saveSettings(s) {
+            localStorage.setItem("settings", JSON.stringify(s));
+            // Update UI based on new settings immediately
+            calorieGoalInput.value = s.calorieGoal;
+            unitPreferenceSelect.value = s.unitPreference;
+            updateTotalsAndProgress(); // Recalculate totals for new goal
+        }
 
-    function hideFoodSuggestions() {
-        foodSuggestionsDiv.style.display = 'none';
-        selectedSuggestionIndex = -1;
-    }
-
-    function handleFoodInputKeydown(e) {
-        if (foodSuggestionsDiv.style.display === 'block' && currentSuggestions.length > 0) {
-            if (selectedSuggestionIndex > -1) {
-                currentSuggestions[selectedSuggestionIndex].classList.remove('selected');
+        // === Dark Mode ===
+        function initDarkMode() {
+            const savedDarkMode = localStorage.getItem("darkMode");
+            if (savedDarkMode === "true") {
+                document.body.classList.add("dark-mode");
             }
+        }
 
-            if (e.key === 'ArrowDown') {
-                e.preventDefault();
-                selectedSuggestionIndex = (selectedSuggestionIndex + 1) % currentSuggestions.length;
-            } else if (e.key === 'ArrowUp') {
-                e.preventDefault();
-                selectedSuggestionIndex = (selectedSuggestionIndex - 1 + currentSuggestions.length) % currentSuggestions.length;
-            } else if (e.key === 'Enter') {
-                e.preventDefault();
-                if (selectedSuggestionIndex > -1) {
-                    currentSuggestions[selectedSuggestionIndex].click();
-                } else {
-                    addMealBtn.click();
-                }
-                hideFoodSuggestions();
-                return;
-            } else if (e.key === 'Escape') {
-                hideFoodSuggestions();
+        // === Meal Management ===
+        addMealBtn.addEventListener("click", () => {
+            const foodName = mealInput.value.trim();
+            const quantity = parseFloat(quantityInput.value);
+            const unit = unitInput.value;
+
+            if (foodName === "" || isNaN(quantity) || quantity <= 0) {
+                alert("Please enter a valid food item and quantity.");
                 return;
             }
 
-            if (selectedSuggestionIndex > -1) {
-                const selectedItem = currentSuggestions[selectedSuggestionIndex];
-                selectedItem.classList.add('selected');
-                selectedItem.scrollIntoView({ block: 'nearest' });
-                foodInput.value = selectedItem.textContent;
-                foodInput.dataset.selectedNormalizedFood = selectedItem.dataset.foodName; // Set the normalized name on selection
+            const normalizedFoodName = normalizeName(foodName);
+            const foodData = foodsDatabase[normalizedFoodName];
+
+            if (!foodData) {
+                alert("Food item not found in database.");
+                return;
             }
-        } else if (e.key === 'Enter') {
-            addMealBtn.click();
-        }
-    }
 
-
-    document.addEventListener('click', (e) => {
-        if (!foodInput.contains(e.target) && !foodSuggestionsDiv.contains(e.target)) {
-            hideFoodSuggestions();
-        }
-    });
-
-    // === Add meal to log ===
-    addMealBtn.addEventListener("click", () => {
-        const foodNameRaw = foodInput.value.trim();
-        const normName = foodInput.dataset.selectedNormalizedFood || normalizeName(foodNameRaw); 
-        
-        if (!foodNameRaw) {
-            alert("Please enter a food name.");
-            return;
-        }
-        if (!(normName in foodsDatabase)) {
-            alert(`Food "${foodNameRaw}" not found in database. Try another or check spelling.`);
-            return;
-        }
-        const amount = parseFloat(amountInput.value);
-        if (isNaN(amount) || amount <= 0) {
-            alert("Enter a valid positive amount.");
-            return;
-        }
-        const portionType = portionTypeSelect.value;
-
-        const foodData = foodsDatabase[normName];
-        const macros = calculateMacros(foodData, amount, portionType);
-        if (!macros) {
-            alert("Error calculating macros.");
-            return;
-        }
-
-        const newMeal = {
-            name: foodNameRaw,
-            normalizedName: normName,
-            calories: macros.calories,
-            protein: macros.protein,
-            fat: macros.fat,
-            carbs: macros.carbs,
-            sugar: macros.sugar,
-            sodium: macros.sodium,
-            bloatScale: macros.bloatScale,
-            weight: macros.weight,
-            timestamp: Date.now(),
-            photo: null,
-        };
-
-        const file = mealPhotoInput.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function (e) {
-                newMeal.photo = e.target.result;
-                dailyLog.push(newMeal);
-                saveLog(dailyLog);
-                renderMealHistory();
-                updateTotalsAndProgress();
-                resetInputs();
+            const meal = {
+                name: foodName, // Store original input name
+                normalizedName: normalizedFoodName, // Store normalized name for database lookup
+                quantity: quantity,
+                unit: unit,
+                timestamp: new Date().toISOString(),
             };
-            reader.readAsDataURL(file);
-        } else {
-            dailyLog.push(newMeal);
+
+            dailyLog.push(meal);
             saveLog(dailyLog);
             renderMealHistory();
             updateTotalsAndProgress();
-            resetInputs();
-        }
-    });
 
-    // === Reset input fields ===
-    function resetInputs() {
-        foodInput.value = "";
-        amountInput.value = "";
-        mealPhotoInput.value = "";
-        foodInput.dataset.selectedNormalizedFood = ""; 
-        hideFoodSuggestions();
-    }
-   // ... existing functions ...
-
-// NEW: Function to render all foods in the modal
-function renderAllFoodsList(searchTerm = "") {
-    allFoodsList.innerHTML = "";
-    // const normalizedSearchTerm = normalizeName(searchTerm); // This line is not needed here
-
-    // Filter and sort food names alphabetically by their original name
-    const sortedFoodNames = Object.keys(foodsDatabase)
-        .filter(normalizedName => {
-            const food = foodsDatabase[normalizedName];
-            // Check if food exists and its name contains the search term (case-insensitive)
-            return food && food.name && food.name.toLowerCase().includes(searchTerm.toLowerCase());
-        })
-        .sort((a, b) => {
-            const foodA = foodsDatabase[a];
-            const foodB = foodsDatabase[b];
-
-            const nameA = foodA && foodA.name ? foodA.name : "";
-            const nameB = foodB && foodB.name ? foodB.name : "";
-
-            return nameA.localeCompare(nameB);
+            // Clear input fields
+            mealInput.value = "";
+            quantityInput.value = "1";
+            unitInput.value = "g";
+            autocompleteSuggestions.style.display = "none";
         });
 
-    const fragment = document.createDocumentFragment();
-
-    if (sortedFoodNames.length === 0) {
-        const noResultsDiv = document.createElement("div");
-        noResultsDiv.classList.add("empty-state");
-        noResultsDiv.textContent = "No foods found matching your search.";
-        fragment.appendChild(noResultsDiv);
-    } else {
-        sortedFoodNames.forEach(normalizedFoodName => {
-            const food = foodsDatabase[normalizedFoodName];
-            // At this point, 'food' should always be defined due to the filter step
-            if (!food) return; // Extra defensive check, though it should be redundant now
-
-            const foodItemDiv = document.createElement("div");
-            foodItemDiv.classList.add("suggestion-item");
-            foodItemDiv.style.display = "flex";
-            foodItemDiv.style.justifyContent = "space-between";
-            foodItemDiv.style.alignItems = "center";
-            foodItemDiv.style.paddingRight = "10px";
-
-            const foodNameSpan = document.createElement("span");
-            foodNameSpan.textContent = food.name;
-            foodItemDiv.appendChild(foodNameSpan);
-
-            const infoButton = document.createElement("button");
-            infoButton.textContent = "Info";
-            infoButton.classList.add("btn-info");
-            infoButton.style.padding = "4px 8px";
-            infoButton.style.fontSize = "0.7em";
-            infoButton.style.marginTop = "0";
-            infoButton.style.marginLeft = "10px";
-            infoButton.addEventListener("click", (event) => {
-                event.stopPropagation();
-                showFoodInfoModal(normalizedFoodName);
-            });
-            foodItemDiv.appendChild(infoButton);
-
-            fragment.appendChild(foodItemDiv);
-        });
-    }
-
-    allFoodsList.appendChild(fragment);
-}
-
-    // === Render meal log ===
-    function renderMealHistory() {
-        mealHistoryDiv.innerHTML = "";
-        if (dailyLog.length === 0) {
-            mealHistoryDiv.innerHTML = '<div class="empty-state">No meals logged yet.</div>';
-            return;
-        }
-
-        const mealLogContainer = document.createElement('div');
-        mealLogContainer.classList.add('meal-log-container');
-        const mealLogGrid = document.createElement('div');
-        mealLogGrid.classList.add('meal-log-grid');
-
-        // Create header row - UPDATED HEADERS
-        const header = document.createElement('div');
-        header.classList.add('meal-log-header');
-        // Changed "Kcal" to "Calories", "P(g)" to "Protein(g)", etc.
-        const headers = ["Food", "Calories", "Protein(g)", "Fat(g)", "Carbs(g)", "Sugar(g)", "Sodium(mg)", "Bloat", ""]; // Empty for X button
-        headers.forEach(text => {
-            const cell = document.createElement('div');
-            cell.classList.add('grid-cell');
-            cell.textContent = text;
-            header.appendChild(cell);
-        });
-        mealLogGrid.appendChild(header);
-
-        // Render each meal item
-        dailyLog.forEach((meal, i) => {
-            const div = document.createElement("div");
-            div.classList.add("list-item");
-
-            // Food Name Cell - Now contains name and Info button stacked
-            const foodNameCell = document.createElement('div');
-            foodNameCell.classList.add('grid-cell', 'food-name');
-            const foodNameSpan = document.createElement('span');
-            foodNameSpan.textContent = meal.name;
-            foodNameCell.appendChild(foodNameSpan);
-
-            const infoBtn = document.createElement("button");
-            infoBtn.textContent = "Info";
-            infoBtn.classList.add("btn-info");
-            infoBtn.title = `Show info for ${meal.name}`;
-            infoBtn.addEventListener("click", () => {
-                showFoodInfoModal(meal.normalizedName);
-            });
-
-            foodNameCell.appendChild(infoBtn); // Append info button under food name
-
-            // NEW: Show Image Button
-            if (meal.photo) {
-                const showImageBtn = document.createElement("button");
-                showImageBtn.textContent = "Show";
-                showImageBtn.classList.add("btn-info", "btn-show-image"); 
-                showImageBtn.title = `Show photo for ${meal.name}`;
-                showImageBtn.addEventListener("click", () => {
-                    modalImage.src = meal.photo;
-                    imageModalBg.classList.add("show");
-                });
-                foodNameCell.appendChild(showImageBtn); // Append show image button next to info button
-            }
-
-            div.appendChild(foodNameCell);
-
-
-            const kcalCell = document.createElement('div');
-            kcalCell.classList.add('grid-cell');
-            kcalCell.textContent = fmt(meal.calories);
-            div.appendChild(kcalCell);
-
-            const proteinCell = document.createElement('div');
-            proteinCell.classList.add('grid-cell');
-            proteinCell.textContent = fmt(meal.protein);
-            div.appendChild(proteinCell);
-
-            const fatCell = document.createElement('div');
-            fatCell.classList.add('grid-cell');
-            fatCell.textContent = fmt(meal.fat);
-            div.appendChild(fatCell);
-
-            const carbsCell = document.createElement('div');
-            carbsCell.classList.add('grid-cell');
-            carbsCell.textContent = fmt(meal.carbs);
-            div.appendChild(carbsCell);
-
-            const sugarCell = document.createElement('div');
-            sugarCell.classList.add('grid-cell');
-            sugarCell.textContent = fmt(meal.sugar);
-            div.appendChild(sugarCell);
-
-            const sodiumCell = document.createElement('div');
-            sodiumCell.classList.add('grid-cell');
-            sodiumCell.textContent = fmt(meal.sodium);
-            div.appendChild(sodiumCell);
-
-            const bloatCell = document.createElement('div');
-            bloatCell.classList.add('grid-cell');
-            bloatCell.textContent = `${meal.bloatScale}/10`;
-            div.appendChild(bloatCell);
-
-            const actionsCell = document.createElement('div');
-            actionsCell.classList.add('grid-cell', 'actions');
-            const deleteBtn = document.createElement("button");
-            deleteBtn.textContent = "X";
-            deleteBtn.classList.add("btn-danger");
-            deleteBtn.title = `Delete ${meal.name}`;
-            deleteBtn.addEventListener("click", () => {
-                dailyLog.splice(i, 1);
+        function deleteMeal(index) {
+            if (confirm("Are you sure you want to delete this meal?")) {
+                dailyLog.splice(index, 1);
                 saveLog(dailyLog);
                 renderMealHistory();
                 updateTotalsAndProgress();
-            });
-            actionsCell.appendChild(deleteBtn);
-            div.appendChild(actionsCell);
+            }
+        }
 
-            mealLogGrid.appendChild(div);
+        // === Autocomplete ===
+        mealInput.addEventListener("input", () => {
+            const input = mealInput.value.trim();
+            showFoodSuggestions(input);
         });
-        mealHistoryDiv.appendChild(mealLogContainer);
-        mealLogContainer.appendChild(mealLogGrid);
-    }
 
-    // === Update totals and progress bar ===
-    function updateTotalsAndProgress() {
-        const totals = dailyLog.reduce((acc, meal) => {
-            acc.calories += meal.calories;
-            acc.protein += meal.protein;
-            acc.fat += meal.fat;
-            acc.carbs += meal.carbs;
-            acc.sugar += meal.sugar;
-            acc.sodium += meal.sodium;
-            acc.bloatScale += meal.bloatScale;
-            return acc;
-        }, { calories: 0, protein: 0, fat: 0, carbs: 0, sugar: 0, sodium: 0, bloatScale: 0 });
+        mealInput.addEventListener("blur", () => {
+            // Delay hiding to allow click on suggestions
+            setTimeout(() => {
+                autocompleteSuggestions.style.display = "none";
+            }, 100);
+        });
 
-        totalCaloriesSpan.textContent = fmt(totals.calories);
-        totalProteinSpan.textContent = fmt(totals.protein);
-        totalFatSpan.textContent = fmt(totals.fat);
-        totalCarbsSpan.textContent = fmt(totals.carbs);
-        totalSugarSpan.textContent = fmt(totals.sugar);
-        totalSodiumSpan.textContent = fmt(totals.sodium);
-        totalBloatScaleSpan.textContent = fmt(totals.bloatScale);
+        mealInput.addEventListener("focus", () => {
+            const input = mealInput.value.trim();
+            showFoodSuggestions(input);
+        });
 
-        const caloriePercentage = (totals.calories / settings.calorieGoal) * 100;
-        calorieProgressBar.style.width = `${Math.min(caloriePercentage, 100)}%`;
-        calorieProgressBar.style.backgroundColor = caloriePercentage > 100 ? 'var(--danger-color)' : 'var(--success-color)';
-    }
 
-    // === Modals functionality ===
-    openSettingsModalBtn.addEventListener("click", () => {
-        calorieGoalInput.value = settings.calorieGoal;
-        unitPreferenceSelect.value = settings.unitPreference;
-        settingsModalBg.classList.add("show");
-    });
+        function showFoodSuggestions(input) {
+            autocompleteSuggestions.innerHTML = "";
+            if (input.length === 0) {
+                autocompleteSuggestions.style.display = "none";
+                return;
+            }
 
-    closeSettingsModal.addEventListener("click", () => {
-        settingsModalBg.classList.remove("show");
-    });
+            const normalizedInput = normalizeName(input);
+            const suggestions = Object.keys(foodsDatabase)
+                .filter(normalizedName => normalizedName.includes(normalizedInput))
+                .slice(0, 5); // Limit to 5 suggestions
 
-    settingsModalBg.addEventListener("click", (e) => {
-        if (e.target === settingsModalBg) {
-            settingsModalBg.classList.remove("show");
-        }
-    });
-
-    saveSettingsBtn.addEventListener("click", () => {
-        const newGoal = parseInt(calorieGoalInput.value);
-        if (!isNaN(newGoal) && newGoal > 0) {
-            settings.calorieGoal = newGoal;
-        } else {
-            alert("Please enter a valid calorie goal.");
-            return;
-        }
-        settings.unitPreference = unitPreferenceSelect.value;
-        saveSettings(settings);
-        updateTotalsAndProgress();
-        settingsModalBg.classList.remove("show");
-    });
-
-    // Close image modal
-    closeImageModal.addEventListener("click", () => {
-        imageModalBg.classList.remove("show");
-        modalImage.src = ""; // Clear the image source
-    });
-
-    imageModalBg.addEventListener("click", (e) => {
-        if (e.target === imageModalBg) {
-            imageModalBg.classList.remove("show");
-            modalImage.src = ""; // Clear the image source
-        }
-    });
-
-    // Food Info Modal
-    function showFoodInfoModal(normalizedFoodName) {
-        const food = foodsDatabase[normalizedFoodName];
-        if (!food) {
-            alert("Food details not found.");
-            return;
+            if (suggestions.length > 0) {
+                suggestions.forEach(foodNormalizedName => {
+                    const suggestionItem = document.createElement("div");
+                    suggestionItem.classList.add("suggestion-item");
+                    // Use the capitalized normalizedName as the display name
+                    suggestionItem.textContent = capitalizeFirstLetter(foodNormalizedName);
+                    suggestionItem.addEventListener("click", () => {
+                        mealInput.value = capitalizeFirstLetter(foodNormalizedName); // Set input to display name
+                        autocompleteSuggestions.style.display = "none";
+                    });
+                    autocompleteSuggestions.appendChild(suggestionItem);
+                });
+                autocompleteSuggestions.style.display = "block";
+            } else {
+                autocompleteSuggestions.style.display = "none";
+            }
         }
 
-        foodInfoTitle.textContent = food.name;
-        infoCalories100g.textContent = fmt(food.caloriesPer100g);
-        infoProtein100g.textContent = fmt(food.proteinPer100g);
-        infoFat100g.textContent = fmt(food.fatPer100g);
-        infoCarbs100g.textContent = fmt(food.carbsPer100g);
-        infoSugar100g.textContent = fmt(food.sugarPer100g);
-        infoSodium100g.textContent = fmt(food.sodiumPer100g);
-        infoBloatScale100g.textContent = food.bloatScale;
 
-        const servingSize = food.weightPerUnit || 100; // Default to 100g if serving size not defined
-        const servingFactor = servingSize / 100;
+        // === Render meal log ===
+        function renderMealHistory() {
+            mealList.innerHTML = "";
+            if (dailyLog.length === 0) {
+                const emptyState = document.createElement("li");
+                emptyState.classList.add("empty-state");
+                emptyState.textContent = "No meals logged yet.";
+                mealList.appendChild(emptyState);
+                return;
+            }
 
-        infoServingSize.textContent = convertWeightToPreferredUnit(servingSize);
-        infoCaloriesServing.textContent = fmt(food.caloriesPer100g * servingFactor);
-        infoProteinServing.textContent = fmt(food.proteinPer100g * servingFactor);
-        infoFatServing.textContent = fmt(food.fatPer100g * servingFactor);
-        infoCarbsServing.textContent = fmt(food.carbsPer100g * servingFactor);
-        infoSugarServing.textContent = fmt(food.sugarPer100g * servingFactor);
-        infoSodiumServing.textContent = fmt(food.sodiumPer100g * servingFactor);
+            dailyLog.forEach((meal, index) => {
+                const mealItem = document.createElement("li");
+                mealItem.classList.add("meal-item");
 
-        const searchQuery = encodeURIComponent(food.name);
-        woolworthsLink.href = `https://www.woolworths.co.nz/shop/search/products?searchTerm=${searchQuery}`;
-        paknsaveLink.href = `https://www.paknsave.co.nz/shop/legacy/products?q=${searchQuery}`;
-        newworldLink.href = `https://www.newworld.co.nz/shop/legacy/products?q=${searchQuery}`;
+                const foodData = foodsDatabase[meal.normalizedName];
+                let displayQuantity = meal.quantity;
+                let displayUnit = meal.unit;
 
+                // Adjust quantity and unit based on unit preference and food data
+                if (settings.unitPreference === "imperial" && meal.unit === "g" && foodData && foodData.weightPerUnit) {
+                    displayQuantity = (meal.quantity / 28.35).toFixed(1); // Convert grams to ounces
+                    displayUnit = "oz";
+                } else if (settings.unitPreference === "imperial" && meal.unit === "unit" && foodData && foodData.weightPerUnit) {
+                    displayQuantity = (meal.quantity * foodData.weightPerUnit / 28.35).toFixed(1); // Convert grams to ounces for units
+                    displayUnit = "oz";
+                }
 
-        foodInfoModalBg.classList.add("show");
-    }
+                mealItem.innerHTML = `
+                    <div class="meal-item-info">
+                        <h4>${meal.name}</h4>
+                        <p>${displayQuantity} ${displayUnit} - ${new Date(meal.timestamp).toLocaleString()}</p>
+                    </div>
+                    <div class="meal-item-actions">
+                        <button class="btn-info show-info-btn" data-normalized-name="${meal.normalizedName}">Info</button>
+                        <button class="btn-danger delete-btn" data-index="${index}">Delete</button>
+                    </div>
+                `;
+                mealList.appendChild(mealItem);
+            });
 
-    closeFoodInfoModal.addEventListener("click", () => {
-        foodInfoModalBg.classList.remove("show");
-    });
+            // Attach event listeners for delete and info buttons
+            mealList.querySelectorAll(".delete-btn").forEach((button) => {
+                button.addEventListener("click", (e) => {
+                    deleteMeal(parseInt(e.target.dataset.index));
+                });
+            });
 
-    foodInfoModalBg.addEventListener("click", (e) => {
-        if (e.target === foodInfoModalBg) {
+            mealList.querySelectorAll(".show-info-btn").forEach((button) => {
+                button.addEventListener("click", (e) => {
+                    const normalizedName = e.target.dataset.normalizedName;
+                    showFoodInfoInModal(normalizedName);
+                });
+            });
+        }
+
+        // === Update Totals and Progress ===
+        function updateTotalsAndProgress() {
+            let totalCalories = 0;
+            let totalProtein = 0;
+            let totalFat = 0;
+            let totalCarbs = 0;
+            let totalSugar = 0;
+            let totalSodium = 0;
+            let totalBloatScale = 0;
+            let bloatItemCount = 0;
+
+            dailyLog.forEach((meal) => {
+                const foodData = foodsDatabase[meal.normalizedName];
+
+                if (foodData) {
+                    let factor = meal.quantity;
+                    if (meal.unit === "g" && foodData.weightPerUnit) {
+                        // If food data has weightPerUnit, calculate factor based on 100g serving
+                        factor = meal.quantity / 100;
+                    } else if (meal.unit === "unit" && foodData.weightPerUnit) {
+                        // If quantity is in units, convert to grams for calculation
+                        factor = (meal.quantity * foodData.weightPerUnit) / 100;
+                    }
+
+                    totalCalories += (foodData.caloriesPer100g || 0) * factor;
+                    totalProtein += (foodData.proteinPer100g || 0) * factor;
+                    totalFat += (foodData.fatPer100g || 0) * factor;
+                    totalCarbs += (foodData.carbsPer100g || 0) * factor;
+                    totalSugar += (foodData.sugarPer100g || 0) * factor;
+                    totalSodium += (foodData.sodiumPer100g || 0) * factor;
+
+                    if (foodData.bloatScale !== undefined) {
+                        totalBloatScale += foodData.bloatScale;
+                        bloatItemCount++;
+                    }
+                }
+            });
+
+            totalCaloriesElement.textContent = `${totalCalories.toFixed(1)} kcal`;
+            totalProteinElement.textContent = `${totalProtein.toFixed(1)} g`;
+            totalFatElement.textContent = `${totalFat.toFixed(1)} g`;
+            totalCarbsElement.textContent = `${totalCarbs.toFixed(1)} g`;
+            totalSugarElement.textContent = `${totalSugar.toFixed(1)} g`;
+            totalSodiumElement.textContent = `${totalSodium.toFixed(1)} mg`;
+            averageBloatElement.textContent = `${bloatItemCount > 0 ? (totalBloatScale / bloatItemCount).toFixed(1) : 0} / 5`;
+
+            // Update progress bar
+            const calorieGoal = settings.calorieGoal;
+            const progress = (totalCalories / calorieGoal) * 100;
+            calorieProgressBar.style.width = `${Math.min(100, progress)}%`;
+            calorieProgressBar.textContent = `${progress.toFixed(0)}%`;
+
+            if (totalCalories > calorieGoal) {
+                calorieProgressBar.classList.add("over-goal");
+            } else {
+                calorieProgressBar.classList.remove("over-goal");
+            }
+        }
+
+        // === Settings ===
+        calorieGoalInput.addEventListener("input", () => {
+            settings.calorieGoal = parseInt(calorieGoalInput.value) || 0;
+            updateTotalsAndProgress(); // Update progress bar immediately
+        });
+
+        unitPreferenceSelect.addEventListener("change", () => {
+            settings.unitPreference = unitPreferenceSelect.value;
+            renderMealHistory(); // Re-render to show updated units
+            updateTotalsAndProgress(); // Recalculate if unit affects calculations
+        });
+
+        saveSettingsBtn.addEventListener("click", () => {
+            saveSettings(settings);
+            alert("Settings saved!");
+        });
+
+        // === Food Info Modal ===
+        function showFoodInfoInModal(normalizedName) {
+            const food = foodsDatabase[normalizedName];
+
+            if (!food) {
+                alert("Food information not found.");
+                return;
+            }
+
+            // Use capitalized normalized name for display
+            modalFoodName.textContent = capitalizeFirstLetter(normalizedName);
+            modalCalories.textContent = food.caloriesPer100g !== undefined ? food.caloriesPer100g : 'N/A';
+            modalProtein.textContent = food.proteinPer100g !== undefined ? food.proteinPer100g : 'N/A';
+            modalFat.textContent = food.fatPer100g !== undefined ? food.fatPer100g : 'N/A';
+            modalCarbs.textContent = food.carbsPer100g !== undefined ? food.carbsPer100g : 'N/A';
+            modalSugar.textContent = food.sugarPer100g !== undefined ? food.sugarPer100g : 'N/A';
+            modalSodium.textContent = food.sodiumPer100g !== undefined ? food.sodiumPer100g : 'N/A';
+            modalBloatScale.textContent = food.bloatScale !== undefined ? food.bloatScale : 'N/A';
+
+            if (food.weightPerUnit !== undefined) {
+                modalWeightPerUnit.style.display = "block";
+                modalWeightPerUnitValue.textContent = food.weightPerUnit;
+            } else {
+                modalWeightPerUnit.style.display = "none";
+            }
+
+            // Image handling (if images were available)
+            if (food.imageSrc) { // Assuming 'imageSrc' property in foodDatabase
+                modalFoodImage.src = food.imageSrc;
+                modalFoodImage.style.display = "block";
+                imagePlaceholderText.style.display = "none";
+            } else {
+                modalFoodImage.src = ""; // Clear any previous image
+                modalFoodImage.style.display = "none";
+                imagePlaceholderText.style.display = "block";
+            }
+
+            foodInfoModalBg.classList.add("show");
+        }
+
+        closeFoodInfoModal.addEventListener("click", () => {
             foodInfoModalBg.classList.remove("show");
+        });
+
+        foodInfoModalBg.addEventListener("click", (e) => {
+            if (e.target === foodInfoModalBg) {
+                foodInfoModalBg.classList.remove("show");
+            }
+        });
+
+        // NEW: Function to render all foods in the modal
+        function renderAllFoodsList(searchTerm = "") {
+            allFoodsList.innerHTML = "";
+            const normalizedSearchTerm = normalizeName(searchTerm); // Normalize search term
+
+            // Filter and sort food names alphabetically by their original name
+            const sortedFoodNames = Object.keys(foodsDatabase)
+                .filter(normalizedName => normalizedName.includes(normalizedSearchTerm)) // Filter using normalized key
+                .sort((a, b) => {
+                    // Sort by the capitalized version of the normalized name
+                    const nameA = capitalizeFirstLetter(a);
+                    const nameB = capitalizeFirstLetter(b);
+                    return nameA.localeCompare(nameB);
+                });
+
+            const fragment = document.createDocumentFragment();
+
+            if (sortedFoodNames.length === 0) {
+                const noResultsDiv = document.createElement("div");
+                noResultsDiv.classList.add("empty-state");
+                noResultsDiv.textContent = "No foods found matching your search.";
+                fragment.appendChild(noResultsDiv);
+            } else {
+                sortedFoodNames.forEach(normalizedName => {
+                    const food = foodsDatabase[normalizedName];
+                    const foodItemDiv = document.createElement("div");
+                    foodItemDiv.classList.add("all-foods-list-item");
+                    // Use capitalized normalizedName for display
+                    foodItemDiv.innerHTML = `
+                        <span>${capitalizeFirstLetter(normalizedName)}</span>
+                        <p>Calories: ${food.caloriesPer100g || 'N/A'} kcal</p>
+                    `;
+                    foodItemDiv.addEventListener("click", () => {
+                        showFoodInfoInModal(normalizedName);
+                    });
+                    fragment.appendChild(foodItemDiv);
+                });
+            }
+            allFoodsList.appendChild(fragment);
         }
+
+    // === Event Listeners for main buttons ===
+    darkModeToggle.addEventListener("click", () => {
+        document.body.classList.toggle("dark-mode");
+        localStorage.setItem(
+            "darkMode",
+            document.body.classList.contains("dark-mode")
+        );
     });
 
-    // NEW: Reset History Functionality
     resetHistoryBtn.addEventListener("click", () => {
         if (confirm("Are you sure you want to reset all your meal history and settings? This cannot be undone.")) {
             dailyLog = [];
@@ -1246,7 +1062,8 @@ function renderAllFoodsList(searchTerm = "") {
     // === Initial load ===
     initDarkMode();
     renderMealHistory();
-    updateTotalsAndProgress();
-</script>
+    updateTotalsAndProgress(); // Calculate totals on initial load
+    saveSettings(settings); // Ensure settings are loaded/saved on initial load
+    </script>
 </body>
 </html>
