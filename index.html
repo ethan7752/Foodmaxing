@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Progressive Overload Tracker</title>
+    <!-- Tailwind CSS CDN for styling -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
@@ -33,9 +34,11 @@
     <div id="app-container" class="bg-gray-900 border border-gray-700 rounded-xl shadow-lg w-full max-w-md p-6">
         <h1 class="text-3xl font-bold text-center mb-6 text-orange-500">Gym Tracker</h1>
 
+        <!-- Loading and Error Messages (hidden by default) -->
         <div id="loading-message" class="text-xl font-semibold text-center text-orange-400 hidden">Loading application...</div>
         <div id="error-message" class="text-xl font-semibold text-center text-red-400 p-4 hidden"></div>
 
+        <!-- Exercise List View (visible by default) -->
         <div id="exercise-list-view">
             <input
                 type="text"
@@ -44,13 +47,16 @@
                 class="w-full p-3 mb-4 bg-gray-800 text-orange-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 placeholder-gray-500"
             />
             <div id="exercises-container" class="max-h-96 overflow-y-auto custom-scrollbar space-y-2">
-                </div>
+                <!-- Exercise buttons will be dynamically inserted here by JavaScript -->
+            </div>
             <p id="no-exercises-found" class="text-center text-gray-500 text-lg py-4 hidden">No exercises found.</p>
         </div>
 
+        <!-- Exercise Detail View (hidden by default) -->
         <div id="exercise-detail-view" class="hidden">
             <h2 id="detail-exercise-name" class="text-2xl font-bold text-orange-500 mb-6 text-center"></h2>
 
+            <!-- Weight Input Group -->
             <div class="flex items-center justify-between mb-4 bg-gray-900 border border-gray-700 p-4 rounded-lg shadow-inner">
                 <label class="text-lg font-medium text-orange-300 w-1/3">Weight (kg):</label>
                 <div class="flex items-center w-2/3">
@@ -60,6 +66,7 @@
                 </div>
             </div>
 
+            <!-- Reps Input Group -->
             <div class="flex items-center justify-between mb-4 bg-gray-900 border border-gray-700 p-4 rounded-lg shadow-inner">
                 <label class="text-lg font-medium text-orange-300 w-1/3">Reps:</label>
                 <div class="flex items-center w-2/3">
@@ -69,6 +76,7 @@
                 </div>
             </div>
 
+            <!-- Sets Input Group -->
             <div class="flex items-center justify-between mb-4 bg-gray-900 border border-gray-700 p-4 rounded-lg shadow-inner">
                 <label class="text-lg font-medium text-orange-300 w-1/3">Sets:</label>
                 <div class="flex items-center w-2/3">
@@ -89,24 +97,8 @@
         </div>
     </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-        // --- Configuration (These will be provided by the environment during execution) ---
-        // const __app_id = 'YOUR_APP_ID'; // Replace with your actual App ID
-        // const __firebase_config = JSON.stringify({
-        //     apiKey: "YOUR_API_KEY",
-        //     authDomain: "YOUR_AUTH_DOMAIN",
-        //     projectId: "YOUR_PROJECT_ID",
-        //     storageBucket: "YOUR_STORAGE_BUCKET",
-        //     messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-        //     appId: "YOUR_APP_ID"
-        // });
-        // const __initial_auth_token = null; // Or your custom auth token if applicable
-        // ----------------------------------------------------------------------------------
-
+    <!-- JavaScript for application logic -->
+    <script>
         // Exercise List (from your request)
         const EXERCISES = [
             "Barbell curl", "Dumbell curl", "Hammer curl", "Preacher curl", "Cable curl", "Machine curl",
@@ -134,13 +126,11 @@
         const saveMessage = document.getElementById('save-message');
         const backButton = document.getElementById('back-button');
 
-        // --- Global Variables for Firebase and App State ---
-        let db;
-        let userId = null;
+        // --- Global Variables for App State ---
         let currentSelectedExercise = null; // Tracks the exercise currently displayed in detail view
-        let allFetchedExerciseData = {}; // Stores all exercise data retrieved from Firestore
+        let allFetchedExerciseData = {}; // Stores all exercise data retrieved from localStorage
 
-        // --- UI Logic Functions ---
+        // --- Utility Functions ---
 
         /** Shows either the list view or the detail view, hiding the other. */
         function showView(viewName) {
@@ -152,6 +142,54 @@
                 exerciseDetailView.classList.remove('hidden');
             }
         }
+
+        /** Saves all exercise data to localStorage. */
+        function saveAllExerciseDataToLocalStorage() {
+            try {
+                localStorage.setItem('gymTrackerData', JSON.stringify(allFetchedExerciseData));
+                console.log("Data saved to localStorage.");
+            } catch (e) {
+                console.error("Error saving to localStorage:", e);
+                errorMessage.textContent = "Error saving data to device. Storage might be full or unavailable.";
+                errorMessage.classList.remove('hidden');
+            }
+        }
+
+        /** Loads all exercise data from localStorage. */
+        function loadAllExerciseDataFromLocalStorage() {
+            try {
+                const storedData = localStorage.getItem('gymTrackerData');
+                if (storedData) {
+                    allFetchedExerciseData = JSON.parse(storedData);
+                    console.log("Data loaded from localStorage:", allFetchedExerciseData);
+                } else {
+                    // If no data in localStorage, initialize with default values for all exercises
+                    initializeDefaultExerciseData();
+                }
+            } catch (e) {
+                console.error("Error loading from localStorage:", e);
+                errorMessage.textContent = "Error loading data from device. Data might be corrupted.";
+                errorMessage.classList.remove('hidden');
+                initializeDefaultExerciseData(); // Fallback to default if load fails
+            }
+        }
+
+        /** Initializes all exercises with default values if no data exists. */
+        function initializeDefaultExerciseData() {
+            EXERCISES.forEach(exerciseName => {
+                if (!allFetchedExerciseData[exerciseName]) {
+                    allFetchedExerciseData[exerciseName] = {
+                        name: exerciseName,
+                        lastWeight: 0,
+                        lastReps: 0,
+                        lastSets: 0
+                    };
+                }
+            });
+            saveAllExerciseDataToLocalStorage(); // Save the newly initialized data
+        }
+
+        // --- UI Rendering Functions ---
 
         /** Renders the list of exercises based on the provided array. */
         function renderExerciseList(filteredExercises) {
@@ -193,32 +231,27 @@
             inputElement.value = currentValue;
         }
 
-        /** Saves the current exercise's data to Firestore. */
-        async function saveExerciseData() {
-            if (!db || !userId || !currentSelectedExercise) {
-                saveMessage.textContent = "Error: Application not ready or no exercise selected.";
+        /** Saves the current exercise's data to localStorage. */
+        function saveCurrentExerciseData() {
+            if (!currentSelectedExercise) {
+                saveMessage.textContent = "Error: No exercise selected.";
                 saveMessage.className = 'text-center text-sm text-red-400 mb-4';
                 return;
             }
 
-            const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-            const docRef = doc(db, `artifacts/${appId}/users/${userId}/exercises`, currentSelectedExercise);
+            // Update the data in our in-memory object
+            allFetchedExerciseData[currentSelectedExercise] = {
+                ...allFetchedExerciseData[currentSelectedExercise], // Keep existing properties
+                lastWeight: Number(weightInput.value),
+                lastReps: Number(repsInput.value),
+                lastSets: Number(setsInput.value)
+            };
 
-            try {
-                await setDoc(docRef, {
-                    lastWeight: Number(weightInput.value),
-                    lastReps: Number(repsInput.value),
-                    lastSets: Number(setsInput.value)
-                }, { merge: true }); // Use merge to update specific fields without overwriting others
+            saveAllExerciseDataToLocalStorage(); // Persist the updated data to localStorage
 
-                saveMessage.textContent = "Saved successfully!";
-                saveMessage.className = 'text-center text-sm text-green-400 mb-4';
-                setTimeout(() => { saveMessage.textContent = ''; }, 3000); // Clear message after 3 seconds
-            } catch (e) {
-                console.error("Error saving document: ", e);
-                saveMessage.textContent = "Error saving data. Please check your connection.";
-                saveMessage.className = 'text-center text-sm text-red-400 mb-4';
-            }
+            saveMessage.textContent = "Saved successfully!";
+            saveMessage.className = 'text-center text-sm text-green-400 mb-4';
+            setTimeout(() => { saveMessage.textContent = ''; }, 3000); // Clear message after 3 seconds
         }
 
         // --- Event Listeners ---
@@ -237,7 +270,7 @@
         document.getElementById('sets-decrease').addEventListener('click', () => updateValue(setsInput, -1));
         document.getElementById('sets-increase').addEventListener('click', () => updateValue(setsInput, 1));
 
-        saveButton.addEventListener('click', saveExerciseData);
+        saveButton.addEventListener('click', saveCurrentExerciseData);
 
         backButton.addEventListener('click', () => {
             currentSelectedExercise = null; // Clear selected exercise
@@ -246,94 +279,20 @@
             showView('list'); // Switch back to list view
         });
 
-        // --- Firebase Initialization and Data Loading on Window Load ---
+        // --- Application Initialization on Window Load ---
 
-        window.onload = async function() {
+        window.onload = function() {
             loadingMessage.classList.remove('hidden'); // Show loading message
 
-            try {
-                const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-                const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+            // Load all data from localStorage
+            loadAllExerciseDataFromLocalStorage();
 
-                if (Object.keys(firebaseConfig).length === 0) {
-                    throw new Error("Firebase configuration is missing. Please ensure '__firebase_config' is set.");
-                }
+            // Render the initial list of exercises
+            renderExerciseList(EXERCISES);
 
-                const app = initializeApp(firebaseConfig);
-                db = getFirestore(app);
-                const auth = getAuth(app);
-
-                // Authenticate user (anonymously or with custom token)
-                onAuthStateChanged(auth, async (user) => {
-                    if (user) {
-                        userId = user.uid;
-                        console.log("User authenticated:", userId);
-
-                        // Set up real-time listener for user's exercise data
-                        const exercisesCollectionRef = collection(db, `artifacts/${appId}/users/${userId}/exercises`);
-                        onSnapshot(exercisesCollectionRef, (snapshot) => {
-                            const data = {};
-                            snapshot.forEach((doc) => {
-                                data[doc.id] = doc.data();
-                            });
-                            allFetchedExerciseData = data; // Update our cached data
-
-                            // Re-render relevant view with potentially new data
-                            if (currentSelectedExercise) {
-                                // If in detail view, refresh it with latest data
-                                showExerciseDetail(currentSelectedExercise);
-                            } else {
-                                // If in list view, re-render the filtered list (e.g., if data changed in background)
-                                renderExerciseList(EXERCISES.filter(exercise => exercise.toLowerCase().includes(searchInput.value.toLowerCase())));
-                            }
-                            loadingMessage.classList.add('hidden'); // Hide loading message
-                            showView(currentSelectedExercise ? 'detail' : 'list'); // Show appropriate view
-                        }, (err) => {
-                            console.error("Error fetching exercises:", err);
-                            errorMessage.textContent = "Failed to load exercise data. Please check your internet connection.";
-                            errorMessage.classList.remove('hidden');
-                            loadingMessage.classList.add('hidden');
-                        });
-
-                        // Populate initial exercises in Firestore if they don't exist
-                        for (const exerciseName of EXERCISES) {
-                            const docRef = doc(db, `artifacts/${appId}/users/${userId}/exercises`, exerciseName);
-                            const docSnap = await getDoc(docRef);
-                            if (!docSnap.exists()) {
-                                await setDoc(docRef, {
-                                    name: exerciseName,
-                                    lastWeight: 0,
-                                    lastReps: 0,
-                                    lastSets: 0
-                                });
-                                console.log(`Initialized ${exerciseName} in Firestore: ${exerciseName}`);
-                            }
-                        }
-
-                    } else {
-                        // Attempt anonymous sign-in if no user is found
-                        try {
-                            const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
-                            if (initialAuthToken) {
-                                await signInWithCustomToken(auth, initialAuthToken);
-                            } else {
-                                await signInAnonymously(auth);
-                            }
-                        } catch (authError) {
-                            console.error("Firebase anonymous sign-in failed:", authError);
-                            errorMessage.textContent = "Authentication failed. Please check your network connection.";
-                            errorMessage.classList.remove('hidden');
-                            loadingMessage.classList.add('hidden');
-                        }
-                    }
-                });
-
-            } catch (err) {
-                console.error("Error initializing application:", err);
-                errorMessage.textContent = `Failed to initialize the application: ${err.message}`;
-                errorMessage.classList.remove('hidden');
-                loadingMessage.classList.add('hidden');
-            }
+            loadingMessage.classList.add('hidden'); // Hide loading message
+            errorMessage.classList.add('hidden'); // Hide any previous error messages
+            showView('list'); // Ensure the list view is shown initially
         };
     </script>
 </body>
