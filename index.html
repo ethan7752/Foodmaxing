@@ -1,1263 +1,340 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Ethan's Food Ai">
-<link rel="apple-touch-icon" href="icon.png">
-    <title>DietMax.io</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Progressive Overload Tracker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --primary-color: #6c5ce7;
-            --primary-hover: #5649c0;
-            --danger-color: #ff7675;
-            --danger-hover: #e84343;
-            --success-color: #00b894;
-            --success-hover: #00a884;
-            --info-color: #0984e3;
-            --info-hover: #0776c8;
-            --text-color: #2d3436;
-            --bg-color: #f8f9fa;
-            --card-bg: #ffffff;
-            --border-color: #dfe6e9;
-            --modal-bg: rgba(0, 0, 0, 0.5);
-            --modal-content-bg: #ffffff;
-            --suggestion-hover-bg: #f0f0f0;
-            --suggestion-selected-bg: #e0e0e0;
-            --table-header-bg: #e9ecef;
-            --reset-button-bg: #FFC107; /* Orange for reset */
-            --reset-button-hover: #e0a804;
+        /* Custom scrollbar for better aesthetics */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #1a1a1a; /* Darker track color */
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #fb923c; /* Orange thumb color */
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #ea580c; /* Darker orange on hover */
         }
 
-        /* Dark mode variables */
-        body.dark-mode {
-            --text-color: #f5f6fa;
-            --bg-color: #2d3436;
-            --card-bg: #3c4043;
-            --border-color: #444;
-            --modal-content-bg: #3c4043;
-            --suggestion-hover-bg: #4c5053;
-            --suggestion-selected-bg: #5c6063;
-            --table-header-bg: #4c5053;
-        }
-
+        /* Set Inter font globally for consistent typography */
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
-            color: var(--text-color);
-            background-color: var(--bg-color);
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            transition: background-color 0.3s, color 0.3s;
+            font-family: 'Inter', sans-serif;
         }
-
-        .container {
-            width: 100%;
-            max-width: 900px;
-            background-color: var(--card-bg);
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            transition: background-color 0.3s;
-        }
-
-        h1, h2, h3 {
-            color: var(--primary-color);
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .header-controls {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .main-header-buttons { /* New style for buttons under title */
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
-
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-            color: var(--text-color);
-        }
-
-        input[type="text"],
-        input[type="number"],
-        select {
-            width: calc(100% - 22px); /* Adjust for padding and border */
-            padding: 10px;
-            border: 1px solid var(--border-color);
-            border-radius: 5px;
-            font-size: 1rem;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            transition: border-color 0.3s, background-color 0.3s, color 0.3s;
-        }
-
-        input[type="text"]:focus,
-        input[type="number"]:focus,
-        select:focus {
-            border-color: var(--primary-color);
-            outline: none;
-        }
-
-        button {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 1rem;
-            transition: background-color 0.3s, opacity 0.3s;
-            color: white;
-            margin-right: 10px; /* Spacing for multiple buttons */
-        }
-
-        button:last-child {
-            margin-right: 0;
-        }
-
-        .btn-primary {
-            background-color: var(--primary-color);
-        }
-
-        .btn-primary:hover {
-            background-color: var(--primary-hover);
-        }
-
-        .btn-success {
-            background-color: var(--success-color);
-        }
-
-        .btn-success:hover {
-            background-color: var(--success-hover);
-        }
-
-        .btn-danger {
-            background-color: var(--danger-color);
-        }
-
-        .btn-danger:hover {
-            background-color: var(--danger-hover);
-        }
-
-        .btn-info {
-            background-color: var(--info-color);
-        }
-
-        .btn-info:hover {
-            background-color: var(--info-hover);
-        }
-
-        .btn-reset {
-            background-color: var(--reset-button-bg);
-            color: var(--text-color); /* Adjusted for better visibility */
-        }
-
-        .btn-reset:hover {
-            background-color: var(--reset-button-hover);
-        }
-
-
-        .summary-cards {
-            display: flex;
-            justify-content: space-around;
-            flex-wrap: wrap;
-            gap: 15px;
-            margin-top: 20px;
-            margin-bottom: 30px;
-        }
-
-        .card {
-            background-color: var(--card-bg);
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-            text-align: center;
-            flex: 1 1 calc(33% - 30px); /* Approx 3 cards per row with gap */
-            min-width: 150px;
-            border: 1px solid var(--border-color);
-            transition: background-color 0.3s, border-color 0.3s;
-        }
-
-        .card h3 {
-            margin-top: 0;
-            color: var(--primary-color);
-            font-size: 1.1em;
-        }
-
-        .card p {
-            font-size: 1.8em;
-            font-weight: bold;
-            margin: 10px 0 0;
-            color: var(--text-color);
-        }
-
-        .progress-bar-container {
-            width: 100%;
-            background-color: var(--border-color);
-            border-radius: 5px;
-            height: 25px;
-            margin-top: 10px;
-            overflow: hidden; /* Ensure inner bar stays within bounds */
-        }
-
-        .progress-bar {
-            height: 100%;
-            background-color: var(--success-color);
-            width: 0%;
-            border-radius: 5px;
-            text-align: center;
-            line-height: 25px;
-            color: white;
-            transition: width 0.5s ease-in-out, background-color 0.3s;
-        }
-
-        .progress-bar.over-goal {
-            background-color: var(--danger-color);
-        }
-
-        .meal-history {
-            margin-top: 30px;
-        }
-
-        .meal-list {
-            list-style: none;
-            padding: 0;
-        }
-
-        .meal-item {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            transition: background-color 0.3s, border-color 0.3s;
-        }
-
-        .meal-item-info {
-            flex-grow: 1;
-        }
-
-        .meal-item-info h4 {
-            margin: 0 0 5px;
-            color: var(--primary-color);
-        }
-
-        .meal-item-info p {
-            margin: 0;
-            font-size: 0.9em;
-            color: var(--text-color);
-        }
-
-        .meal-item-actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 10px; /* For smaller screens */
-        }
-
-        .meal-item-actions button {
-            padding: 8px 12px;
-            font-size: 0.85rem;
-            margin-right: 0; /* Override default button margin */
-        }
-
-        /* Responsive adjustments */
-        @media (max-width: 768px) {
-            .summary-cards {
-                flex-direction: column;
-            }
-            .card {
-                flex-basis: 100%;
-            }
-            .meal-item {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            .meal-item-actions {
-                width: 100%;
-                justify-content: flex-end;
-            }
-        }
-
-        .autocomplete-suggestions {
-            border: 1px solid var(--border-color);
-            max-height: 150px;
-            overflow-y: auto;
-            position: absolute; /* Changed to absolute */
-            background-color: var(--card-bg);
-            z-index: 10;
-            width: calc(100% - 40px); /* Adjust width based on container padding */
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            border-radius: 0 0 5px 5px;
-        }
-
-        .suggestion-item {
-            padding: 10px;
-            cursor: pointer;
-            border-bottom: 1px solid var(--border-color);
-            transition: background-color 0.2s;
-        }
-
-        .suggestion-item:last-child {
-            border-bottom: none;
-        }
-
-        .suggestion-item.selected {
-            background-color: var(--suggestion-selected-bg);
-        }
-
-        .suggestion-item:hover {
-            background-color: var(--suggestion-hover-bg);
-        }
-
-        /* Settings Section */
-        .settings-section {
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 1px solid var(--border-color);
-        }
-
-        .settings-section h2 {
-            margin-top: 0;
-            text-align: left;
-            color: var(--primary-color);
-        }
-
-        .settings-section .form-group {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .settings-section label {
-            margin-bottom: 8px;
-        }
-
-        .settings-section input[type="number"],
-        .settings-section select {
-            max-width: 200px; /* Keep settings inputs compact */
-        }
-
-        .settings-actions {
-            margin-top: 20px;
-            display: flex;
-            gap: 10px;
-            justify-content: flex-end; /* Align buttons to the right */
-        }
-
-        /* Modal Styles */
-        .modal-background {
-            display: none; /* Hidden by default */
-            position: fixed; /* Stay in place */
-            z-index: 100; /* Sit on top */
-            left: 0;
-            top: 0;
-            width: 100%; /* Full width */
-            height: 100%; /* Full height */
-            overflow: auto; /* Enable scroll if needed */
-            background-color: var(--modal-bg); /* Black w/ opacity */
-            justify-content: center; /* Center horizontally */
-            align-items: center; /* Center vertically */
-        }
-
-        .modal-background.show {
-            display: flex; /* Show when 'show' class is added */
-        }
-
-        .modal-content {
-            background-color: var(--modal-content-bg);
-            margin: auto;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-            width: 80%; /* Could be adjusted */
-            max-width: 600px;
-            position: relative;
-            transition: background-color 0.3s;
-            max-height: 80vh; /* Limit height */
-            overflow-y: auto; /* Enable scrolling for content */
-        }
-
-        .close-button {
-            color: var(--text-color);
-            position: absolute;
-            top: 15px;
-            right: 25px;
-            font-size: 30px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: color 0.2s;
-        }
-
-        .close-button:hover,
-        .close-button:focus {
-            color: var(--danger-color);
-            text-decoration: none;
-        }
-
-        .modal-content h3 {
-            color: var(--primary-color);
-            margin-top: 0;
-            margin-bottom: 20px;
-            text-align: left;
-        }
-
-        .food-info p {
-            margin-bottom: 10px;
-        }
-
-        .food-image-placeholder {
-            width: 100%;
-            height: 200px;
-            background-color: var(--border-color);
-            border-radius: 8px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 1.2em;
-            color: var(--text-color);
-            margin-top: 20px;
-            overflow: hidden; /* Ensure images fit */
-        }
-
-        .food-image-placeholder img {
-            max-width: 100%;
-            max-height: 100%;
-            object-fit: contain; /* Ensure image is fully visible */
-        }
-
-        .store-links {
-            margin-top: 20px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            justify-content: center; /* Center the links */
-        }
-
-        .store-links a {
-            display: inline-block;
-            padding: 8px 15px;
-            background-color: var(--info-color);
-            color: white;
-            border-radius: 5px;
-            text-decoration: none;
-            font-size: 0.9em;
-            transition: background-color 0.3s;
-        }
-
-        .store-links a:hover {
-            background-color: var(--info-hover);
-        }
-
-
-        /* All Foods Modal Specifics */
-        .all-foods-controls {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
-            flex-wrap: wrap; /* Allow wrapping on smaller screens */
-        }
-
-        .all-foods-controls input,
-        .all-foods-controls select {
-            flex: 1; /* Allow inputs to grow */
-            min-width: 120px; /* Minimum width for inputs */
-        }
-
-        .all-foods-list {
-            margin-top: 20px;
-            max-height: 400px; /* Fixed height for scrolling */
-            overflow-y: auto;
-            border: 1px solid var(--border-color);
-            border-radius: 5px;
-            padding: 10px;
-        }
-
-        .all-foods-list-item {
-            padding: 10px;
-            border-bottom: 1px solid var(--border-color);
-            cursor: pointer;
-            transition: background-color 0.2s;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .all-foods-list-item:last-child {
-            border-bottom: none;
-        }
-
-        .all-foods-list-item:hover {
-            background-color: var(--suggestion-hover-bg);
-        }
-
-        .all-foods-list-item span {
-            font-weight: bold;
-        }
-
-        .all-foods-list-item p {
-            margin: 0;
-            font-size: 0.85em;
-            color: #666;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 20px;
-            color: var(--text-color);
-            opacity: 0.7;
-        }
-
     </style>
 </head>
-<body>
-    <div class="container">
-        <div class="header-controls">
-            <h1>DietMax.io</h1>
-            <div>
-                <button id="showSettingsBtn" class="btn-info">Settings</button>
-            </div>
+<body class="bg-black text-orange-500 min-h-screen flex items-center justify-center p-4">
+    <div id="app-container" class="bg-gray-900 border border-gray-700 rounded-xl shadow-lg w-full max-w-md p-6">
+        <h1 class="text-3xl font-bold text-center mb-6 text-orange-500">Gym Tracker</h1>
+
+        <div id="loading-message" class="text-xl font-semibold text-center text-orange-400 hidden">Loading application...</div>
+        <div id="error-message" class="text-xl font-semibold text-center text-red-400 p-4 hidden"></div>
+
+        <div id="exercise-list-view">
+            <input
+                type="text"
+                id="search-input"
+                placeholder="Search exercises..."
+                class="w-full p-3 mb-4 bg-gray-800 text-orange-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 placeholder-gray-500"
+            />
+            <div id="exercises-container" class="max-h-96 overflow-y-auto custom-scrollbar space-y-2">
+                </div>
+            <p id="no-exercises-found" class="text-center text-gray-500 text-lg py-4 hidden">No exercises found.</p>
         </div>
 
-        <div class="main-header-buttons">
-            <button id="showAllFoodsBtn" class="btn-info">Show All Foods</button>
-        </div>
+        <div id="exercise-detail-view" class="hidden">
+            <h2 id="detail-exercise-name" class="text-2xl font-bold text-orange-500 mb-6 text-center"></h2>
 
-        <section id="add-meal-section">
-            <h2>Add Meal to Log</h2>
-            <div class="form-group">
-                <label for="mealInput">Food Item:</label>
-                <input type="text" id="mealInput" placeholder="e.g., Apple" autocomplete="off" />
-                <div id="autocomplete-suggestions" class="autocomplete-suggestions" style="display: none;"></div>
+            <div class="flex items-center justify-between mb-4 bg-gray-900 border border-gray-700 p-4 rounded-lg shadow-inner">
+                <label class="text-lg font-medium text-orange-300 w-1/3">Weight (kg):</label>
+                <div class="flex items-center w-2/3">
+                    <button id="weight-decrease" class="p-2 bg-red-700 hover:bg-red-800 rounded-full w-10 h-10 flex items-center justify-center text-xl font-bold text-white shadow-md focus:outline-none focus:ring-2 focus:ring-red-500">-</button>
+                    <input type="number" id="weight-input" class="flex-grow mx-3 p-2 text-center bg-gray-800 text-orange-300 rounded-md text-xl font-semibold focus:outline-none focus:ring-2 focus:ring-orange-500" min="0">
+                    <button id="weight-increase" class="p-2 bg-green-700 hover:bg-green-800 rounded-full w-10 h-10 flex items-center justify-center text-xl font-bold text-white shadow-md focus:outline-none focus:ring-2 focus:ring-green-500">+</button>
+                </div>
             </div>
-            <div class="form-group">
-                <label for="quantityInput">Quantity:</label>
-                <input type="number" id="quantityInput" value="1" min="0.1" step="0.1" />
-            </div>
-            <div class="form-group">
-                <label for="unitInput">Unit:</label>
-                <select id="unitInput">
-                    <option value="g">Grams (g)</option>
-                    <option value="unit">Unit</option>
-                </select>
-            </div>
-            <button id="addMealBtn" class="btn-success">Add Meal to Log</button>
-        </section>
 
-        <section id="daily-summary">
-            <h2>Daily Summary</h2>
-            <div class="summary-cards">
-                <div class="card">
-                    <h3>Total Calories</h3>
-                    <p id="totalCalories">0 kcal</p>
-                    <div class="progress-bar-container">
-                        <div id="calorieProgressBar" class="progress-bar">0%</div>
-                    </div>
-                </div>
-                <div class="card">
-                    <h3>Total Protein</h3>
-                    <p id="totalProtein">0 g</p>
-                </div>
-                <div class="card">
-                    <h3>Total Fat</h3>
-                    <p id="totalFat">0 g</p>
-                </div>
-                <div class="card">
-                    <h3>Total Carbs</h3>
-                    <p id="totalCarbs">0 g</p>
-                </div>
-                <div class="card">
-                    <h3>Total Sugar</h3>
-                    <p id="totalSugar">0 g</p>
-                </div>
-                <div class="card">
-                    <h3>Total Sodium</h3>
-                    <p id="totalSodium">0 mg</p>
-                </div>
-                <div class="card">
-                    <h3>Bloat Scale</h3>
-                    <p id="averageBloat">0 / 5</p>
+            <div class="flex items-center justify-between mb-4 bg-gray-900 border border-gray-700 p-4 rounded-lg shadow-inner">
+                <label class="text-lg font-medium text-orange-300 w-1/3">Reps:</label>
+                <div class="flex items-center w-2/3">
+                    <button id="reps-decrease" class="p-2 bg-red-700 hover:bg-red-800 rounded-full w-10 h-10 flex items-center justify-center text-xl font-bold text-white shadow-md focus:outline-none focus:ring-2 focus:ring-red-500">-</button>
+                    <input type="number" id="reps-input" class="flex-grow mx-3 p-2 text-center bg-gray-800 text-orange-300 rounded-md text-xl font-semibold focus:outline-none focus:ring-2 focus:ring-orange-500" min="0">
+                    <button id="reps-increase" class="p-2 bg-green-700 hover:bg-green-800 rounded-full w-10 h-10 flex items-center justify-center text-xl font-bold text-white shadow-md focus:outline-none focus:ring-2 focus:ring-green-500">+</button>
                 </div>
             </div>
-        </section>
 
-        <section class="meal-history">
-            <h2>Meal History</h2>
-            <ul id="mealList" class="meal-list">
-                </ul>
-            <button id="resetHistoryBtn" class="btn-reset">Reset History</button>
-        </section>
-    </div>
+            <div class="flex items-center justify-between mb-4 bg-gray-900 border border-gray-700 p-4 rounded-lg shadow-inner">
+                <label class="text-lg font-medium text-orange-300 w-1/3">Sets:</label>
+                <div class="flex items-center w-2/3">
+                    <button id="sets-decrease" class="p-2 bg-red-700 hover:bg-red-800 rounded-full w-10 h-10 flex items-center justify-center text-xl font-bold text-white shadow-md focus:outline-none focus:ring-2 focus:ring-red-500">-</button>
+                    <input type="number" id="sets-input" class="flex-grow mx-3 p-2 text-center bg-gray-800 text-orange-300 rounded-md text-xl font-semibold focus:outline-none focus:ring-2 focus:ring-orange-500" min="0">
+                    <button id="sets-increase" class="p-2 bg-green-700 hover:bg-green-800 rounded-full w-10 h-10 flex items-center justify-center text-xl font-bold text-white shadow-md focus:outline-none focus:ring-2 focus:ring-green-500">+</button>
+                </div>
+            </div>
 
-    <div id="settingsModalBg" class="modal-background">
-        <div class="modal-content">
-            <span class="close-button" id="closeSettingsModal">&times;</span>
-            <h3>Settings</h3>
-            <div class="form-group">
-                <label for="calorieGoalInput">Daily Calorie Goal:</label>
-                <input type="number" id="calorieGoalInput" value="2500" min="500" step="100" />
-            </div>
-            <div class="form-group">
-                <label for="proteinGoalInput">Daily Protein Goal (g):</label>
-                <input type="number" id="proteinGoalInput" value="100" min="0" step="10" />
-            </div>
-            <div class="form-group">
-                <label for="fatGoalInput">Daily Fat Goal (g):</label>
-                <input type="number" id="fatGoalInput" value="70" min="0" step="5" />
-            </div>
-            <div class="form-group">
-                <label for="carbGoalInput">Daily Carb Goal (g):</label>
-                <input type="number" id="carbGoalInput" value="300" min="0" step="10" />
-            </div>
-            <div class="form-group">
-                <label for="unitPreferenceSelect">Unit Preference:</label>
-                <select id="unitPreferenceSelect">
-                    <option value="metric">Metric (g, ml)</option>
-                    <option value="imperial">Imperial (oz, lbs)</option>
-                </select>
-            </div>
-            <div class="settings-actions">
-                <button id="darkModeToggle" class="btn-primary">Toggle Dark Mode</button>
-                <button id="saveSettingsBtn" class="btn-primary">Save Settings</button>
-            </div>
+            <button id="save-button" class="w-full bg-orange-600 hover:bg-orange-700 text-black font-bold py-3 px-4 rounded-lg shadow-lg transition-colors duration-200 mb-4 focus:outline-none focus:ring-2 focus:ring-orange-500">
+                Save Progress
+            </button>
+            <p id="save-message" class="text-center text-sm mb-4"></p>
+
+            <button id="back-button" class="w-full bg-gray-800 hover:bg-gray-700 text-orange-300 font-bold py-3 px-4 rounded-lg shadow-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500">
+                Back to Exercises
+            </button>
         </div>
     </div>
 
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-    <div id="foodInfoModalBg" class="modal-background">
-        <div class="modal-content">
-            <span class="close-button" id="closeFoodInfoModal">&times;</span>
-            <h3 id="modalFoodName"></h3>
-            <div class="food-info">
-                <p><strong>Calories:</strong> <span id="modalCalories"></span> kcal</p>
-                <p><strong>Protein:</strong> <span id="modalProtein"></span> g</p>
-                <p><strong>Fat:</strong> <span id="modalFat"></span> g</p>
-                <p><strong>Carbs:</strong> <span id="modalCarbs"></span> g</p>
-                <p><strong>Sugar:</strong> <span id="modalSugar"></span> g</p>
-                <p><strong>Sodium:</strong> <span id="modalSodium"></span> mg</p>
-                <p><strong>Bloat Scale:</strong> <span id="modalBloatScale"></span> / 5</p>
-                <p id="modalWeightPerUnit" style="display: none;"><strong>Weight Per Unit:</strong> <span id="modalWeightPerUnitValue"></span> g</p>
-            </div>
-            <div class="food-image-placeholder">
-                <img id="modalFoodImage" src="" alt="Food Image" style="display: none;">
-                <span id="imagePlaceholderText">No Image Available</span>
-            </div>
-            <div class="store-links">
-                <a id="woolworthsLink" href="#" target="_blank">Search Woolworths</a>
-                <a id="paknsaveLink" href="#" target="_blank">Search Pak'nSave</a>
-                <a id="newworldLink" href="#" target="_blank">Search New World</a>
-            </div>
-        </div>
-    </div>
+        // --- Configuration (These will be provided by the environment during execution) ---
+        // const __app_id = 'YOUR_APP_ID'; // Replace with your actual App ID
+        // const __firebase_config = JSON.stringify({
+        //     apiKey: "YOUR_API_KEY",
+        //     authDomain: "YOUR_AUTH_DOMAIN",
+        //     projectId: "YOUR_PROJECT_ID",
+        //     storageBucket: "YOUR_STORAGE_BUCKET",
+        //     messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+        //     appId: "YOUR_APP_ID"
+        // });
+        // const __initial_auth_token = null; // Or your custom auth token if applicable
+        // ----------------------------------------------------------------------------------
 
-    <div id="allFoodsModalBg" class="modal-background">
-        <div class="modal-content">
-            <span class="close-button" id="closeAllFoodsModal">&times;</span>
-            <h3>All Available Foods</h3>
-            <div class="all-foods-controls">
-                <input type="text" id="allFoodsSearchInput" placeholder="Search foods..." />
-                <select id="allFoodsSortSelect">
-                    <option value="name-asc">Name (A-Z)</option>
-                    <option value="name-desc">Name (Z-A)</option>
-                    <option value="calories-asc">Calories (Low to High)</option>
-                    <option value="calories-desc">Calories (High to Low)</option>
-                    <option value="protein-asc">Protein (Low to High)</option>
-                    <option value="protein-desc">Protein (High to Low)</option>
-                    <option value="fat-asc">Fat (Low to High)</option>
-                    <option value="fat-desc">Fat (High to Low)</option>
-                    <option value="bloat-asc">Bloat (Low to High)</option>
-                    <option value="bloat-desc">Bloat (High to Low)</option>
-                </select>
-            </div>
-            <div id="allFoodsList" class="all-foods-list">
-                </div>
-        </div>
-    </div>
+        // Exercise List (from your request)
+        const EXERCISES = [
+            "Barbell curl", "Dumbell curl", "Hammer curl", "Preacher curl", "Cable curl", "Machine curl",
+            "Bicep pulldown", "Tricep pulldown", "Tricep pushdown", "Overhead rope extention", "Skull crushers",
+            "Forearm cable curls", "Hammer rope curl", "Lat pulldown", "Lat row", "Machine row", "Machine pulldown",
+            "Bench press", "Incline bench press", "Incline smith machine bench press", "Lat pullover", "Pec deck",
+            "Dumbell chest press", "Machine press", "Machine incline press", "Cable fly's", "Dumbell shoulder press",
+            "Machine shoulder press", "Machine laterial raises", "Dumbell laterial raises", "Rear delt face pull",
+            "Reverse pec deck", "Cable laterial raises", "Ab crunch machine", "Ab crunch machine with legs."
+        ];
 
+        // --- DOM Element References ---
+        const loadingMessage = document.getElementById('loading-message');
+        const errorMessage = document.getElementById('error-message');
+        const exerciseListView = document.getElementById('exercise-list-view');
+        const exerciseDetailView = document.getElementById('exercise-detail-view');
+        const searchInput = document.getElementById('search-input');
+        const exercisesContainer = document.getElementById('exercises-container');
+        const noExercisesFound = document.getElementById('no-exercises-found');
+        const detailExerciseName = document.getElementById('detail-exercise-name');
+        const weightInput = document.getElementById('weight-input');
+        const repsInput = document.getElementById('reps-input');
+        const setsInput = document.getElementById('sets-input');
+        const saveButton = document.getElementById('save-button');
+        const saveMessage = document.getElementById('save-message');
+        const backButton = document.getElementById('back-button');
 
-    <script src="foodDatabase.js"></script>
-    <script>
-        // Helper to capitalize the first letter of a string
-        function capitalizeFirstLetter(string) {
-            return string.charAt(0).toUpperCase() + string.slice(1);
+        // --- Global Variables for Firebase and App State ---
+        let db;
+        let userId = null;
+        let currentSelectedExercise = null; // Tracks the exercise currently displayed in detail view
+        let allFetchedExerciseData = {}; // Stores all exercise data retrieved from Firestore
+
+        // --- UI Logic Functions ---
+
+        /** Shows either the list view or the detail view, hiding the other. */
+        function showView(viewName) {
+            exerciseListView.classList.add('hidden');
+            exerciseDetailView.classList.add('hidden');
+            if (viewName === 'list') {
+                exerciseListView.classList.remove('hidden');
+            } else if (viewName === 'detail') {
+                exerciseDetailView.classList.remove('hidden');
+            }
         }
 
-        // === DOM Elements ===
-        const darkModeToggle = document.getElementById("darkModeToggle");
-        const mealInput = document.getElementById("mealInput");
-        const quantityInput = document.getElementById("quantityInput");
-        const unitInput = document.getElementById("unitInput");
-        const addMealBtn = document.getElementById("addMealBtn");
-        const mealList = document.getElementById("mealList");
-        const totalCaloriesElement = document.getElementById("totalCalories");
-        const totalProteinElement = document.getElementById("totalProtein");
-        const totalFatElement = document.getElementById("totalFat");
-        const totalCarbsElement = document.getElementById("totalCarbs");
-        const totalSugarElement = document.getElementById("totalSugar");
-        const totalSodiumElement = document.getElementById("totalSodium");
-        const averageBloatElement = document.getElementById("averageBloat");
-        const autocompleteSuggestions = document.getElementById("autocomplete-suggestions");
-        const resetHistoryBtn = document.getElementById("resetHistoryBtn");
-        const calorieProgressBar = document.getElementById("calorieProgressBar");
+        /** Renders the list of exercises based on the provided array. */
+        function renderExerciseList(filteredExercises) {
+            exercisesContainer.innerHTML = ''; // Clear current list
+            if (filteredExercises.length === 0) {
+                noExercisesFound.classList.remove('hidden');
+            } else {
+                noExercisesFound.classList.add('hidden');
+                filteredExercises.forEach(exercise => {
+                    const button = document.createElement('button');
+                    button.className = 'w-full text-left p-3 bg-gray-900 border border-gray-700 hover:bg-orange-700 hover:border-orange-700 transition-colors duration-200 rounded-lg text-lg font-medium shadow-md text-orange-300';
+                    button.textContent = exercise;
+                    button.onclick = () => showExerciseDetail(exercise); // Attach click handler
+                    const li = document.createElement('li');
+                    li.appendChild(button);
+                    exercisesContainer.appendChild(li);
+                });
+            }
+        }
 
-        // Settings Modal Elements
-        const showSettingsBtn = document.getElementById("showSettingsBtn");
-        const settingsModalBg = document.getElementById("settingsModalBg");
-        const closeSettingsModal = document.getElementById("closeSettingsModal");
-        const calorieGoalInput = document.getElementById("calorieGoalInput");
-        const proteinGoalInput = document.getElementById("proteinGoalInput");
-        const fatGoalInput = document.getElementById("fatGoalInput");
-        const carbGoalInput = document.getElementById("carbGoalInput");
-        const unitPreferenceSelect = document.getElementById("unitPreferenceSelect");
-        const saveSettingsBtn = document.getElementById("saveSettingsBtn");
+        /** Populates the detail view with data for the selected exercise. */
+        function showExerciseDetail(exerciseName) {
+            currentSelectedExercise = exerciseName;
+            detailExerciseName.textContent = exerciseName;
 
+            // Get data from our cached data, or use defaults if not found
+            const data = allFetchedExerciseData[exerciseName] || { lastWeight: 0, lastReps: 0, lastSets: 0 };
+            weightInput.value = data.lastWeight;
+            repsInput.value = data.lastReps;
+            setsInput.value = data.lastSets;
 
-        // Food Info Modal Elements
-        const foodInfoModalBg = document.getElementById("foodInfoModalBg");
-        const closeFoodInfoModal = document.getElementById("closeFoodInfoModal");
-        const modalFoodName = document.getElementById("modalFoodName");
-        const modalCalories = document.getElementById("modalCalories");
-        const modalProtein = document.getElementById("modalProtein");
-        const modalFat = document.getElementById("modalFat");
-        const modalCarbs = document.getElementById("modalCarbs");
-        const modalSugar = document.getElementById("modalSugar");
-        const modalSodium = document.getElementById("modalSodium");
-        const modalBloatScale = document.getElementById("modalBloatScale");
-        const modalWeightPerUnit = document.getElementById("modalWeightPerUnit");
-        const modalWeightPerUnitValue = document.getElementById("modalWeightPerUnitValue");
-        const modalFoodImage = document.getElementById("modalFoodImage");
-        const imagePlaceholderText = document.getElementById("imagePlaceholderText");
-        const woolworthsLink = document.getElementById("woolworthsLink");
-        const paknsaveLink = document.getElementById("paknsaveLink");
-        const newworldLink = document.getElementById("newworldLink");
+            showView('detail'); // Switch to the detail view
+        }
 
-        // All Foods Modal Elements
-        const showAllFoodsBtn = document.getElementById("showAllFoodsBtn");
-        const allFoodsModalBg = document.getElementById("allFoodsModalBg");
-        const closeAllFoodsModal = document.getElementById("closeAllFoodsModal");
-        const allFoodsList = document.getElementById("allFoodsList");
-        const allFoodsSearchInput = document.getElementById("allFoodsSearchInput");
-        const allFoodsSortSelect = document.getElementById("allFoodsSortSelect");
+        /** Increases or decreases a numerical input's value, preventing negative numbers. */
+        function updateValue(inputElement, increment) {
+            let currentValue = Number(inputElement.value);
+            currentValue = Math.max(0, currentValue + increment);
+            inputElement.value = currentValue;
+        }
 
-        // === Data Storage ===
-        let dailyLog = JSON.parse(localStorage.getItem("dailyLog")) || [];
-        let settings = JSON.parse(localStorage.getItem("settings")) || {
-            calorieGoal: 2500,
-            proteinGoal: 100,
-            fatGoal: 70,
-            carbGoal: 300,
-            unitPreference: "metric", // 'metric' or 'imperial'
+        /** Saves the current exercise's data to Firestore. */
+        async function saveExerciseData() {
+            if (!db || !userId || !currentSelectedExercise) {
+                saveMessage.textContent = "Error: Application not ready or no exercise selected.";
+                saveMessage.className = 'text-center text-sm text-red-400 mb-4';
+                return;
+            }
+
+            const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+            const docRef = doc(db, `artifacts/${appId}/users/${userId}/exercises`, currentSelectedExercise);
+
+            try {
+                await setDoc(docRef, {
+                    lastWeight: Number(weightInput.value),
+                    lastReps: Number(repsInput.value),
+                    lastSets: Number(setsInput.value)
+                }, { merge: true }); // Use merge to update specific fields without overwriting others
+
+                saveMessage.textContent = "Saved successfully!";
+                saveMessage.className = 'text-center text-sm text-green-400 mb-4';
+                setTimeout(() => { saveMessage.textContent = ''; }, 3000); // Clear message after 3 seconds
+            } catch (e) {
+                console.error("Error saving document: ", e);
+                saveMessage.textContent = "Error saving data. Please check your connection.";
+                saveMessage.className = 'text-center text-sm text-red-400 mb-4';
+            }
+        }
+
+        // --- Event Listeners ---
+
+        searchInput.addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase();
+            const filtered = EXERCISES.filter(exercise => exercise.toLowerCase().includes(query));
+            renderExerciseList(filtered);
+        });
+
+        // Attach event listeners for increase/decrease buttons
+        document.getElementById('weight-decrease').addEventListener('click', () => updateValue(weightInput, -1));
+        document.getElementById('weight-increase').addEventListener('click', () => updateValue(weightInput, 1));
+        document.getElementById('reps-decrease').addEventListener('click', () => updateValue(repsInput, -1));
+        document.getElementById('reps-increase').addEventListener('click', () => updateValue(repsInput, 1));
+        document.getElementById('sets-decrease').addEventListener('click', () => updateValue(setsInput, -1));
+        document.getElementById('sets-increase').addEventListener('click', () => updateValue(setsInput, 1));
+
+        saveButton.addEventListener('click', saveExerciseData);
+
+        backButton.addEventListener('click', () => {
+            currentSelectedExercise = null; // Clear selected exercise
+            searchInput.value = ''; // Clear search input
+            renderExerciseList(EXERCISES); // Show full list
+            showView('list'); // Switch back to list view
+        });
+
+        // --- Firebase Initialization and Data Loading on Window Load ---
+
+        window.onload = async function() {
+            loadingMessage.classList.remove('hidden'); // Show loading message
+
+            try {
+                const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+                const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+
+                if (Object.keys(firebaseConfig).length === 0) {
+                    throw new Error("Firebase configuration is missing. Please ensure '__firebase_config' is set.");
+                }
+
+                const app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                const auth = getAuth(app);
+
+                // Authenticate user (anonymously or with custom token)
+                onAuthStateChanged(auth, async (user) => {
+                    if (user) {
+                        userId = user.uid;
+                        console.log("User authenticated:", userId);
+
+                        // Set up real-time listener for user's exercise data
+                        const exercisesCollectionRef = collection(db, `artifacts/${appId}/users/${userId}/exercises`);
+                        onSnapshot(exercisesCollectionRef, (snapshot) => {
+                            const data = {};
+                            snapshot.forEach((doc) => {
+                                data[doc.id] = doc.data();
+                            });
+                            allFetchedExerciseData = data; // Update our cached data
+
+                            // Re-render relevant view with potentially new data
+                            if (currentSelectedExercise) {
+                                // If in detail view, refresh it with latest data
+                                showExerciseDetail(currentSelectedExercise);
+                            } else {
+                                // If in list view, re-render the filtered list (e.g., if data changed in background)
+                                renderExerciseList(EXERCISES.filter(exercise => exercise.toLowerCase().includes(searchInput.value.toLowerCase())));
+                            }
+                            loadingMessage.classList.add('hidden'); // Hide loading message
+                            showView(currentSelectedExercise ? 'detail' : 'list'); // Show appropriate view
+                        }, (err) => {
+                            console.error("Error fetching exercises:", err);
+                            errorMessage.textContent = "Failed to load exercise data. Please check your internet connection.";
+                            errorMessage.classList.remove('hidden');
+                            loadingMessage.classList.add('hidden');
+                        });
+
+                        // Populate initial exercises in Firestore if they don't exist
+                        for (const exerciseName of EXERCISES) {
+                            const docRef = doc(db, `artifacts/${appId}/users/${userId}/exercises`, exerciseName);
+                            const docSnap = await getDoc(docRef);
+                            if (!docSnap.exists()) {
+                                await setDoc(docRef, {
+                                    name: exerciseName,
+                                    lastWeight: 0,
+                                    lastReps: 0,
+                                    lastSets: 0
+                                });
+                                console.log(`Initialized ${exerciseName} in Firestore: ${exerciseName}`);
+                            }
+                        }
+
+                    } else {
+                        // Attempt anonymous sign-in if no user is found
+                        try {
+                            const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+                            if (initialAuthToken) {
+                                await signInWithCustomToken(auth, initialAuthToken);
+                            } else {
+                                await signInAnonymously(auth);
+                            }
+                        } catch (authError) {
+                            console.error("Firebase anonymous sign-in failed:", authError);
+                            errorMessage.textContent = "Authentication failed. Please check your network connection.";
+                            errorMessage.classList.remove('hidden');
+                            loadingMessage.classList.add('hidden');
+                        }
+                    }
+                });
+
+            } catch (err) {
+                console.error("Error initializing application:", err);
+                errorMessage.textContent = `Failed to initialize the application: ${err.message}`;
+                errorMessage.classList.remove('hidden');
+                loadingMessage.classList.add('hidden');
+            }
         };
-
-        // === Helper Functions ===
-        function normalizeName(name) {
-            return name.toLowerCase().replace(/[^a-z0-9]/g, "");
-        }
-
-        function saveLog(log) {
-            localStorage.setItem("dailyLog", JSON.stringify(log));
-        }
-
-        function saveSettings(s) {
-            localStorage.setItem("settings", JSON.stringify(s));
-            // Update UI based on new settings immediately
-            calorieGoalInput.value = s.calorieGoal;
-            proteinGoalInput.value = s.proteinGoal;
-            fatGoalInput.value = s.fatGoal;
-            carbGoalInput.value = s.carbGoal;
-            unitPreferenceSelect.value = s.unitPreference;
-            updateTotalsAndProgress(); // Recalculate totals for new goal
-            renderMealHistory(); // Re-render meal history to reflect unit changes
-        }
-
-        // === Dark Mode ===
-        function initDarkMode() {
-            const savedDarkMode = localStorage.getItem("darkMode");
-            if (savedDarkMode === "true") {
-                document.body.classList.add("dark-mode");
-            }
-        }
-
-        // === Meal Management ===
-        addMealBtn.addEventListener("click", () => {
-            const foodName = mealInput.value.trim();
-            const quantity = parseFloat(quantityInput.value);
-            const unit = unitInput.value;
-
-            if (foodName === "" || isNaN(quantity) || quantity <= 0) {
-                alert("Please enter a valid food item and quantity.");
-                return;
-            }
-
-            const normalizedFoodName = normalizeName(foodName);
-            const foodData = foodsDatabase[normalizedFoodName];
-
-            if (!foodData) {
-                alert("Food item not found in database.");
-                return;
-            }
-
-            const meal = {
-                name: capitalizeFirstLetter(foodName), // Store original input name, capitalized
-                normalizedName: normalizedFoodName, // Store normalized name for database lookup
-                quantity: quantity,
-                unit: unit,
-                timestamp: new Date().toISOString(),
-            };
-
-            dailyLog.push(meal);
-            saveLog(dailyLog);
-            renderMealHistory();
-            updateTotalsAndProgress();
-
-            // Clear input fields
-            mealInput.value = "";
-            quantityInput.value = "1";
-            unitInput.value = "g";
-            autocompleteSuggestions.style.display = "none";
-        });
-
-        function deleteMeal(index) {
-            if (confirm("Are you sure you want to delete this meal?")) {
-                dailyLog.splice(index, 1);
-                saveLog(dailyLog);
-                renderMealHistory();
-                updateTotalsAndProgress();
-            }
-        }
-
-        // === Autocomplete ===
-        mealInput.addEventListener("input", () => {
-            const input = mealInput.value.trim();
-            showFoodSuggestions(input);
-        });
-
-        mealInput.addEventListener("blur", () => {
-            // Delay hiding to allow click on suggestions
-            setTimeout(() => {
-                autocompleteSuggestions.style.display = "none";
-            }, 100);
-        });
-
-        mealInput.addEventListener("focus", () => {
-            const input = mealInput.value.trim();
-            showFoodSuggestions(input);
-        });
-
-
-        function showFoodSuggestions(input) {
-            autocompleteSuggestions.innerHTML = "";
-            if (input.length === 0) {
-                autocompleteSuggestions.style.display = "none";
-                return;
-            }
-
-            const normalizedInput = normalizeName(input);
-            const suggestions = Object.keys(foodsDatabase)
-                .filter(normalizedName => normalizedName.includes(normalizedInput))
-                .slice(0, 5); // Limit to 5 suggestions
-
-            if (suggestions.length > 0) {
-                suggestions.forEach(foodNormalizedName => {
-                    const suggestionItem = document.createElement("div");
-                    suggestionItem.classList.add("suggestion-item");
-                    // Use the capitalized normalizedName as the display name
-                    suggestionItem.textContent = capitalizeFirstLetter(foodNormalizedName);
-                    suggestionItem.addEventListener("click", () => {
-                        mealInput.value = capitalizeFirstLetter(foodNormalizedName); // Set input to display name
-                        autocompleteSuggestions.style.display = "none";
-                    });
-                    autocompleteSuggestions.appendChild(suggestionItem);
-                });
-                autocompleteSuggestions.style.display = "block";
-            } else {
-                autocompleteSuggestions.style.display = "none";
-            }
-        }
-
-
-        // === Render meal log ===
-        function renderMealHistory() {
-            mealList.innerHTML = "";
-            if (dailyLog.length === 0) {
-                const emptyState = document.createElement("li");
-                emptyState.classList.add("empty-state");
-                emptyState.textContent = "No meals logged yet.";
-                mealList.appendChild(emptyState);
-                return;
-            }
-
-            dailyLog.forEach((meal, index) => {
-                const mealItem = document.createElement("li");
-                mealItem.classList.add("meal-item");
-
-                const foodData = foodsDatabase[meal.normalizedName];
-                let displayQuantity = meal.quantity;
-                let displayUnit = meal.unit;
-
-                // Adjust quantity and unit based on unit preference and food data
-                if (settings.unitPreference === "imperial" && meal.unit === "g" && foodData && foodData.weightPerUnit) {
-                    displayQuantity = (meal.quantity / 28.35).toFixed(1); // Convert grams to ounces
-                    displayUnit = "oz";
-                } else if (settings.unitPreference === "imperial" && meal.unit === "unit" && foodData && foodData.weightPerUnit) {
-                    // If quantity is in units, convert to grams then to ounces
-                    displayQuantity = (meal.quantity * foodData.weightPerUnit / 28.35).toFixed(1);
-                    displayUnit = "oz";
-                }
-
-                mealItem.innerHTML = `
-                    <div class="meal-item-info">
-                        <h4>${meal.name}</h4>
-                        <p>${displayQuantity} ${displayUnit} - ${new Date(meal.timestamp).toLocaleString()}</p>
-                    </div>
-                    <div class="meal-item-actions">
-                        <button class="btn-info show-info-btn" data-normalized-name="${meal.normalizedName}">Info</button>
-                        <button class="btn-danger delete-btn" data-index="${index}">Delete</button>
-                    </div>
-                `;
-                mealList.appendChild(mealItem);
-            });
-
-            // Attach event listeners for delete and info buttons
-            mealList.querySelectorAll(".delete-btn").forEach((button) => {
-                button.addEventListener("click", (e) => {
-                    deleteMeal(parseInt(e.target.dataset.index));
-                });
-            });
-
-            mealList.querySelectorAll(".show-info-btn").forEach((button) => {
-                button.addEventListener("click", (e) => {
-                    const normalizedName = e.target.dataset.normalizedName;
-                    showFoodInfoInModal(normalizedName);
-                });
-            });
-        }
-
-        // === Update Totals and Progress ===
-        function updateTotalsAndProgress() {
-            let totalCalories = 0;
-            let totalProtein = 0;
-            let totalFat = 0;
-            let totalCarbs = 0;
-            let totalSugar = 0;
-            let totalSodium = 0;
-            let totalBloatScale = 0;
-            let bloatItemCount = 0;
-
-            dailyLog.forEach((meal) => {
-                const foodData = foodsDatabase[meal.normalizedName];
-
-                if (foodData) {
-                    let factor = meal.quantity;
-                    if (meal.unit === "g" && foodData.weightPerUnit) {
-                        // If food data has weightPerUnit, calculate factor based on 100g serving
-                        factor = meal.quantity / 100;
-                    } else if (meal.unit === "unit" && foodData.weightPerUnit) {
-                        // If quantity is in units, convert to grams for calculation
-                        factor = (meal.quantity * foodData.weightPerUnit) / 100;
-                    }
-
-                    totalCalories += (foodData.caloriesPer100g || 0) * factor;
-                    totalProtein += (foodData.proteinPer100g || 0) * factor;
-                    totalFat += (foodData.fatPer100g || 0) * factor;
-                    totalCarbs += (foodData.carbsPer100g || 0) * factor;
-                    totalSugar += (foodData.sugarPer100g || 0) * factor;
-                    totalSodium += (foodData.sodiumPer100g || 0) * factor;
-
-                    if (foodData.bloatScale !== undefined) {
-                        totalBloatScale += foodData.bloatScale;
-                        bloatItemCount++;
-                    }
-                }
-            });
-
-            totalCaloriesElement.textContent = `${totalCalories.toFixed(1)} kcal`;
-            totalProteinElement.textContent = `${totalProtein.toFixed(1)} g`;
-            totalFatElement.textContent = `${totalFat.toFixed(1)} g`;
-            totalCarbsElement.textContent = `${totalCarbs.toFixed(1)} g`;
-            totalSugarElement.textContent = `${totalSugar.toFixed(1)} g`;
-            totalSodiumElement.textContent = `${totalSodium.toFixed(1)} mg`;
-            averageBloatElement.textContent = `${bloatItemCount > 0 ? (totalBloatScale / bloatItemCount).toFixed(1) : 0} / 5`;
-
-            // Update progress bar
-            const calorieGoal = settings.calorieGoal;
-            const progress = (totalCalories / calorieGoal) * 100;
-            calorieProgressBar.style.width = `${Math.min(100, progress)}%`;
-            calorieProgressBar.textContent = `${progress.toFixed(0)}%`;
-
-            if (totalCalories > calorieGoal) {
-                calorieProgressBar.classList.add("over-goal");
-            } else {
-                calorieProgressBar.classList.remove("over-goal");
-            }
-        }
-
-        // === Settings ===
-        showSettingsBtn.addEventListener("click", () => {
-            // Load current settings into the modal input fields
-            calorieGoalInput.value = settings.calorieGoal;
-            proteinGoalInput.value = settings.proteinGoal;
-            fatGoalInput.value = settings.fatGoal;
-            carbGoalInput.value = settings.carbGoal;
-            unitPreferenceSelect.value = settings.unitPreference;
-            settingsModalBg.classList.add("show");
-        });
-
-        closeSettingsModal.addEventListener("click", () => {
-            settingsModalBg.classList.remove("show");
-        });
-
-        settingsModalBg.addEventListener("click", (e) => {
-            if (e.target === settingsModalBg) {
-                settingsModalBg.classList.remove("show");
-            }
-        });
-
-        calorieGoalInput.addEventListener("input", () => {
-            settings.calorieGoal = parseInt(calorieGoalInput.value) || 0;
-            updateTotalsAndProgress(); // Update progress bar immediately
-        });
-
-        proteinGoalInput.addEventListener("input", () => {
-            settings.proteinGoal = parseInt(proteinGoalInput.value) || 0;
-        });
-
-        fatGoalInput.addEventListener("input", () => {
-            settings.fatGoal = parseInt(fatGoalInput.value) || 0;
-        });
-
-        carbGoalInput.addEventListener("input", () => {
-            settings.carbGoal = parseInt(carbGoalInput.value) || 0;
-        });
-
-        unitPreferenceSelect.addEventListener("change", () => {
-            settings.unitPreference = unitPreferenceSelect.value;
-            renderMealHistory(); // Re-render to show updated units
-            // No need to call updateTotalsAndProgress here, as it's called in saveSettings
-        });
-
-        saveSettingsBtn.addEventListener("click", () => {
-            saveSettings(settings);
-            alert("Settings saved!");
-            settingsModalBg.classList.remove("show"); // Close modal after saving
-        });
-
-        // === Food Info Modal ===
-        function showFoodInfoInModal(normalizedName) {
-            const food = foodsDatabase[normalizedName];
-
-            if (!food) {
-                alert("Food information not found.");
-                return;
-            }
-
-            // Use capitalized normalized name for display
-            modalFoodName.textContent = capitalizeFirstLetter(normalizedName);
-            modalCalories.textContent = food.caloriesPer100g !== undefined ? food.caloriesPer100g : 'N/A';
-            modalProtein.textContent = food.proteinPer100g !== undefined ? food.proteinPer100g : 'N/A';
-            modalFat.textContent = food.fatPer100g !== undefined ? food.fatPer100g : 'N/A';
-            modalCarbs.textContent = food.carbsPer100g !== undefined ? food.carbsPer100g : 'N/A';
-            modalSugar.textContent = food.sugarPer100g !== undefined ? food.sugarPer100g : 'N/A';
-            modalSodium.textContent = food.sodiumPer100g !== undefined ? food.sodiumPer100g : 'N/A';
-            modalBloatScale.textContent = food.bloatScale !== undefined ? food.bloatScale : 'N/A';
-
-            if (food.weightPerUnit !== undefined) {
-                modalWeightPerUnit.style.display = "block";
-                modalWeightPerUnitValue.textContent = food.weightPerUnit;
-            } else {
-                modalWeightPerUnit.style.display = "none";
-            }
-
-            // Image handling (if images were available)
-            if (food.imageSrc) { // Assuming 'imageSrc' property in foodDatabase
-                modalFoodImage.src = food.imageSrc;
-                modalFoodImage.style.display = "block";
-                imagePlaceholderText.style.display = "none";
-            } else {
-                modalFoodImage.src = ""; // Clear any previous image
-                modalFoodImage.style.display = "none";
-                imagePlaceholderText.style.display = "block";
-            }
-
-            // Store links
-            const searchQuery = encodeURIComponent(modalFoodName.textContent);
-            woolworthsLink.href = `https://www.woolworths.co.nz/shop/search/products?searchTerm=${searchQuery}`;
-            paknsaveLink.href = `https://www.paknsave.co.nz/shop/legacy/products?q=${searchQuery}`;
-            newworldLink.href = `https://www.newworld.co.nz/shop/legacy/products?q=${searchQuery}`;
-
-
-            foodInfoModalBg.classList.add("show");
-        }
-
-        closeFoodInfoModal.addEventListener("click", () => {
-            foodInfoModalBg.classList.remove("show");
-        });
-
-        foodInfoModalBg.addEventListener("click", (e) => {
-            if (e.target === foodInfoModalBg) {
-                foodInfoModalBg.classList.remove("show");
-            }
-        });
-
-        // NEW: Function to render all foods in the modal
-        function renderAllFoodsList() {
-            allFoodsList.innerHTML = "";
-            const searchTerm = allFoodsSearchInput.value.trim();
-            const sortOrder = allFoodsSortSelect.value;
-            const normalizedSearchTerm = normalizeName(searchTerm);
-
-            let filteredFoods = Object.keys(foodsDatabase)
-                .filter(normalizedName => normalizedName.includes(normalizedSearchTerm))
-                .map(normalizedName => ({
-                    normalizedName: normalizedName,
-                    foodData: foodsDatabase[normalizedName]
-                }));
-
-            filteredFoods.sort((a, b) => {
-                const nameA = capitalizeFirstLetter(a.normalizedName);
-                const nameB = capitalizeFirstLetter(b.normalizedName);
-
-                if (sortOrder === "name-asc") {
-                    return nameA.localeCompare(nameB);
-                } else if (sortOrder === "name-desc") {
-                    return nameB.localeCompare(nameA);
-                } else if (sortOrder === "calories-asc") {
-                    return (a.foodData.caloriesPer100g || 0) - (b.foodData.caloriesPer100g || 0);
-                } else if (sortOrder === "calories-desc") {
-                    return (b.foodData.caloriesPer100g || 0) - (a.foodData.caloriesPer100g || 0);
-                } else if (sortOrder === "protein-asc") {
-                    return (a.foodData.proteinPer100g || 0) - (b.foodData.proteinPer100g || 0);
-                } else if (sortOrder === "protein-desc") {
-                    return (b.foodData.proteinPer100g || 0) - (a.foodData.proteinPer100g || 0);
-                } else if (sortOrder === "fat-asc") {
-                    return (a.foodData.fatPer100g || 0) - (b.foodData.fatPer100g || 0);
-                } else if (sortOrder === "fat-desc") {
-                    return (b.foodData.fatPer100g || 0) - (a.foodData.fatPer100g || 0);
-                } else if (sortOrder === "bloat-asc") {
-                    return (a.foodData.bloatScale || 0) - (b.foodData.bloatScale || 0);
-                } else if (sortOrder === "bloat-desc") {
-                    return (b.foodData.bloatScale || 0) - (a.foodData.bloatScale || 0);
-                }
-                return 0;
-            });
-
-            const fragment = document.createDocumentFragment();
-
-            if (filteredFoods.length === 0) {
-                const noResultsDiv = document.createElement("div");
-                noResultsDiv.classList.add("empty-state");
-                noResultsDiv.textContent = "No foods found matching your search and filter criteria.";
-                fragment.appendChild(noResultsDiv);
-            } else {
-                filteredFoods.forEach(({ normalizedName, foodData }) => {
-                    const foodItemDiv = document.createElement("div");
-                    foodItemDiv.classList.add("all-foods-list-item");
-                    foodItemDiv.innerHTML = `
-                        <span>${capitalizeFirstLetter(normalizedName)}</span>
-                        <p>Calories: ${foodData.caloriesPer100g || 'N/A'} kcal | Protein: ${foodData.proteinPer100g || 'N/A'}g | Fat: ${foodData.fatPer100g || 'N/A'}g | Bloat: ${foodData.bloatScale || 'N/A'}/5</p>
-                    `;
-                    foodItemDiv.addEventListener("click", () => {
-                        showFoodInfoInModal(normalizedName);
-                    });
-                    fragment.appendChild(foodItemDiv);
-                });
-            }
-            allFoodsList.appendChild(fragment);
-        }
-
-    // === Event Listeners for main buttons ===
-    darkModeToggle.addEventListener("click", () => {
-        document.body.classList.toggle("dark-mode");
-        localStorage.setItem(
-            "darkMode",
-            document.body.classList.contains("dark-mode")
-        );
-    });
-
-    resetHistoryBtn.addEventListener("click", () => {
-        if (confirm("Are you sure you want to reset all your meal history and settings? This cannot be undone.")) {
-            dailyLog = [];
-            settings = {
-                calorieGoal: 2500,
-                proteinGoal: 100,
-                fatGoal: 70,
-                carbGoal: 300,
-                unitPreference: "metric",
-            };
-            saveLog(dailyLog);
-            saveSettings(settings); // This will also update UI and totals
-            renderMealHistory();
-            updateTotalsAndProgress();
-            alert("All history and settings have been reset.");
-        }
-    });
-
-    // NEW: All Foods Modal Functionality - Moved outside renderMealHistory
-    // These listeners should only be attached once when the script loads
-    showAllFoodsBtn.addEventListener("click", () => {
-        allFoodsSearchInput.value = ""; // Clear search when opening
-        allFoodsSortSelect.value = "name-asc"; // Reset sort to default
-        renderAllFoodsList(); // Render all foods initially
-        allFoodsModalBg.classList.add("show");
-    });
-
-    closeAllFoodsModal.addEventListener("click", () => {
-        allFoodsModalBg.classList.remove("show");
-    });
-
-    allFoodsModalBg.addEventListener("click", (e) => {
-        if (e.target === allFoodsModalBg) {
-            allFoodsModalBg.classList.remove("show");
-        }
-    });
-
-    allFoodsSearchInput.addEventListener("input", () => {
-        renderAllFoodsList();
-    });
-
-    allFoodsSortSelect.addEventListener("change", () => {
-        renderAllFoodsList();
-    });
-
-
-    // === Initial load ===
-    initDarkMode();
-    // Load settings from localStorage first, then use them for initial UI rendering
-    if (localStorage.getItem("settings")) {
-        settings = JSON.parse(localStorage.getItem("settings"));
-    }
-    // Set initial values for settings inputs
-    calorieGoalInput.value = settings.calorieGoal;
-    proteinGoalInput.value = settings.proteinGoal;
-    fatGoalInput.value = settings.fatGoal;
-    carbGoalInput.value = settings.carbGoal;
-    unitPreferenceSelect.value = settings.unitPreference;
-
-    renderMealHistory();
-    updateTotalsAndProgress();
-    // saveSettings(settings); // No need to save on initial load if just loading from localStorage
     </script>
 </body>
 </html>
