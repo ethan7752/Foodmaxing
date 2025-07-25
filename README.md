@@ -1,2 +1,0 @@
-# Foodmaxing
-food ai 
