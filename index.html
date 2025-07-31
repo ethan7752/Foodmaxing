@@ -111,7 +111,10 @@
             "Bench press", "Incline bench press", "Incline smith machine bench press", "Lat pullover", "Pec deck",
             "Dumbell chest press", "Machine press", "Machine incline press", "Cable fly's", "Dumbell shoulder press",
             "Machine shoulder press", "Machine laterial raises", "Dumbell laterial raises", "Rear delt face pull",
-            "Reverse pec deck", "Cable laterial raises", "Ab crunch machine", "Ab crunch machine with legs."
+            "Reverse pec deck", "Cable laterial raises", "Ab crunch machine", "Ab crunch machine with legs.",
+            "Dips", "Plate loaded chest press", "Plate loaded shoulder press", "Plate loaded incline chest press", 
+            "Plate loaded rows", "Plate loaded pulldown", "Lat pulldown close grip", "V bar lat push down", "Seated cable fly", 
+            "Reverse handle rope curls"
         ];
 
         // --- DOM Element References ---
@@ -336,19 +339,19 @@
                     {
                         label: 'Weight (kg)',
                         data: weights,
-                        borderColor: 'rgb(251, 146, 60)',
+                        borderColor: 'rgb(255, 99, 132)', // Red
                         tension: 0.4
                     },
                     {
                         label: 'Reps',
                         data: reps,
-                        borderColor: 'rgb(249, 115, 22)',
+                        borderColor: 'rgb(75, 192, 192)', // Green
                         tension: 0.4
                     },
                     {
                         label: 'Sets',
                         data: sets,
-                        borderColor: 'rgb(234, 88, 12)',
+                        borderColor: 'rgb(54, 162, 235)', // Blue
                         tension: 0.4
                     }
                 ]
