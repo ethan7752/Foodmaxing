@@ -4,27 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Progressive Overload Tracker</title>
-    <!-- Tailwind CSS CDN for styling -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         /* Custom scrollbar for better aesthetics */
         .custom-scrollbar::-webkit-scrollbar {
             width: 8px;
         }
         .custom-scrollbar::-webkit-scrollbar-track {
-            background: #1a1a1a; /* Darker track color */
+            background: #1a1a1a;
             border-radius: 10px;
         }
         .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: #fb923c; /* Orange thumb color */
+            background: #fb923c;
             border-radius: 10px;
         }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-            background: #ea580c; /* Darker orange on hover */
+            background: #ea580c;
         }
-
-        /* Set Inter font globally for consistent typography */
         body {
             font-family: 'Inter', sans-serif;
         }
@@ -34,11 +32,9 @@
     <div id="app-container" class="bg-gray-900 border border-gray-700 rounded-xl shadow-lg w-full max-w-md p-6">
         <h1 class="text-3xl font-bold text-center mb-6 text-orange-500">Gym Tracker</h1>
 
-        <!-- Loading and Error Messages (hidden by default) -->
         <div id="loading-message" class="text-xl font-semibold text-center text-orange-400 hidden">Loading application...</div>
         <div id="error-message" class="text-xl font-semibold text-center text-red-400 p-4 hidden"></div>
 
-        <!-- Exercise List View (visible by default) -->
         <div id="exercise-list-view">
             <input
                 type="text"
@@ -47,16 +43,17 @@
                 class="w-full p-3 mb-4 bg-gray-800 text-orange-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 placeholder-gray-500"
             />
             <div id="exercises-container" class="max-h-96 overflow-y-auto custom-scrollbar space-y-2">
-                <!-- Exercise buttons will be dynamically inserted here by JavaScript -->
-            </div>
+                </div>
             <p id="no-exercises-found" class="text-center text-gray-500 text-lg py-4 hidden">No exercises found.</p>
         </div>
 
-        <!-- Exercise Detail View (hidden by default) -->
         <div id="exercise-detail-view" class="hidden">
             <h2 id="detail-exercise-name" class="text-2xl font-bold text-orange-500 mb-6 text-center"></h2>
 
-            <!-- Weight Input Group -->
+            <div class="mb-4 text-center text-orange-300">
+                <span id="last-session-info" class="text-sm"></span>
+            </div>
+
             <div class="flex flex-col items-start mb-4 bg-gray-900 border border-gray-700 p-4 rounded-lg shadow-inner">
                 <label class="text-lg font-medium text-orange-300 mb-2">Weight (kg):</label>
                 <div class="flex items-center w-full">
@@ -66,7 +63,6 @@
                 </div>
             </div>
 
-            <!-- Reps Input Group -->
             <div class="flex flex-col items-start mb-4 bg-gray-900 border border-gray-700 p-4 rounded-lg shadow-inner">
                 <label class="text-lg font-medium text-orange-300 mb-2">Reps:</label>
                 <div class="flex items-center w-full">
@@ -76,7 +72,6 @@
                 </div>
             </div>
 
-            <!-- Sets Input Group -->
             <div class="flex flex-col items-start mb-4 bg-gray-900 border border-gray-700 p-4 rounded-lg shadow-inner">
                 <label class="text-lg font-medium text-orange-300 mb-2">Sets:</label>
                 <div class="flex items-center w-full">
@@ -86,18 +81,21 @@
                 </div>
             </div>
 
-            <button id="save-button" class="w-full bg-orange-600 hover:bg-orange-700 text-black font-bold py-3 px-4 rounded-lg shadow-lg transition-colors duration-200 mb-4 focus:outline-none focus:ring-2 focus:ring-orange-500">
-                Save Progress
+            <button id="next-session-button" class="w-full bg-orange-600 hover:bg-orange-700 text-black font-bold py-3 px-4 rounded-lg shadow-lg transition-colors duration-200 mb-4 focus:outline-none focus:ring-2 focus:ring-orange-500">
+                Next Session
             </button>
             <p id="save-message" class="text-center text-sm mb-4"></p>
 
-            <button id="back-button" class="w-full bg-gray-800 hover:bg-gray-700 text-orange-300 font-bold py-3 px-4 rounded-lg shadow-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500">
+            <div id="chart-container" class="mt-8">
+                <canvas id="progressChart" class="bg-gray-800 p-4 rounded-lg"></canvas>
+            </div>
+
+            <button id="back-button" class="w-full bg-gray-800 hover:bg-gray-700 text-orange-300 font-bold py-3 px-4 rounded-lg shadow-lg transition-colors duration-200 mt-4 focus:outline-none focus:ring-2 focus:ring-gray-500">
                 Back to Exercises
             </button>
         </div>
     </div>
 
-    <!-- JavaScript for application logic -->
     <script>
         // Exercise List (from your request)
         const EXERCISES = [
@@ -119,16 +117,19 @@
         const exercisesContainer = document.getElementById('exercises-container');
         const noExercisesFound = document.getElementById('no-exercises-found');
         const detailExerciseName = document.getElementById('detail-exercise-name');
+        const lastSessionInfo = document.getElementById('last-session-info');
         const weightInput = document.getElementById('weight-input');
         const repsInput = document.getElementById('reps-input');
         const setsInput = document.getElementById('sets-input');
-        const saveButton = document.getElementById('save-button');
+        const nextSessionButton = document.getElementById('next-session-button');
         const saveMessage = document.getElementById('save-message');
         const backButton = document.getElementById('back-button');
+        const progressChartCanvas = document.getElementById('progressChart');
+        let progressChart = null; // Variable to hold the chart instance
 
         // --- Global Variables for App State ---
-        let currentSelectedExercise = null; // Tracks the exercise currently displayed in detail view
-        let allFetchedExerciseData = {}; // Stores all exercise data retrieved from localStorage
+        let currentSelectedExercise = null;
+        let allFetchedExerciseData = {};
 
         // --- Utility Functions ---
 
@@ -147,10 +148,9 @@
         function saveAllExerciseDataToLocalStorage() {
             try {
                 localStorage.setItem('gymTrackerData', JSON.stringify(allFetchedExerciseData));
-                console.log("Data saved to localStorage.");
             } catch (e) {
                 console.error("Error saving to localStorage:", e);
-                errorMessage.textContent = "Error saving data to device. Storage might be full or unavailable.";
+                errorMessage.textContent = "Error saving data. Storage might be full or unavailable.";
                 errorMessage.classList.remove('hidden');
             }
         }
@@ -161,16 +161,14 @@
                 const storedData = localStorage.getItem('gymTrackerData');
                 if (storedData) {
                     allFetchedExerciseData = JSON.parse(storedData);
-                    console.log("Data loaded from localStorage:", allFetchedExerciseData);
                 } else {
-                    // If no data in localStorage, initialize with default values for all exercises
                     initializeDefaultExerciseData();
                 }
             } catch (e) {
                 console.error("Error loading from localStorage:", e);
-                errorMessage.textContent = "Error loading data from device. Data might be corrupted.";
+                errorMessage.textContent = "Error loading data. Data might be corrupted.";
                 errorMessage.classList.remove('hidden');
-                initializeDefaultExerciseData(); // Fallback to default if load fails
+                initializeDefaultExerciseData();
             }
         }
 
@@ -182,18 +180,19 @@
                         name: exerciseName,
                         lastWeight: 0,
                         lastReps: 0,
-                        lastSets: 0
+                        lastSets: 0,
+                        history: []
                     };
                 }
             });
-            saveAllExerciseDataToLocalStorage(); // Save the newly initialized data
+            saveAllExerciseDataToLocalStorage();
         }
 
         // --- UI Rendering Functions ---
 
         /** Renders the list of exercises based on the provided array. */
         function renderExerciseList(filteredExercises) {
-            exercisesContainer.innerHTML = ''; // Clear current list
+            exercisesContainer.innerHTML = '';
             if (filteredExercises.length === 0) {
                 noExercisesFound.classList.remove('hidden');
             } else {
@@ -202,7 +201,7 @@
                     const button = document.createElement('button');
                     button.className = 'w-full text-left p-3 bg-gray-900 border border-gray-700 hover:bg-orange-700 hover:border-orange-700 transition-colors duration-200 rounded-lg text-lg font-medium shadow-md text-orange-300';
                     button.textContent = exercise;
-                    button.onclick = () => showExerciseDetail(exercise); // Attach click handler
+                    button.onclick = () => showExerciseDetail(exercise);
                     const li = document.createElement('li');
                     li.appendChild(button);
                     exercisesContainer.appendChild(li);
@@ -210,18 +209,26 @@
             }
         }
 
-        /** Populates the detail view with data for the selected exercise. */
+        /** Populates the detail view with data for the selected exercise and renders the chart. */
         function showExerciseDetail(exerciseName) {
             currentSelectedExercise = exerciseName;
             detailExerciseName.textContent = exerciseName;
 
-            // Get data from our cached data, or use defaults if not found
-            const data = allFetchedExerciseData[exerciseName] || { lastWeight: 0, lastReps: 0, lastSets: 0 };
+            const data = allFetchedExerciseData[exerciseName] || { lastWeight: 0, lastReps: 0, lastSets: 0, history: [] };
             weightInput.value = data.lastWeight;
             repsInput.value = data.lastReps;
             setsInput.value = data.lastSets;
 
-            showView('detail'); // Switch to the detail view
+            // Display last session info
+            if (data.history && data.history.length > 0) {
+                const lastEntry = data.history[data.history.length - 1];
+                lastSessionInfo.textContent = `Last Session: ${lastEntry.weight}kg x ${lastEntry.reps} reps x ${lastEntry.sets} sets on ${lastEntry.date}`;
+            } else {
+                lastSessionInfo.textContent = "No previous sessions found.";
+            }
+
+            showView('detail');
+            renderChart(data.history);
         }
 
         /** Increases or decreases a numerical input's value, preventing negative numbers. */
@@ -231,27 +238,120 @@
             inputElement.value = currentValue;
         }
 
-        /** Saves the current exercise's data to localStorage. */
-        function saveCurrentExerciseData() {
+        /** Saves the current exercise's data to the history and updates last session. */
+        function saveNextSession() {
             if (!currentSelectedExercise) {
                 saveMessage.textContent = "Error: No exercise selected.";
                 saveMessage.className = 'text-center text-sm text-red-400 mb-4';
                 return;
             }
 
-            // Update the data in our in-memory object
-            allFetchedExerciseData[currentSelectedExercise] = {
-                ...allFetchedExerciseData[currentSelectedExercise], // Keep existing properties
-                lastWeight: Number(weightInput.value),
-                lastReps: Number(repsInput.value),
-                lastSets: Number(setsInput.value)
+            const newEntry = {
+                date: new Date().toLocaleDateString(),
+                weight: Number(weightInput.value),
+                reps: Number(repsInput.value),
+                sets: Number(setsInput.value)
             };
 
-            saveAllExerciseDataToLocalStorage(); // Persist the updated data to localStorage
+            const exerciseData = allFetchedExerciseData[currentSelectedExercise];
+            if (!exerciseData.history) {
+                exerciseData.history = []; // Initialize history if it doesn't exist
+            }
+            exerciseData.history.push(newEntry);
+            
+            // Update the last saved values
+            exerciseData.lastWeight = newEntry.weight;
+            exerciseData.lastReps = newEntry.reps;
+            exerciseData.lastSets = newEntry.sets;
 
-            saveMessage.textContent = "Saved successfully!";
+            saveAllExerciseDataToLocalStorage();
+
+            saveMessage.textContent = "Session saved successfully!";
             saveMessage.className = 'text-center text-sm text-green-400 mb-4';
-            setTimeout(() => { saveMessage.textContent = ''; }, 3000); // Clear message after 3 seconds
+            setTimeout(() => { saveMessage.textContent = ''; }, 3000);
+
+            // Re-render the chart with the new data
+            renderChart(exerciseData.history);
+
+            // Update the last session info display
+            lastSessionInfo.textContent = `Last Session: ${newEntry.weight}kg x ${newEntry.reps} reps x ${newEntry.sets} sets on ${newEntry.date}`;
+        }
+
+        /** Renders the line chart using Chart.js. */
+        function renderChart(history) {
+            const chartContainer = document.getElementById('chart-container');
+            if (progressChart) {
+                progressChart.destroy(); // Destroy previous chart instance
+            }
+
+            if (!history || history.length < 2) {
+                // Hide chart if there isn't enough data
+                chartContainer.style.display = 'none';
+                return;
+            }
+
+            chartContainer.style.display = 'block';
+
+            const labels = history.map(entry => entry.date);
+            const weights = history.map(entry => entry.weight);
+            const reps = history.map(entry => entry.reps);
+            const sets = history.map(entry => entry.sets);
+
+            const data = {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Weight (kg)',
+                        data: weights,
+                        borderColor: 'rgb(251, 146, 60)', // Orange-500
+                        tension: 0.4
+                    },
+                    {
+                        label: 'Reps',
+                        data: reps,
+                        borderColor: 'rgb(249, 115, 22)', // Orange-600
+                        tension: 0.4
+                    },
+                    {
+                        label: 'Sets',
+                        data: sets,
+                        borderColor: 'rgb(234, 88, 12)', // Orange-700
+                        tension: 0.4
+                    }
+                ]
+            };
+
+            const config = {
+                type: 'line',
+                data: data,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            ticks: { color: 'rgb(253, 186, 116)' },
+                            grid: { color: 'rgba(107, 114, 128, 0.2)' }
+                        },
+                        y: {
+                            ticks: { color: 'rgb(253, 186, 116)' },
+                            grid: { color: 'rgba(107, 114, 128, 0.2)' }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: 'rgb(253, 186, 116)'
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: 'Progress Over Time',
+                            color: 'rgb(251, 146, 60)'
+                        }
+                    }
+                }
+            };
+            progressChart = new Chart(progressChartCanvas, config);
         }
 
         // --- Event Listeners ---
@@ -262,7 +362,6 @@
             renderExerciseList(filtered);
         });
 
-        // Attach event listeners for increase/decrease buttons
         document.getElementById('weight-decrease').addEventListener('click', () => updateValue(weightInput, -1));
         document.getElementById('weight-increase').addEventListener('click', () => updateValue(weightInput, 1));
         document.getElementById('reps-decrease').addEventListener('click', () => updateValue(repsInput, -1));
@@ -270,29 +369,28 @@
         document.getElementById('sets-decrease').addEventListener('click', () => updateValue(setsInput, -1));
         document.getElementById('sets-increase').addEventListener('click', () => updateValue(setsInput, 1));
 
-        saveButton.addEventListener('click', saveCurrentExerciseData);
+        nextSessionButton.addEventListener('click', saveNextSession);
 
         backButton.addEventListener('click', () => {
-            currentSelectedExercise = null; // Clear selected exercise
-            searchInput.value = ''; // Clear search input
-            renderExerciseList(EXERCISES); // Show full list
-            showView('list'); // Switch back to list view
+            currentSelectedExercise = null;
+            searchInput.value = '';
+            renderExerciseList(EXERCISES);
+            showView('list');
+            if (progressChart) {
+                progressChart.destroy(); // Clean up chart on view change
+                progressChart = null;
+            }
         });
 
         // --- Application Initialization on Window Load ---
 
         window.onload = function() {
-            loadingMessage.classList.remove('hidden'); // Show loading message
-
-            // Load all data from localStorage
+            loadingMessage.classList.remove('hidden');
             loadAllExerciseDataFromLocalStorage();
-
-            // Render the initial list of exercises
             renderExerciseList(EXERCISES);
-
-            loadingMessage.classList.add('hidden'); // Hide loading message
-            errorMessage.classList.add('hidden'); // Hide any previous error messages
-            showView('list'); // Ensure the list view is shown initially
+            loadingMessage.classList.add('hidden');
+            errorMessage.classList.add('hidden');
+            showView('list');
         };
     </script>
 </body>
