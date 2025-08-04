@@ -1,428 +1,551 @@
-<script>
-    // Exercise List categorized by muscle group
-    const EXERCISES_BY_GROUP = {
-        'biceps': [
-            "Barbell curl", "Dumbbell curl", "Hammer curl", "Preacher curl",
-            "Cable curl", "Machine curl", "Bicep pulldown", "Forearm cable curls",
-            "Hammer rope curl", "Reverse handle rope curls", "Ez bar curl close grip",
-            "Ez bar curl wide grip", "Cable ez bar curl close grip", "Cable ez bar curl wide grip",
-            "Katana pullouts", "Seated incline dumbbell curls"
-        ],
-        'triceps': [
-            "Tricep pulldown", "Tricep pushdown", "Overhead rope extension",
-            "Skull crushers", "Cable anchored tricep extension"
-        ],
-        'back': [
-            "Lat pulldown", "Lat row", "Machine row", "Machine pulldown",
-            "Lat pullover", "Plate loaded rows", "Plate loaded pulldown",
-            "Lat pulldown close grip", "V bar lat push down", "Rear delt face pull",
-            "Reverse pec deck"
-        ],
-        'chest': [
-            "Bench press", "Incline bench press", "Incline smith machine bench press",
-            "Pec deck", "Dumbbell chest press", "Machine press",
-            "Machine incline press", "Cable fly's", "Dips",
-            "Plate loaded chest press", "Plate loaded incline chest press",
-            "Seated cable fly", "Push ups"
-        ],
-        'shoulders': [
-            "Dumbbell shoulder press", "Machine shoulder press",
-            "Machine lateral raises", "Dumbbell lateral raises",
-            "Smith machine shoulder press", "Plate loaded shoulder press",
-            "Cable lateral raises", "Rear delt face pull", "Reverse pec deck"
-        ],
-        'legs': [
-            "Barbell squat", "Leg press", "Hack squat", "Dumbbell lunges",
-            "Bulgarian split squat", "Leg extension", "Leg curl",
-            "Seated calf raise", "Standing calf raise", "Romanian deadlift (RDL)",
-            "Glute bridge", "Hip thrust", "Adductor machine", "Abductor machine"
-        ],
-        'abs': [
-            "Ab crunch machine", "Ab crunch machine with legs"
-        ]
-    };
+<!DOCTYPE html>
+ <html lang="en">
+ <head>
+     <meta charset="UTF-8">
+     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <title>Progressive Overload Tracker</title>
+     <script src="https://cdn.tailwindcss.com"></script>
+     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+     <style>
+         /* Custom scrollbar for better aesthetics */
+         .custom-scrollbar::-webkit-scrollbar {
+             width: 8px;
+         }
+         .custom-scrollbar::-webkit-scrollbar-track {
+             background: #1a1a1a;
+             border-radius: 10px;
+         }
+         .custom-scrollbar::-webkit-scrollbar-thumb {
+             background: #fb923c;
+             border-radius: 10px;
+         }
+         .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+             background: #ea580c;
+         }
+         body {
+             font-family: 'Inter', sans-serif;
+         }
+     </style>
+ </head>
+ <body class="bg-black text-orange-500 min-h-screen flex items-center justify-center p-4">
+     <div id="app-container" class="bg-gray-900 border border-gray-700 rounded-xl shadow-lg w-full max-w-md p-6">
+         <h1 class="text-3xl font-bold text-center mb-6 text-orange-500">Gym Tracker</h1>
 
-    // Define exercises that target more than one muscle group
-    const COMPOUND_EXERCISES = {
-        'chest': ["Dips", "Push ups"],
-        'triceps': ["Dips", "Bench press", "Incline bench press", "Dumbbell chest press", "Push ups"],
-        'biceps': ["Lat pulldown close grip", "Barbell curl", "Dumbbell curl"],
-        'shoulders': ["Bench press", "Incline bench press", "Dumbbell shoulder press"],
-        'back': ["Lat pulldown", "Lat row"],
-        'legs': ["Barbell squat", "Leg press", "Romanian deadlift (RDL)"],
-    };
+         <div id="loading-message" class="text-xl font-semibold text-center text-orange-400 hidden">Loading application...</div>
+         <div id="error-message" class="text-xl font-semibold text-center text-red-400 p-4 hidden"></div>
 
-    // Flatten the list of all exercises for general search and sorting
-    let ALL_EXERCISES = Object.values(EXERCISES_BY_GROUP).flat();
-    Object.values(COMPOUND_EXERCISES).flat().forEach(exercise => {
-        if (!ALL_EXERCISES.includes(exercise)) {
-            ALL_EXERCISES.push(exercise);
-        }
-    });
-    ALL_EXERCISES = ALL_EXERCISES.sort();
+         <div id="exercise-list-view">
+             <input
+                 type="text"
+                 id="search-input"
+                 placeholder="Search exercises or muscle groups..."
+                 class="w-full p-3 mb-4 bg-gray-800 text-orange-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 placeholder-gray-500"
+             />
+             <div id="exercises-container" class="max-h-96 overflow-y-auto custom-scrollbar space-y-2">
+                 </div>
+             <p id="no-exercises-found" class="text-center text-gray-500 text-lg py-4 hidden">No exercises found.</p>
+             <button id="download-data-button" class="w-full bg-gray-800 hover:bg-gray-700 text-orange-300 font-bold py-3 px-4 rounded-lg shadow-lg transition-colors duration-200 mt-4 focus:outline-none focus:ring-2 focus:ring-gray-500">
+                 Download All Data
+             </button>
+         </div>
 
-    const MUSCLE_GROUPS = Object.keys(EXERCISES_BY_GROUP);
-    const ALL_MUSCLE_GROUPS = [...MUSCLE_GROUPS, ...Object.keys(COMPOUND_EXERCISES)];
+         <div id="exercise-detail-view" class="hidden">
+             <h2 id="detail-exercise-name" class="text-2xl font-bold text-orange-500 mb-6 text-center"></h2>
 
-    // --- DOM Element References ---
-    const loadingMessage = document.getElementById('loading-message');
-    const errorMessage = document.getElementById('error-message');
-    const exerciseListView = document.getElementById('exercise-list-view');
-    const exerciseDetailView = document.getElementById('exercise-detail-view');
-    const searchInput = document.getElementById('search-input');
-    const exercisesContainer = document.getElementById('exercises-container');
-    const noExercisesFound = document.getElementById('no-exercises-found');
-    const detailExerciseName = document.getElementById('detail-exercise-name');
-    const sessionDateSpan = document.getElementById('session-date');
-    const prevSessionButton = document.getElementById('prev-session-button');
-    const nextSessionButton = document.getElementById('next-session-button');
-    const weightInput = document.getElementById('weight-input');
-    const repsInput = document.getElementById('reps-input');
-    const setsInput = document.getElementById('sets-input');
-    const notesInput = document.getElementById('notes-input');
-    const saveSessionButton = document.getElementById('save-session-button');
-    const saveMessage = document.getElementById('save-message');
-    const backButton = document.getElementById('back-button');
-    const downloadDataButton = document.getElementById('download-data-button');
-    const progressChartCanvas = document.getElementById('progressChart');
-    let progressChart = null;
+             <div class="flex items-center justify-between mb-4">
+                 <button id="prev-session-button" class="p-2 bg-gray-800 hover:bg-gray-700 text-orange-300 font-bold rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
+                     &lt; Previous
+                 </button>
+                 <span id="session-date" class="text-lg font-medium text-orange-300"></span>
+                 <button id="next-session-button" class="p-2 bg-gray-800 hover:bg-gray-700 text-orange-300 font-bold rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
+                     Next &gt;
+                 </button>
+             </div>
 
-    // --- Global Variables for App State ---
-    let currentSelectedExercise = null;
-    let allFetchedExerciseData = {};
-    let currentSessionIndex = -1;
+             <div class="flex flex-col items-start mb-4 bg-gray-900 border border-gray-700 p-4 rounded-lg shadow-inner">
+                 <label class="text-lg font-medium text-orange-300 mb-2">Weight (kg):</label>
+                 <div class="flex items-center w-full">
+                     <button id="weight-decrease" class="p-2 bg-red-700 hover:bg-red-800 rounded-full w-10 h-10 flex items-center justify-center text-xl font-bold text-white shadow-md focus:outline-none focus:ring-2 focus:ring-red-500 flex-shrink-0">-</button>
+                     <input type="number" id="weight-input" class="flex-grow mx-3 p-2 text-center bg-gray-800 text-orange-300 rounded-md text-xl font-semibold focus:outline-none focus:ring-2 focus:ring-orange-500 min-w-0" min="0">
+                     <button id="weight-increase" class="p-2 bg-green-700 hover:bg-green-800 rounded-full w-10 h-10 flex items-center justify-center text-xl font-bold text-white shadow-md focus:outline-none focus:ring-2 focus:ring-green-500 flex-shrink-0">+</button>
+                 </div>
+             </div>
 
-    // --- Utility Functions ---
+             <div class="flex flex-col items-start mb-4 bg-gray-900 border border-gray-700 p-4 rounded-lg shadow-inner">
+                 <label class="text-lg font-medium text-orange-300 mb-2">Reps:</label>
+                 <div class="flex items-center w-full">
+                     <button id="reps-decrease" class="p-2 bg-red-700 hover:bg-red-800 rounded-full w-10 h-10 flex items-center justify-center text-xl font-bold text-white shadow-md focus:outline-none focus:ring-2 focus:ring-red-500 flex-shrink-0">-</button>
+                     <input type="number" id="reps-input" class="flex-grow mx-3 p-2 text-center bg-gray-800 text-orange-300 rounded-md text-xl font-semibold focus:outline-none focus:ring-2 focus:ring-orange-500 min-w-0" min="0">
+                     <button id="reps-increase" class="p-2 bg-green-700 hover:bg-green-800 rounded-full w-10 h-10 flex items-center justify-center text-xl font-bold text-white shadow-md focus:outline-none focus:ring-2 focus:ring-green-500 flex-shrink-0">+</button>
+                 </div>
+             </div>
 
-    function showView(viewName) {
-        exerciseListView.classList.add('hidden');
-        exerciseDetailView.classList.add('hidden');
-        if (viewName === 'list') {
-            exerciseListView.classList.remove('hidden');
-        } else if (viewName === 'detail') {
-            exerciseDetailView.classList.remove('hidden');
-        }
-    }
+             <div class="flex flex-col items-start mb-4 bg-gray-900 border border-gray-700 p-4 rounded-lg shadow-inner">
+                 <label class="text-lg font-medium text-orange-300 mb-2">Sets:</label>
+                 <div class="flex items-center w-full">
+                     <button id="sets-decrease" class="p-2 bg-red-700 hover:bg-red-800 rounded-full w-10 h-10 flex items-center justify-center text-xl font-bold text-white shadow-md focus:outline-none focus:ring-2 focus:ring-red-500 flex-shrink-0">-</button>
+                     <input type="number" id="sets-input" class="flex-grow mx-3 p-2 text-center bg-gray-800 text-orange-300 rounded-md text-xl font-semibold focus:outline-none focus:ring-2 focus:ring-orange-500 min-w-0" min="0">
+                     <button id="sets-increase" class="p-2 bg-green-700 hover:bg-green-800 rounded-full w-10 h-10 flex items-center justify-center text-xl font-bold text-white shadow-md focus:outline-none focus:ring-2 focus:ring-green-500 flex-shrink-0">+</button>
+                 </div>
+             </div>
 
-    function saveAllExerciseDataToLocalStorage() {
-        try {
-            localStorage.setItem('gymTrackerData', JSON.stringify(allFetchedExerciseData));
-        } catch (e) {
-            console.error("Error saving to localStorage:", e);
-            errorMessage.textContent = "Error saving data. Storage might be full or unavailable.";
-            errorMessage.classList.remove('hidden');
-        }
-    }
+             <div class="flex flex-col items-start mb-4 bg-gray-900 border border-gray-700 p-4 rounded-lg shadow-inner">
+                 <label for="notes-input" class="text-lg font-medium text-orange-300 mb-2">Notes:</label>
+                 <textarea id="notes-input" class="w-full h-24 p-2 bg-gray-800 text-orange-300 rounded-md text-base focus:outline-none focus:ring-2 focus:ring-orange-500 placeholder-gray-500" placeholder="Add notes for this session..."></textarea>
+             </div>
 
-    function loadAllExerciseDataFromLocalStorage() {
-        try {
-            const storedData = localStorage.getItem('gymTrackerData');
-            if (storedData) {
-                allFetchedExerciseData = JSON.parse(storedData);
-            }
-            initializeDefaultExerciseData();
-        } catch (e) {
-            console.error("Error loading from localStorage:", e);
-            errorMessage.textContent = "Error loading data. Data might be corrupted.";
-            errorMessage.classList.remove('hidden');
-            initializeDefaultExerciseData();
-        }
-    }
+             <button id="save-session-button" class="w-full bg-orange-600 hover:bg-orange-700 text-black font-bold py-3 px-4 rounded-lg shadow-lg transition-colors duration-200 mb-4 focus:outline-none focus:ring-2 focus:ring-orange-500">
+                 Save
+             </button>
+             <p id="save-message" class="text-center text-sm mb-4"></p>
 
-    function initializeDefaultExerciseData() {
-        ALL_EXERCISES.forEach(exerciseName => {
-            if (!allFetchedExerciseData[exerciseName]) {
-                allFetchedExerciseData[exerciseName] = {
-                    name: exerciseName,
-                    history: []
-                };
-            }
-        });
-        saveAllExerciseDataToLocalStorage();
-    }
+             <div id="chart-container" class="mt-8">
+                 <canvas id="progressChart" class="bg-gray-800 p-4 rounded-lg"></canvas>
+             </div>
 
-    function renderExerciseList(filteredExercises) {
-        exercisesContainer.innerHTML = '';
-        if (filteredExercises.length === 0) {
-            noExercisesFound.classList.remove('hidden');
-        } else {
-            noExercisesFound.classList.add('hidden');
-            filteredExercises.forEach(exercise => {
-                const button = document.createElement('button');
-                button.className = 'w-full text-left p-3 bg-gray-900 border border-gray-700 hover:bg-orange-700 hover:border-orange-700 transition-colors duration-200 rounded-lg text-lg font-medium shadow-md text-orange-300';
-                button.textContent = exercise;
-                button.onclick = () => showExerciseDetail(exercise);
-                const li = document.createElement('li');
-                li.appendChild(button);
-                exercisesContainer.appendChild(li);
-            });
-        }
-    }
+             <button id="back-button" class="w-full bg-gray-800 hover:bg-gray-700 text-orange-300 font-bold py-3 px-4 rounded-lg shadow-lg transition-colors duration-200 mt-4 focus:outline-none focus:ring-2 focus:ring-gray-500">
+                 Back to Exercises
+             </button>
+         </div>
+     </div>
 
-    function showExerciseDetail(exerciseName) {
-        currentSelectedExercise = exerciseName;
-        detailExerciseName.textContent = exerciseName;
+     <script>
+         // Exercise List categorized by muscle group
+         const EXERCISES_BY_GROUP = {
+             'biceps': [
+                 "Barbell curl", "Dumbell curl", "Hammer curl", "Preacher curl", "Cable curl", "Machine curl",
+                 "Bicep pulldown", "Forearm cable curls", "Hammer rope curl", "Reverse handle rope curls",
+                 "Ez bar curl close grip", "Ez bar curl wide grip", "Cable ez bar curl close grip", "Cable ez bar curl wide grip",
+                 "Katana pullouts", "Seated incline dumbell curls"
+             ],
+             'triceps': [
+                 "Tricep pulldown", "Tricep pushdown", "Overhead rope extension", "Skull crushers",
+                 "Dips", "Cable anchored tricep extension"
+             ],
+             'back': [
+                 "Lat pulldown", "Lat row", "Machine row", "Machine pulldown", "Lat pullover",
+                 "Plate loaded rows", "Plate loaded pulldown", "Lat pulldown close grip", "V bar lat push down",
+                 "Rear delt face pull", "Reverse pec deck"
+             ],
+             'chest': [
+                 "Bench press", "Incline bench press", "Incline smith machine bench press", "Pec deck",
+                 "Dumbell chest press", "Machine press", "Machine incline press", "Cable fly's",
+                 "Dips", "Plate loaded chest press", "Plate loaded incline chest press", "Seated cable fly",
+                 "Push ups"
+             ],
+             'shoulders': [
+                 "Dumbell shoulder press", "Machine shoulder press", "Machine laterial raises", "Dumbell laterial raises",
+                 "Smith machine shoulder press", "Plate loaded shoulder press", "Cable laterial raises",
+                 "Rear delt face pull", "Reverse pec deck"
+             ],
+             'legs': [
+                 "Barbell squat", "Leg press", "Hack squat", "Dumbell lunges", "Bulgarian split squat", "Leg extension",
+                 "Leg curl", "Seated calf raise", "Standing calf raise", "Romanian deadlift (RDL)", "Glute bridge",
+                 "Hip thrust", "Adductor machine", "Abductor machine"
+             ],
+             'abs': [
+                 "Ab crunch machine", "Ab crunch machine with legs"
+             ],
+         };
 
-        const history = allFetchedExerciseData[exerciseName]?.history || [];
-        currentSessionIndex = history.length > 0 ? history.length - 1 : -1;
+         // Map each exercise to its muscle groups for efficient searching
+         const EXERCISE_TO_GROUPS = {};
+         for (const group in EXERCISES_BY_GROUP) {
+             EXERCISES_BY_GROUP[group].forEach(exercise => {
+                 if (!EXERCISE_TO_GROUPS[exercise]) {
+                     EXERCISE_TO_GROUPS[exercise] = [];
+                 }
+                 EXERCISE_TO_GROUPS[exercise].push(group);
+             });
+         }
 
-        updateSessionDisplay();
-        showView('detail');
-        renderChart(history);
-    }
+         // Flatten the list of all exercises for general search and sorting
+         const ALL_EXERCISES = Object.keys(EXERCISE_TO_GROUPS).sort();
+         const MUSCLE_GROUPS = Object.keys(EXERCISES_BY_GROUP);
 
-    function updateSessionDisplay() {
-        const exerciseData = allFetchedExerciseData[currentSelectedExercise];
-        const history = exerciseData?.history || [];
+         // --- DOM Element References ---
+         const loadingMessage = document.getElementById('loading-message');
+         const errorMessage = document.getElementById('error-message');
+         const exerciseListView = document.getElementById('exercise-list-view');
+         const exerciseDetailView = document.getElementById('exercise-detail-view');
+         const searchInput = document.getElementById('search-input');
+         const exercisesContainer = document.getElementById('exercises-container');
+         const noExercisesFound = document.getElementById('no-exercises-found');
+         const detailExerciseName = document.getElementById('detail-exercise-name');
+         const sessionDateSpan = document.getElementById('session-date');
+         const prevSessionButton = document.getElementById('prev-session-button');
+         const nextSessionButton = document.getElementById('next-session-button');
+         const weightInput = document.getElementById('weight-input');
+         const repsInput = document.getElementById('reps-input');
+         const setsInput = document.getElementById('sets-input');
+         const notesInput = document.getElementById('notes-input');
+         const saveSessionButton = document.getElementById('save-session-button');
+         const saveMessage = document.getElementById('save-message');
+         const backButton = document.getElementById('back-button');
+         const downloadDataButton = document.getElementById('download-data-button');
+         const progressChartCanvas = document.getElementById('progressChart');
+         let progressChart = null;
 
-        saveSessionButton.textContent = "Save Changes";
-        saveSessionButton.classList.remove('bg-orange-600');
-        saveSessionButton.classList.add('bg-orange-500');
+         // --- Global Variables for App State ---
+         let currentSelectedExercise = null;
+         let allFetchedExerciseData = {};
+         let currentSessionIndex = -1;
 
-        if (currentSessionIndex === -1) {
-            weightInput.value = 0;
-            repsInput.value = 0;
-            setsInput.value = 0;
-            notesInput.value = "";
-            sessionDateSpan.textContent = 'New Session';
-            prevSessionButton.disabled = true;
-            nextSessionButton.disabled = true;
-            saveSessionButton.textContent = "Save New Session";
-            saveSessionButton.classList.remove('bg-orange-500');
-            saveSessionButton.classList.add('bg-orange-600');
-        } else {
-            const session = history[currentSessionIndex];
-            weightInput.value = session.weight;
-            repsInput.value = session.reps;
-            setsInput.value = session.sets;
-            notesInput.value = session.notes || "";
-            sessionDateSpan.textContent = `Session on ${session.date}`;
+         // --- Utility Functions ---
 
-            prevSessionButton.disabled = currentSessionIndex <= 0;
-            nextSessionButton.disabled = currentSessionIndex >= history.length - 1;
-        }
+         /** Shows either the list view or the detail view, hiding the other. */
+         function showView(viewName) {
+             exerciseListView.classList.add('hidden');
+             exerciseDetailView.classList.add('hidden');
+             if (viewName === 'list') {
+                 exerciseListView.classList.remove('hidden');
+             } else if (viewName === 'detail') {
+                 exerciseDetailView.classList.remove('hidden');
+             }
+         }
 
-        weightInput.disabled = false;
-        repsInput.disabled = false;
-        setsInput.disabled = false;
-        notesInput.disabled = false;
-        document.getElementById('weight-decrease').disabled = false;
-        document.getElementById('weight-increase').disabled = false;
-        document.getElementById('reps-decrease').disabled = false;
-        document.getElementById('reps-increase').disabled = false;
-        document.getElementById('sets-decrease').disabled = false;
-        document.getElementById('sets-increase').disabled = false;
-    }
+         /** Saves all exercise data to localStorage. */
+         function saveAllExerciseDataToLocalStorage() {
+             try {
+                 localStorage.setItem('gymTrackerData', JSON.stringify(allFetchedExerciseData));
+             } catch (e) {
+                 console.error("Error saving to localStorage:", e);
+                 errorMessage.textContent = "Error saving data. Storage might be full or unavailable.";
+                 errorMessage.classList.remove('hidden');
+             }
+         }
 
-    function updateValue(inputElement, increment) {
-        let currentValue = Number(inputElement.value);
-        currentValue = Math.max(0, currentValue + increment);
-        inputElement.value = currentValue;
-    }
+         /** Loads all exercise data from localStorage. */
+         function loadAllExerciseDataFromLocalStorage() {
+             try {
+                 const storedData = localStorage.getItem('gymTrackerData');
+                 if (storedData) {
+                     allFetchedExerciseData = JSON.parse(storedData);
+                 }
+                 initializeDefaultExerciseData();
+             } catch (e) {
+                 console.error("Error loading from localStorage:", e);
+                 errorMessage.textContent = "Error loading data. Data might be corrupted.";
+                 errorMessage.classList.remove('hidden');
+                 initializeDefaultExerciseData();
+             }
+         }
 
-    function saveSession() {
-        if (!currentSelectedExercise) {
-            saveMessage.textContent = "Error: No exercise selected.";
-            saveMessage.className = 'text-center text-sm text-red-400 mb-4';
-            return;
-        }
+         /** Initializes all exercises with default values if no data exists. */
+         function initializeDefaultExerciseData() {
+             ALL_EXERCISES.forEach(exerciseName => {
+                 if (!allFetchedExerciseData[exerciseName]) {
+                     allFetchedExerciseData[exerciseName] = {
+                         name: exerciseName,
+                         history: []
+                     };
+                 }
+             });
+             saveAllExerciseDataToLocalStorage();
+         }
 
-        const exerciseData = allFetchedExerciseData[currentSelectedExercise];
-        if (!exerciseData.history) {
-            exerciseData.history = [];
-        }
+         // --- UI Rendering Functions ---
 
-        const newEntry = {
-            date: new Date().toLocaleDateString(),
-            weight: Number(weightInput.value),
-            reps: Number(repsInput.value),
-            sets: Number(setsInput.value),
-            notes: notesInput.value
-        };
+         /** Renders the list of exercises based on the provided array. */
+         function renderExerciseList(filteredExercises) {
+             exercisesContainer.innerHTML = '';
+             if (filteredExercises.length === 0) {
+                 noExercisesFound.classList.remove('hidden');
+             } else {
+                 noExercisesFound.classList.add('hidden');
+                 filteredExercises.forEach(exercise => {
+                     const button = document.createElement('button');
+                     button.className = 'w-full text-left p-3 bg-gray-900 border border-gray-700 hover:bg-orange-700 hover:border-orange-700 transition-colors duration-200 rounded-lg text-lg font-medium shadow-md text-orange-300';
+                     button.textContent = exercise;
+                     button.onclick = () => showExerciseDetail(exercise);
+                     const li = document.createElement('li');
+                     li.appendChild(button);
+                     exercisesContainer.appendChild(li);
+                 });
+             }
+         }
 
-        if (currentSessionIndex === -1 || currentSessionIndex === exerciseData.history.length - 1) {
-            exerciseData.history.push(newEntry);
-            currentSessionIndex = exerciseData.history.length - 1;
-        } else {
-            exerciseData.history[currentSessionIndex] = {
-                ...exerciseData.history[currentSessionIndex],
-                ...newEntry
-            };
-        }
+         /** Populates the detail view with data for the selected exercise. */
+         function showExerciseDetail(exerciseName) {
+             currentSelectedExercise = exerciseName;
+             detailExerciseName.textContent = exerciseName;
+            
+             const history = allFetchedExerciseData[exerciseName]?.history || [];
+             currentSessionIndex = history.length > 0 ? history.length - 1 : -1;
+            
+             updateSessionDisplay();
+             showView('detail');
+             renderChart(history);
+         }
 
-        saveAllExerciseDataToLocalStorage();
-        updateSessionDisplay();
+         /** Updates the input fields, date, and notes based on the current session index. */
+         function updateSessionDisplay() {
+             const exerciseData = allFetchedExerciseData[currentSelectedExercise];
+             const history = exerciseData?.history || [];
+            
+             saveSessionButton.textContent = "Save Changes";
+             saveSessionButton.classList.remove('bg-orange-600');
+             saveSessionButton.classList.add('bg-orange-500');
 
-        saveMessage.textContent = "Session saved successfully!";
-        saveMessage.className = 'text-center text-sm text-green-400 mb-4';
-        setTimeout(() => { saveMessage.textContent = ''; }, 3000);
+             if (currentSessionIndex === -1) {
+                 // No sessions exist or viewing a new session
+                 weightInput.value = 0;
+                 repsInput.value = 0;
+                 setsInput.value = 0;
+                 notesInput.value = "";
+                 sessionDateSpan.textContent = 'New Session';
+                 prevSessionButton.disabled = true;
+                 nextSessionButton.disabled = true;
+                 saveSessionButton.textContent = "Save New Session";
+                 saveSessionButton.classList.remove('bg-orange-500');
+                 saveSessionButton.classList.add('bg-orange-600');
+             } else {
+                 const session = history[currentSessionIndex];
+                 weightInput.value = session.weight;
+                 repsInput.value = session.reps;
+                 setsInput.value = session.sets;
+                 notesInput.value = session.notes || "";
+                 sessionDateSpan.textContent = `Session on ${session.date}`;
 
-        renderChart(exerciseData.history);
-    }
+                 // Disable/enable navigation buttons
+                 prevSessionButton.disabled = currentSessionIndex <= 0;
+                 nextSessionButton.disabled = currentSessionIndex >= history.length - 1;
+             }
 
-    function downloadData() {
-        const dataStr = JSON.stringify(allFetchedExerciseData, null, 2);
-        const blob = new Blob([dataStr], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'gym_tracker_data.json';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-    }
+             // Inputs are always editable now
+             weightInput.disabled = false;
+             repsInput.disabled = false;
+             setsInput.disabled = false;
+             notesInput.disabled = false;
+             document.getElementById('weight-decrease').disabled = false;
+             document.getElementById('weight-increase').disabled = false;
+             document.getElementById('reps-decrease').disabled = false;
+             document.getElementById('reps-increase').disabled = false;
+             document.getElementById('sets-decrease').disabled = false;
+             document.getElementById('sets-increase').disabled = false;
+         }
 
-    function renderChart(history) {
-        const chartContainer = document.getElementById('chart-container');
-        if (progressChart) {
-            progressChart.destroy();
-        }
+         /** Increases or decreases a numerical input's value, preventing negative numbers. */
+         function updateValue(inputElement, increment) {
+             let currentValue = Number(inputElement.value);
+             currentValue = Math.max(0, currentValue + increment);
+             inputElement.value = currentValue;
+         }
 
-        if (!history || history.length < 2) {
-            chartContainer.style.display = 'none';
-            return;
-        }
+         /** Saves the current exercise's data, either as a new session or updating an existing one. */
+         function saveSession() {
+             if (!currentSelectedExercise) {
+                 saveMessage.textContent = "Error: No exercise selected.";
+                 saveMessage.className = 'text-center text-sm text-red-400 mb-4';
+                 return;
+             }
 
-        chartContainer.style.display = 'block';
+             const exerciseData = allFetchedExerciseData[currentSelectedExercise];
+             if (!exerciseData.history) {
+                 exerciseData.history = [];
+             }
 
-        const labels = history.map(entry => entry.date);
-        const weights = history.map(entry => entry.weight);
-        const reps = history.map(entry => entry.reps);
-        const sets = history.map(entry => entry.sets);
+             const newEntry = {
+                 date: new Date().toLocaleDateString(),
+                 weight: Number(weightInput.value),
+                 reps: Number(repsInput.value),
+                 sets: Number(setsInput.value),
+                 notes: notesInput.value
+             };
 
-        const data = {
-            labels: labels,
-            datasets: [
-                {
-                    label: 'Weight (kg)',
-                    data: weights,
-                    borderColor: 'rgb(255, 99, 132)',
-                    tension: 0.4
-                },
-                {
-                    label: 'Reps',
-                    data: reps,
-                    borderColor: 'rgb(75, 192, 192)',
-                    tension: 0.4
-                },
-                {
-                    label: 'Sets',
-                    data: sets,
-                    borderColor: 'rgb(54, 162, 235)',
-                    tension: 0.4
-                }
-            ]
-        };
+             if (currentSessionIndex === -1 || currentSessionIndex === exerciseData.history.length - 1) {
+                 // If on the "New Session" view or the latest session, create a new entry
+                 exerciseData.history.push(newEntry);
+                 currentSessionIndex = exerciseData.history.length - 1; // Move to the new session
+             } else {
+                 // Otherwise, update the current session
+                 exerciseData.history[currentSessionIndex] = {
+                     ...exerciseData.history[currentSessionIndex],
+                     ...newEntry
+                 };
+             }
+            
+             saveAllExerciseDataToLocalStorage();
+             updateSessionDisplay();
 
-        const config = {
-            type: 'line',
-            data: data,
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    x: {
-                        ticks: { color: 'rgb(253, 186, 116)' },
-                        grid: { color: 'rgba(107, 114, 128, 0.2)' }
-                    },
-                    y: {
-                        ticks: { color: 'rgb(253, 186, 116)' },
-                        grid: { color: 'rgba(107, 114, 128, 0.2)' }
-                    }
-                },
-                plugins: {
-                    legend: {
-                        labels: {
-                            color: 'rgb(253, 186, 116)'
-                        }
-                    },
-                    title: {
-                        display: true,
-                        text: 'Progress Over Time',
-                        color: 'rgb(251, 146, 60)'
-                    }
-                }
-            }
-        };
-        progressChart = new Chart(progressChartCanvas, config);
-    }
+             saveMessage.textContent = "Session saved successfully!";
+             saveMessage.className = 'text-center text-sm text-green-400 mb-4';
+             setTimeout(() => { saveMessage.textContent = ''; }, 3000);
 
-    // --- Event Listeners ---
+             renderChart(exerciseData.history);
+         }
+        
+         function downloadData() {
+             const dataStr = JSON.stringify(allFetchedExerciseData, null, 2);
+             const blob = new Blob([dataStr], { type: 'application/json' });
+             const url = URL.createObjectURL(blob);
+             const a = document.createElement('a');
+             a.href = url;
+             a.download = 'gym_tracker_data.json';
+             document.body.appendChild(a);
+             a.click();
+             document.body.removeChild(a);
+             URL.revokeObjectURL(url);
+         }
 
-    searchInput.addEventListener('input', (e) => {
-        const query = e.target.value.toLowerCase().trim();
-        let filteredExercises = new Set();
+         /** Renders the line chart using Chart.js. */
+         function renderChart(history) {
+             const chartContainer = document.getElementById('chart-container');
+             if (progressChart) {
+                 progressChart.destroy();
+             }
 
-        if (query.length > 0) {
-            // Check if the query is a muscle group (primary or secondary)
-            if (EXERCISES_BY_GROUP[query]) {
-                EXERCISES_BY_GROUP[query].forEach(exercise => filteredExercises.add(exercise));
-            }
-            if (COMPOUND_EXERCISES[query]) {
-                COMPOUND_EXERCISES[query].forEach(exercise => filteredExercises.add(exercise));
-            }
+             if (!history || history.length < 2) {
+                 chartContainer.style.display = 'none';
+                 return;
+             }
 
-            // Also search for exercises that contain the query string
-            ALL_EXERCISES.filter(exercise => exercise.toLowerCase().includes(query))
-                .forEach(exercise => filteredExercises.add(exercise));
+             chartContainer.style.display = 'block';
 
-        } else {
-            // If the query is empty, show all exercises
-            ALL_EXERCISES.forEach(exercise => filteredExercises.add(exercise));
-        }
+             const labels = history.map(entry => entry.date);
+             const weights = history.map(entry => entry.weight);
+             const reps = history.map(entry => entry.reps);
+             const sets = history.map(entry => entry.sets);
 
-        renderExerciseList(Array.from(filteredExercises).sort());
-    });
+             const data = {
+                 labels: labels,
+                 datasets: [
+                     {
+                         label: 'Weight (kg)',
+                         data: weights,
+                         borderColor: 'rgb(255, 99, 132)', // Red
+                         tension: 0.4
+                     },
+                     {
+                         label: 'Reps',
+                         data: reps,
+                         borderColor: 'rgb(75, 192, 192)', // Green
+                         tension: 0.4
+                     },
+                     {
+                         label: 'Sets',
+                         data: sets,
+                         borderColor: 'rgb(54, 162, 235)', // Blue
+                         tension: 0.4
+                     }
+                 ]
+             };
 
-    prevSessionButton.addEventListener('click', () => {
-        if (currentSessionIndex > 0) {
-            currentSessionIndex--;
-            updateSessionDisplay();
-        }
-    });
+             const config = {
+                 type: 'line',
+                 data: data,
+                 options: {
+                     responsive: true,
+                     maintainAspectRatio: false,
+                     scales: {
+                         x: {
+                             ticks: { color: 'rgb(253, 186, 116)' },
+                             grid: { color: 'rgba(107, 114, 128, 0.2)' }
+                         },
+                         y: {
+                             ticks: { color: 'rgb(253, 186, 116)' },
+                             grid: { color: 'rgba(107, 114, 128, 0.2)' }
+                         }
+                     },
+                     plugins: {
+                         legend: {
+                             labels: {
+                                 color: 'rgb(253, 186, 116)'
+                             }
+                         },
+                         title: {
+                             display: true,
+                             text: 'Progress Over Time',
+                             color: 'rgb(251, 146, 60)'
+                         }
+                     }
+                 }
+             };
+             progressChart = new Chart(progressChartCanvas, config);
+         }
 
-    nextSessionButton.addEventListener('click', () => {
-        const history = allFetchedExerciseData[currentSelectedExercise]?.history || [];
-        if (currentSessionIndex < history.length - 1) {
-            currentSessionIndex++;
-            updateSessionDisplay();
-        } else {
-            currentSessionIndex = -1;
-            updateSessionDisplay();
-        }
-    });
+         // --- Event Listeners ---
 
-    document.getElementById('weight-decrease').addEventListener('click', () => updateValue(weightInput, -1));
-    document.getElementById('weight-increase').addEventListener('click', () => updateValue(weightInput, 1));
-    document.getElementById('reps-decrease').addEventListener('click', () => updateValue(repsInput, -1));
-    document.getElementById('reps-increase').addEventListener('click', () => updateValue(repsInput, 1));
-    document.getElementById('sets-decrease').addEventListener('click', () => updateValue(setsInput, -1));
-    document.getElementById('sets-increase').addEventListener('click', () => updateValue(setsInput, 1));
+         searchInput.addEventListener('input', (e) => {
+             const query = e.target.value.toLowerCase().trim();
+            
+             if (query === '') {
+                 renderExerciseList(ALL_EXERCISES);
+                 return;
+             }
 
-    saveSessionButton.addEventListener('click', saveSession);
-    downloadDataButton.addEventListener('click', downloadData);
+             const matchedExercises = new Set();
+            
+             // 1. Check for partial matches in muscle groups
+             MUSCLE_GROUPS.forEach(group => {
+                 if (group.includes(query)) {
+                     EXERCISES_BY_GROUP[group].forEach(exercise => matchedExercises.add(exercise));
+                 }
+             });
+            
+             // 2. Check for partial matches in exercise names
+             ALL_EXERCISES.forEach(exercise => {
+                 if (exercise.toLowerCase().includes(query)) {
+                     matchedExercises.add(exercise);
+                 }
+             });
+            
+             // Convert Set to array and sort
+             const filteredExercises = Array.from(matchedExercises).sort();
+             renderExerciseList(filteredExercises);
+         });
 
-    backButton.addEventListener('click', () => {
-        currentSelectedExercise = null;
-        currentSessionIndex = -1;
-        searchInput.value = '';
-        renderExerciseList(ALL_EXERCISES);
-        showView('list');
-        if (progressChart) {
-            progressChart.destroy();
-            progressChart = null;
-        }
-    });
+         prevSessionButton.addEventListener('click', () => {
+             if (currentSessionIndex > 0) {
+                 currentSessionIndex--;
+                 updateSessionDisplay();
+             }
+         });
 
-    // --- Application Initialization on Window Load ---
+         nextSessionButton.addEventListener('click', () => {
+             const history = allFetchedExerciseData[currentSelectedExercise]?.history || [];
+             if (currentSessionIndex < history.length - 1) {
+                 currentSessionIndex++;
+                 updateSessionDisplay();
+             } else {
+                 currentSessionIndex = -1;
+                 updateSessionDisplay();
+             }
+         });
 
-    window.onload = function() {
-        loadingMessage.classList.remove('hidden');
-        loadAllExerciseDataFromLocalStorage();
-        renderExerciseList(ALL_EXERCISES);
-        loadingMessage.classList.add('hidden');
-        errorMessage.classList.add('hidden');
-        showView('list');
-    };
-</script>
+         document.getElementById('weight-decrease').addEventListener('click', () => updateValue(weightInput, -1));
+         document.getElementById('weight-increase').addEventListener('click', () => updateValue(weightInput, 1));
+         document.getElementById('reps-decrease').addEventListener('click', () => updateValue(repsInput, -1));
+         document.getElementById('reps-increase').addEventListener('click', () => updateValue(repsInput, 1));
+         document.getElementById('sets-decrease').addEventListener('click', () => updateValue(setsInput, -1));
+         document.getElementById('sets-increase').addEventListener('click', () => updateValue(setsInput, 1));
+
+         saveSessionButton.addEventListener('click', saveSession);
+         downloadDataButton.addEventListener('click', downloadData);
+
+         backButton.addEventListener('click', () => {
+             currentSelectedExercise = null;
+             currentSessionIndex = -1;
+             searchInput.value = '';
+             renderExerciseList(ALL_EXERCISES);
+             showView('list');
+             if (progressChart) {
+                 progressChart.destroy();
+                 progressChart = null;
+             }
+         });
+
+         // --- Application Initialization on Window Load ---
+
+         window.onload = function() {
+             loadingMessage.classList.remove('hidden');
+             loadAllExerciseDataFromLocalStorage();
+             renderExerciseList(ALL_EXERCISES);
+             loadingMessage.classList.add('hidden');
+             errorMessage.classList.add('hidden');
+             showView('list');
+         };
+     </script>
+ </body>
+ </html>
