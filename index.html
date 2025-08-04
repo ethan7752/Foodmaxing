@@ -39,7 +39,7 @@
             <input
                 type="text"
                 id="search-input"
-                placeholder="Search exercises..."
+                placeholder="Search exercises or muscle groups..."
                 class="w-full p-3 mb-4 bg-gray-800 text-orange-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 placeholder-gray-500"
             />
             <div id="exercises-container" class="max-h-96 overflow-y-auto custom-scrollbar space-y-2">
@@ -111,25 +111,44 @@
     </div>
 
     <script>
-        // Exercise List
-        const EXERCISES = [
-            "Barbell curl", "Dumbell curl", "Hammer curl", "Preacher curl", "Cable curl", "Machine curl",
-            "Bicep pulldown", "Tricep pulldown", "Tricep pushdown", "Overhead rope extension", "Skull crushers",
-            "Forearm cable curls", "Hammer rope curl", "Lat pulldown", "Lat row", "Machine row", "Machine pulldown",
-            "Bench press", "Incline bench press", "Incline smith machine bench press", "Lat pullover", "Pec deck",
-            "Dumbell chest press", "Machine press", "Machine incline press", "Cable fly's", "Dumbell shoulder press",
-            "Machine shoulder press", "Machine laterial raises", "Dumbell laterial raises", "Rear delt face pull",
-            "Reverse pec deck", "Cable laterial raises", "Ab crunch machine", "Ab crunch machine with legs",
-            "Dips", "Plate loaded chest press", "Plate loaded shoulder press", "Plate loaded incline chest press",
-            "Plate loaded rows", "Plate loaded pulldown", "Lat pulldown close grip", "V bar lat push down",
-            "Seated cable fly", "Reverse handle rope curls",
-            "Ez bar curl close grip", "Ez bar curl wide grip", "Cable ez bar curl close grip", "Cable ez bar curl wide grip",
-            "Katana pullouts", "Seated incline dumbell curls", "Smith machine shoulder press", "Push ups",
-            "Cable anchored tricep extension",
-            "Barbell squat", "Leg press", "Hack squat", "Dumbell lunges", "Bulgarian split squat", "Leg extension",
-            "Leg curl", "Seated calf raise", "Standing calf raise", "Romanian deadlift (RDL)", "Glute bridge",
-            "Hip thrust", "Adductor machine", "Abductor machine"
-        ].sort(); // Sorts the list alphabetically for easier searching
+        // Exercise List categorized by muscle group
+        const EXERCISES_BY_GROUP = {
+            'arms': [
+                "Barbell curl", "Dumbell curl", "Hammer curl", "Preacher curl", "Cable curl", "Machine curl",
+                "Bicep pulldown", "Tricep pulldown", "Tricep pushdown", "Overhead rope extension", "Skull crushers",
+                "Forearm cable curls", "Hammer rope curl", "Reverse handle rope curls",
+                "Ez bar curl close grip", "Ez bar curl wide grip", "Cable ez bar curl close grip", "Cable ez bar curl wide grip",
+                "Katana pullouts", "Seated incline dumbell curls", "Cable anchored tricep extension"
+            ],
+            'back': [
+                "Lat pulldown", "Lat row", "Machine row", "Machine pulldown", "Lat pullover",
+                "Plate loaded rows", "Plate loaded pulldown", "Lat pulldown close grip", "V bar lat push down",
+                "Rear delt face pull", "Reverse pec deck"
+            ],
+            'chest': [
+                "Bench press", "Incline bench press", "Incline smith machine bench press", "Pec deck",
+                "Dumbell chest press", "Machine press", "Machine incline press", "Cable fly's",
+                "Dips", "Plate loaded chest press", "Plate loaded incline chest press", "Seated cable fly",
+                "Push ups"
+            ],
+            'shoulders': [
+                "Dumbell shoulder press", "Machine shoulder press", "Machine laterial raises", "Dumbell laterial raises",
+                "Smith machine shoulder press", "Plate loaded shoulder press", "Cable laterial raises",
+                "Rear delt face pull", "Reverse pec deck"
+            ],
+            'legs': [
+                "Barbell squat", "Leg press", "Hack squat", "Dumbell lunges", "Bulgarian split squat", "Leg extension",
+                "Leg curl", "Seated calf raise", "Standing calf raise", "Romanian deadlift (RDL)", "Glute bridge",
+                "Hip thrust", "Adductor machine", "Abductor machine"
+            ],
+            'abs': [
+                "Ab crunch machine", "Ab crunch machine with legs"
+            ]
+        };
+
+        // Flatten the list of all exercises for general search and sorting
+        const ALL_EXERCISES = Object.values(EXERCISES_BY_GROUP).flat().sort();
+        const MUSCLE_GROUPS = Object.keys(EXERCISES_BY_GROUP);
 
         // --- DOM Element References ---
         const loadingMessage = document.getElementById('loading-message');
@@ -201,7 +220,7 @@
 
         /** Initializes all exercises with default values if no data exists. */
         function initializeDefaultExerciseData() {
-            EXERCISES.forEach(exerciseName => {
+            ALL_EXERCISES.forEach(exerciseName => {
                 if (!allFetchedExerciseData[exerciseName]) {
                     allFetchedExerciseData[exerciseName] = {
                         name: exerciseName,
@@ -293,7 +312,6 @@
             document.getElementById('sets-increase').disabled = false;
         }
 
-
         /** Increases or decreases a numerical input's value, preventing negative numbers. */
         function updateValue(inputElement, increment) {
             let currentValue = Number(inputElement.value);
@@ -356,7 +374,6 @@
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
         }
-
 
         /** Renders the line chart using Chart.js. */
         function renderChart(history) {
@@ -437,9 +454,15 @@
         // --- Event Listeners ---
 
         searchInput.addEventListener('input', (e) => {
-            const query = e.target.value.toLowerCase();
-            const filtered = EXERCISES.filter(exercise => exercise.toLowerCase().includes(query));
-            renderExerciseList(filtered);
+            const query = e.target.value.toLowerCase().trim();
+            let filteredExercises = [];
+
+            if (MUSCLE_GROUPS.includes(query)) {
+                filteredExercises = EXERCISES_BY_GROUP[query];
+            } else {
+                filteredExercises = ALL_EXERCISES.filter(exercise => exercise.toLowerCase().includes(query));
+            }
+            renderExerciseList(filteredExercises);
         });
 
         prevSessionButton.addEventListener('click', () => {
@@ -455,7 +478,6 @@
                 currentSessionIndex++;
                 updateSessionDisplay();
             } else {
-                // If we are at the last session, let's go to the "new session" view
                 currentSessionIndex = -1;
                 updateSessionDisplay();
             }
@@ -475,7 +497,7 @@
             currentSelectedExercise = null;
             currentSessionIndex = -1;
             searchInput.value = '';
-            renderExerciseList(EXERCISES);
+            renderExerciseList(ALL_EXERCISES);
             showView('list');
             if (progressChart) {
                 progressChart.destroy();
@@ -488,7 +510,7 @@
         window.onload = function() {
             loadingMessage.classList.remove('hidden');
             loadAllExerciseDataFromLocalStorage();
-            renderExerciseList(EXERCISES);
+            renderExerciseList(ALL_EXERCISES);
             loadingMessage.classList.add('hidden');
             errorMessage.classList.add('hidden');
             showView('list');
