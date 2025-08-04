@@ -54,7 +54,6 @@
 
     // Flatten the list of all exercises for general search and sorting
     let ALL_EXERCISES = Object.values(EXERCISES_BY_GROUP).flat();
-    // Add compound exercises to the main list if they're not already there
     Object.values(COMPOUND_EXERCISES).flat().forEach(exercise => {
         if (!ALL_EXERCISES.includes(exercise)) {
             ALL_EXERCISES.push(exercise);
@@ -95,7 +94,6 @@
 
     // --- Utility Functions ---
 
-    /** Shows either the list view or the detail view, hiding the other. */
     function showView(viewName) {
         exerciseListView.classList.add('hidden');
         exerciseDetailView.classList.add('hidden');
@@ -106,7 +104,6 @@
         }
     }
 
-    /** Saves all exercise data to localStorage. */
     function saveAllExerciseDataToLocalStorage() {
         try {
             localStorage.setItem('gymTrackerData', JSON.stringify(allFetchedExerciseData));
@@ -117,7 +114,6 @@
         }
     }
 
-    /** Loads all exercise data from localStorage. */
     function loadAllExerciseDataFromLocalStorage() {
         try {
             const storedData = localStorage.getItem('gymTrackerData');
@@ -133,7 +129,6 @@
         }
     }
 
-    /** Initializes all exercises with default values if no data exists. */
     function initializeDefaultExerciseData() {
         ALL_EXERCISES.forEach(exerciseName => {
             if (!allFetchedExerciseData[exerciseName]) {
@@ -146,9 +141,6 @@
         saveAllExerciseDataToLocalStorage();
     }
 
-    // --- UI Rendering Functions ---
-
-    /** Renders the list of exercises based on the provided array. */
     function renderExerciseList(filteredExercises) {
         exercisesContainer.innerHTML = '';
         if (filteredExercises.length === 0) {
@@ -167,7 +159,6 @@
         }
     }
 
-    /** Populates the detail view with data for the selected exercise. */
     function showExerciseDetail(exerciseName) {
         currentSelectedExercise = exerciseName;
         detailExerciseName.textContent = exerciseName;
@@ -180,7 +171,6 @@
         renderChart(history);
     }
 
-    /** Updates the input fields, date, and notes based on the current session index. */
     function updateSessionDisplay() {
         const exerciseData = allFetchedExerciseData[currentSelectedExercise];
         const history = exerciseData?.history || [];
@@ -190,7 +180,6 @@
         saveSessionButton.classList.add('bg-orange-500');
 
         if (currentSessionIndex === -1) {
-            // No sessions exist or viewing a new session
             weightInput.value = 0;
             repsInput.value = 0;
             setsInput.value = 0;
@@ -209,12 +198,10 @@
             notesInput.value = session.notes || "";
             sessionDateSpan.textContent = `Session on ${session.date}`;
 
-            // Disable/enable navigation buttons
             prevSessionButton.disabled = currentSessionIndex <= 0;
             nextSessionButton.disabled = currentSessionIndex >= history.length - 1;
         }
 
-        // Inputs are always editable now
         weightInput.disabled = false;
         repsInput.disabled = false;
         setsInput.disabled = false;
@@ -227,14 +214,12 @@
         document.getElementById('sets-increase').disabled = false;
     }
 
-    /** Increases or decreases a numerical input's value, preventing negative numbers. */
     function updateValue(inputElement, increment) {
         let currentValue = Number(inputElement.value);
         currentValue = Math.max(0, currentValue + increment);
         inputElement.value = currentValue;
     }
 
-    /** Saves the current exercise's data, either as a new session or updating an existing one. */
     function saveSession() {
         if (!currentSelectedExercise) {
             saveMessage.textContent = "Error: No exercise selected.";
@@ -256,11 +241,9 @@
         };
 
         if (currentSessionIndex === -1 || currentSessionIndex === exerciseData.history.length - 1) {
-            // If on the "New Session" view or the latest session, create a new entry
             exerciseData.history.push(newEntry);
-            currentSessionIndex = exerciseData.history.length - 1; // Move to the new session
+            currentSessionIndex = exerciseData.history.length - 1;
         } else {
-            // Otherwise, update the current session
             exerciseData.history[currentSessionIndex] = {
                 ...exerciseData.history[currentSessionIndex],
                 ...newEntry
@@ -290,7 +273,6 @@
         URL.revokeObjectURL(url);
     }
 
-    /** Renders the line chart using Chart.js. */
     function renderChart(history) {
         const chartContainer = document.getElementById('chart-container');
         if (progressChart) {
@@ -315,19 +297,19 @@
                 {
                     label: 'Weight (kg)',
                     data: weights,
-                    borderColor: 'rgb(255, 99, 132)', // Red
+                    borderColor: 'rgb(255, 99, 132)',
                     tension: 0.4
                 },
                 {
                     label: 'Reps',
                     data: reps,
-                    borderColor: 'rgb(75, 192, 192)', // Green
+                    borderColor: 'rgb(75, 192, 192)',
                     tension: 0.4
                 },
                 {
                     label: 'Sets',
                     data: sets,
-                    borderColor: 'rgb(54, 162, 235)', // Blue
+                    borderColor: 'rgb(54, 162, 235)',
                     tension: 0.4
                 }
             ]
