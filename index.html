@@ -45,6 +45,9 @@
             <div id="exercises-container" class="max-h-96 overflow-y-auto custom-scrollbar space-y-2">
                 </div>
             <p id="no-exercises-found" class="text-center text-gray-500 text-lg py-4 hidden">No exercises found.</p>
+            <button id="download-data-button" class="w-full bg-gray-800 hover:bg-gray-700 text-orange-300 font-bold py-3 px-4 rounded-lg shadow-lg transition-colors duration-200 mt-4 focus:outline-none focus:ring-2 focus:ring-gray-500">
+                Download All Data
+            </button>
         </div>
 
         <div id="exercise-detail-view" class="hidden">
@@ -87,8 +90,13 @@
                 </div>
             </div>
 
-            <button id="save-new-session-button" class="w-full bg-orange-600 hover:bg-orange-700 text-black font-bold py-3 px-4 rounded-lg shadow-lg transition-colors duration-200 mb-4 focus:outline-none focus:ring-2 focus:ring-orange-500">
-                Save New Session
+            <div class="flex flex-col items-start mb-4 bg-gray-900 border border-gray-700 p-4 rounded-lg shadow-inner">
+                <label for="notes-input" class="text-lg font-medium text-orange-300 mb-2">Notes:</label>
+                <textarea id="notes-input" class="w-full h-24 p-2 bg-gray-800 text-orange-300 rounded-md text-base focus:outline-none focus:ring-2 focus:ring-orange-500 placeholder-gray-500" placeholder="Add notes for this session..."></textarea>
+            </div>
+
+            <button id="save-session-button" class="w-full bg-orange-600 hover:bg-orange-700 text-black font-bold py-3 px-4 rounded-lg shadow-lg transition-colors duration-200 mb-4 focus:outline-none focus:ring-2 focus:ring-orange-500">
+                Save
             </button>
             <p id="save-message" class="text-center text-sm mb-4"></p>
 
@@ -106,16 +114,22 @@
         // Exercise List
         const EXERCISES = [
             "Barbell curl", "Dumbell curl", "Hammer curl", "Preacher curl", "Cable curl", "Machine curl",
-            "Bicep pulldown", "Tricep pulldown", "Tricep pushdown", "Overhead rope extention", "Skull crushers",
+            "Bicep pulldown", "Tricep pulldown", "Tricep pushdown", "Overhead rope extension", "Skull crushers",
             "Forearm cable curls", "Hammer rope curl", "Lat pulldown", "Lat row", "Machine row", "Machine pulldown",
             "Bench press", "Incline bench press", "Incline smith machine bench press", "Lat pullover", "Pec deck",
             "Dumbell chest press", "Machine press", "Machine incline press", "Cable fly's", "Dumbell shoulder press",
             "Machine shoulder press", "Machine laterial raises", "Dumbell laterial raises", "Rear delt face pull",
-            "Reverse pec deck", "Cable laterial raises", "Ab crunch machine", "Ab crunch machine with legs.",
-            "Dips", "Plate loaded chest press", "Plate loaded shoulder press", "Plate loaded incline chest press", 
-            "Plate loaded rows", "Plate loaded pulldown", "Lat pulldown close grip", "V bar lat push down", "Seated cable fly", 
-            "Reverse handle rope curls"
-        ];
+            "Reverse pec deck", "Cable laterial raises", "Ab crunch machine", "Ab crunch machine with legs",
+            "Dips", "Plate loaded chest press", "Plate loaded shoulder press", "Plate loaded incline chest press",
+            "Plate loaded rows", "Plate loaded pulldown", "Lat pulldown close grip", "V bar lat push down",
+            "Seated cable fly", "Reverse handle rope curls",
+            "Ez bar curl close grip", "Ez bar curl wide grip", "Cable ez bar curl close grip", "Cable ez bar curl wide grip",
+            "Katana pullouts", "Seated incline dumbell curls", "Smith machine shoulder press", "Push ups",
+            "Cable anchored tricep extension",
+            "Barbell squat", "Leg press", "Hack squat", "Dumbell lunges", "Bulgarian split squat", "Leg extension",
+            "Leg curl", "Seated calf raise", "Standing calf raise", "Romanian deadlift (RDL)", "Glute bridge",
+            "Hip thrust", "Adductor machine", "Abductor machine"
+        ].sort(); // Sorts the list alphabetically for easier searching
 
         // --- DOM Element References ---
         const loadingMessage = document.getElementById('loading-message');
@@ -132,9 +146,11 @@
         const weightInput = document.getElementById('weight-input');
         const repsInput = document.getElementById('reps-input');
         const setsInput = document.getElementById('sets-input');
-        const saveNewSessionButton = document.getElementById('save-new-session-button');
+        const notesInput = document.getElementById('notes-input');
+        const saveSessionButton = document.getElementById('save-session-button');
         const saveMessage = document.getElementById('save-message');
         const backButton = document.getElementById('back-button');
+        const downloadDataButton = document.getElementById('download-data-button');
         const progressChartCanvas = document.getElementById('progressChart');
         let progressChart = null;
 
@@ -173,9 +189,8 @@
                 const storedData = localStorage.getItem('gymTrackerData');
                 if (storedData) {
                     allFetchedExerciseData = JSON.parse(storedData);
-                } else {
-                    initializeDefaultExerciseData();
                 }
+                initializeDefaultExerciseData();
             } catch (e) {
                 console.error("Error loading from localStorage:", e);
                 errorMessage.textContent = "Error loading data. Data might be corrupted.";
@@ -231,48 +246,53 @@
             renderChart(history);
         }
 
-        /** Updates the input fields and date based on the current session index. */
+        /** Updates the input fields, date, and notes based on the current session index. */
         function updateSessionDisplay() {
             const exerciseData = allFetchedExerciseData[currentSelectedExercise];
-            if (!exerciseData || !exerciseData.history || exerciseData.history.length === 0) {
-                // No sessions exist
+            const history = exerciseData?.history || [];
+            
+            saveSessionButton.textContent = "Save Changes";
+            saveSessionButton.classList.remove('bg-orange-600');
+            saveSessionButton.classList.add('bg-orange-500');
+
+            if (currentSessionIndex === -1) {
+                // No sessions exist or viewing a new session
                 weightInput.value = 0;
                 repsInput.value = 0;
                 setsInput.value = 0;
-                sessionDateSpan.textContent = 'No sessions logged';
+                notesInput.value = "";
+                sessionDateSpan.textContent = 'New Session';
                 prevSessionButton.disabled = true;
                 nextSessionButton.disabled = true;
-                saveNewSessionButton.classList.remove('hidden');
-                return;
+                saveSessionButton.textContent = "Save New Session";
+                saveSessionButton.classList.remove('bg-orange-500');
+                saveSessionButton.classList.add('bg-orange-600');
+            } else {
+                const session = history[currentSessionIndex];
+                weightInput.value = session.weight;
+                repsInput.value = session.reps;
+                setsInput.value = session.sets;
+                notesInput.value = session.notes || "";
+                sessionDateSpan.textContent = `Session on ${session.date}`;
+
+                // Disable/enable navigation buttons
+                prevSessionButton.disabled = currentSessionIndex <= 0;
+                nextSessionButton.disabled = currentSessionIndex >= history.length - 1;
             }
 
-            const isLatestSession = currentSessionIndex === exerciseData.history.length - 1;
-            const session = exerciseData.history[currentSessionIndex];
-
-            // Update inputs and date
-            weightInput.value = session.weight;
-            repsInput.value = session.reps;
-            setsInput.value = session.sets;
-            sessionDateSpan.textContent = `Session on ${session.date}`;
-
-            // Disable/enable navigation buttons
-            prevSessionButton.disabled = currentSessionIndex <= 0;
-            nextSessionButton.disabled = isLatestSession;
-            
-            // Show "Save New Session" only on the most recent entry
-            saveNewSessionButton.classList.toggle('hidden', !isLatestSession);
-
-            // Make inputs editable only for the most recent session
-            weightInput.disabled = !isLatestSession;
-            repsInput.disabled = !isLatestSession;
-            setsInput.disabled = !isLatestSession;
-            document.getElementById('weight-decrease').disabled = !isLatestSession;
-            document.getElementById('weight-increase').disabled = !isLatestSession;
-            document.getElementById('reps-decrease').disabled = !isLatestSession;
-            document.getElementById('reps-increase').disabled = !isLatestSession;
-            document.getElementById('sets-decrease').disabled = !isLatestSession;
-            document.getElementById('sets-increase').disabled = !isLatestSession;
+            // Inputs are always editable now
+            weightInput.disabled = false;
+            repsInput.disabled = false;
+            setsInput.disabled = false;
+            notesInput.disabled = false;
+            document.getElementById('weight-decrease').disabled = false;
+            document.getElementById('weight-increase').disabled = false;
+            document.getElementById('reps-decrease').disabled = false;
+            document.getElementById('reps-increase').disabled = false;
+            document.getElementById('sets-decrease').disabled = false;
+            document.getElementById('sets-increase').disabled = false;
         }
+
 
         /** Increases or decreases a numerical input's value, preventing negative numbers. */
         function updateValue(inputElement, increment) {
@@ -281,30 +301,40 @@
             inputElement.value = currentValue;
         }
 
-        /** Saves the current exercise's data to the history and updates last session. */
-        function saveNewSession() {
+        /** Saves the current exercise's data, either as a new session or updating an existing one. */
+        function saveSession() {
             if (!currentSelectedExercise) {
                 saveMessage.textContent = "Error: No exercise selected.";
                 saveMessage.className = 'text-center text-sm text-red-400 mb-4';
                 return;
             }
 
-            const newEntry = {
-                date: new Date().toLocaleDateString(),
-                weight: Number(weightInput.value),
-                reps: Number(repsInput.value),
-                sets: Number(setsInput.value)
-            };
-
             const exerciseData = allFetchedExerciseData[currentSelectedExercise];
             if (!exerciseData.history) {
                 exerciseData.history = [];
             }
-            exerciseData.history.push(newEntry);
-            saveAllExerciseDataToLocalStorage();
 
-            // Reset to the latest session to show the newly saved one
-            currentSessionIndex = exerciseData.history.length - 1;
+            const newEntry = {
+                date: new Date().toLocaleDateString(),
+                weight: Number(weightInput.value),
+                reps: Number(repsInput.value),
+                sets: Number(setsInput.value),
+                notes: notesInput.value
+            };
+
+            if (currentSessionIndex === -1 || currentSessionIndex === exerciseData.history.length - 1) {
+                // If on the "New Session" view or the latest session, create a new entry
+                exerciseData.history.push(newEntry);
+                currentSessionIndex = exerciseData.history.length - 1; // Move to the new session
+            } else {
+                // Otherwise, update the current session
+                exerciseData.history[currentSessionIndex] = {
+                    ...exerciseData.history[currentSessionIndex],
+                    ...newEntry
+                };
+            }
+            
+            saveAllExerciseDataToLocalStorage();
             updateSessionDisplay();
 
             saveMessage.textContent = "Session saved successfully!";
@@ -313,6 +343,20 @@
 
             renderChart(exerciseData.history);
         }
+        
+        function downloadData() {
+            const dataStr = JSON.stringify(allFetchedExerciseData, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'gym_tracker_data.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
 
         /** Renders the line chart using Chart.js. */
         function renderChart(history) {
@@ -410,6 +454,10 @@
             if (currentSessionIndex < history.length - 1) {
                 currentSessionIndex++;
                 updateSessionDisplay();
+            } else {
+                // If we are at the last session, let's go to the "new session" view
+                currentSessionIndex = -1;
+                updateSessionDisplay();
             }
         });
 
@@ -420,7 +468,8 @@
         document.getElementById('sets-decrease').addEventListener('click', () => updateValue(setsInput, -1));
         document.getElementById('sets-increase').addEventListener('click', () => updateValue(setsInput, 1));
 
-        saveNewSessionButton.addEventListener('click', saveNewSession);
+        saveSessionButton.addEventListener('click', saveSession);
+        downloadDataButton.addEventListener('click', downloadData);
 
         backButton.addEventListener('click', () => {
             currentSelectedExercise = null;
